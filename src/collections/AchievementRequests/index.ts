@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers'
 import { scopeField, userField } from '../fields'
@@ -25,7 +25,7 @@ export function buildAchievementRequestsCollection(): CollectionConfig {
         relationTo: collectionOf('achievements'),
         required: true,
         index: true,
-      },
+      } as Field,
       {
         name: 'status',
         type: 'select',

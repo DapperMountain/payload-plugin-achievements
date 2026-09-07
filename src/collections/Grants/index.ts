@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers'
 import { scopeField, userField } from '../fields'
@@ -54,7 +54,7 @@ export function buildGrantsCollection(): CollectionConfig {
             },
           },
         ],
-      },
+      } as Field,
       {
         name: 'note',
         type: 'textarea',

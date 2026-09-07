@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import { catalogFilterOptions } from '../fields/catalogFilter'
 import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers'
@@ -92,7 +92,7 @@ export function buildLogsCollection(): CollectionConfig {
             },
           },
         ],
-      },
+      } as Field,
       {
         type: 'collapsible',
         label: 'Details',

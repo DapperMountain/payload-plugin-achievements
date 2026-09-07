@@ -12,5 +12,5 @@ export function userField(): Field {
     relationTo: users,
     required: true,
     index: true,
-  }
+  } as Field
 }
