@@ -1,0 +1,1 @@
+{"version":3,"file":"ActorField.d.ts","sourceRoot":"","sources":["../../src/admin/ActorField.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,SAAS,CAAA;AAE3D,OAAO,KAAoB,MAAM,OAAO,CAAA;AAIxC,KAAK,eAAe,GAAG,4BAA4B,GAAG;IACpD,cAAc,EAAE,MAAM,CAAA;CACvB,CAAA;AAED,2FAA2F;AAC3F,wBAAgB,UAAU,CAAC,KAAK,EAAE,eAAe,4BAchD"}

@@ -1,0 +1,1 @@
+{"version":3,"file":"useEventTypeFlags.d.ts","sourceRoot":"","sources":["../../src/admin/useEventTypeFlags.ts"],"names":[],"mappings":"AAKA,MAAM,MAAM,cAAc,GAAG;IAC3B,aAAa,EAAE,OAAO,CAAA;IACtB,cAAc,EAAE,OAAO,CAAA;CACxB,CAAA;AA2BD,iGAAiG;AACjG,wBAAgB,iBAAiB,CAAC,cAAc,EAAE,MAAM,GAAG,cAAc,CAyCxE"}

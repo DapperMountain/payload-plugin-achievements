@@ -1,0 +1,1 @@
+{"version":3,"file":"preventCatalogDelete.d.ts","sourceRoot":"","sources":["../../../src/collections/hooks/preventCatalogDelete.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,0BAA0B,EAAE,MAAM,SAAS,CAAA;AA6CzD,wBAAgB,oBAAoB,CAAC,IAAI,EAAE;IACzC,IAAI,EAAE,WAAW,GAAG,QAAQ,CAAA;CAC7B,GAAG,0BAA0B,CAqD7B"}

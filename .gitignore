@@ -1,10 +1,10 @@
 node_modules/
-dist/
+# Track dist/ while consumers install from GitHub (Bun may block prepare).
+# After npm publish is the primary install path, gitignore dist/ again and rely on prepublishOnly.
 *.tsbuildinfo
 .DS_Store
 *.log
 .env
 .env.*
 !.env.example
-dist/
 .history/

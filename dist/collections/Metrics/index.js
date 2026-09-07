@@ -1,0 +1,35 @@
+import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers';
+import { localizedNameField, scopeField } from '../fields';
+import { access } from './access';
+import { hooks } from './hooks';
+export function buildMetricsCollection() {
+    return {
+        slug: slugOf('metrics'),
+        access: { ...access },
+        hooks,
+        admin: collectionAdmin({
+            useAsTitle: 'name',
+            defaultColumns: columnsWithOptionalScope(['name', 'slug', 'system', 'scope']),
+            description: 'Scores and totals you track for someone — like points or a streak.',
+        }),
+        fields: [
+            ...optionalFields(scopeField()),
+            {
+                type: 'row',
+                fields: [
+                    localizedNameField({ width: '50%' }),
+                    { name: 'slug', type: 'text', required: true, unique: true, index: true, admin: { width: '50%' } },
+                ],
+            },
+            {
+                name: 'system',
+                type: 'checkbox',
+                defaultValue: false,
+                admin: {
+                    readOnly: true,
+                    description: 'Built-in metric. It can’t be deleted.',
+                },
+            },
+        ],
+    };
+}

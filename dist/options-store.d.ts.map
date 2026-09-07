@@ -1,0 +1,1 @@
+{"version":3,"file":"options-store.d.ts","sourceRoot":"","sources":["../src/options-store.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,wBAAwB,EAAE,MAAM,SAAS,CAAA;AACvD,OAAO,EAAkB,KAAK,0BAA0B,EAAE,MAAM,YAAY,CAAA;AAI5E,wBAAgB,qBAAqB,CAAC,OAAO,EAAE,wBAAwB,GAAG,IAAI,CAE7E;AAED,+DAA+D;AAC/D,wBAAgB,uBAAuB,IAAI,IAAI,CAE9C;AAED,wBAAgB,qBAAqB,IAAI,0BAA0B,CAKlE"}
