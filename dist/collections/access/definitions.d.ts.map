@@ -1,0 +1,1 @@
+{"version":3,"file":"definitions.d.ts","sourceRoot":"","sources":["../../../src/collections/access/definitions.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,gBAAgB,EAAE,MAAM,SAAS,CAAA;AAE/C,OAAO,KAAK,EAAE,wBAAwB,EAAE,MAAM,aAAa,CAAA;AAI3D,sEAAsE;AACtE,wBAAgB,gBAAgB,CAC9B,aAAa,EAAE,wBAAwB,GACtC,WAAW,CAAC,gBAAgB,CAAC,QAAQ,CAAC,CAAC,CAOzC"}

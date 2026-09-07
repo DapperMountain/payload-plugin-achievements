@@ -1,0 +1,44 @@
+import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor';
+import { relationId } from '../../../services/achievement/relationId';
+export const validateActor = async (value, { data, req }) => {
+    if (!req?.payload)
+        return true;
+    const typeId = relationId(data?.type);
+    if (!typeId)
+        return true;
+    if (!(await eventTypeRequiresActor({ payload: req.payload, req, typeIdOrDoc: typeId }))) {
+        return true;
+    }
+    if (!relationId(value)) {
+        return 'This log type needs an actor (who caused it).';
+    }
+    return true;
+};
+export const validateMetric = async (value, { data, req }) => {
+    if (!req?.payload)
+        return true;
+    const typeId = relationId(data?.type);
+    if (!typeId)
+        return true;
+    if (!(await eventTypeRequiresMetric({ payload: req.payload, req, typeIdOrDoc: typeId }))) {
+        return true;
+    }
+    if (!relationId(value)) {
+        return 'This log type needs a metric.';
+    }
+    return true;
+};
+export const validateChange = async (value, { data, req }) => {
+    if (!req?.payload)
+        return true;
+    const typeId = relationId(data?.type);
+    if (!typeId)
+        return true;
+    if (!(await eventTypeRequiresMetric({ payload: req.payload, req, typeIdOrDoc: typeId }))) {
+        return true;
+    }
+    if (typeof value !== 'number' || Number.isNaN(value)) {
+        return 'This log type needs a change amount.';
+    }
+    return true;
+};

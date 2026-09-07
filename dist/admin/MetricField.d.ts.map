@@ -1,0 +1,1 @@
+{"version":3,"file":"MetricField.d.ts","sourceRoot":"","sources":["../../src/admin/MetricField.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,SAAS,CAAA;AAE3D,OAAO,KAAoB,MAAM,OAAO,CAAA;AAIxC,KAAK,gBAAgB,GAAG,4BAA4B,GAAG;IACrD,cAAc,EAAE,MAAM,CAAA;CACvB,CAAA;AAED,sEAAsE;AACtE,wBAAgB,WAAW,CAAC,KAAK,EAAE,gBAAgB,4BAelD"}
