@@ -1,0 +1,83 @@
+{
+  "name": "@dappermountain/payload-plugin-achievements",
+  "version": "0.1.0",
+  "description": "A robust, Admin-configured achievements engine for Payload: composable unlock rules, derived rank progress, request/review grants, metrics, and scoped multi-tenant support.",
+  "license": "MIT",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DapperMountain/payload-plugin-achievements.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DapperMountain/payload-plugin-achievements/issues"
+  },
+  "homepage": "https://github.com/DapperMountain/payload-plugin-achievements#readme",
+  "author": "Dapper Mountain",
+  "keywords": [
+    "payload",
+    "payload-plugin",
+    "payloadcms",
+    "achievements",
+    "gamification",
+    "tiers",
+    "grants"
+  ],
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./client": "./src/exports/client.ts"
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./types": {
+        "types": "./dist/types.d.ts",
+        "import": "./dist/types.js",
+        "default": "./dist/types.js"
+      },
+      "./client": {
+        "types": "./dist/exports/client.d.ts",
+        "import": "./dist/exports/client.js",
+        "default": "./dist/exports/client.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "tsc --noEmit",
+    "test": "bun test src",
+    "prepublishOnly": "bun run build",
+    "clean": "rm -rf dist *.tsbuildinfo",
+    "format": "prettier --write \"src/**/*.{ts,tsx,md}\" \"*.md\""
+  },
+  "peerDependencies": {
+    "@payloadcms/ui": "^3.88.0",
+    "payload": "^3.88.0",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@payloadcms/ui": "3.88.0",
+    "@types/react": "^19.0.0",
+    "payload": "3.88.0",
+    "react": "19.2.4",
+    "typescript": "5.9.2",
+    "prettier": "^3.6.2",
+    "@types/bun": "1.4.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
