@@ -20,7 +20,7 @@ export async function reviewAchievementRequest(args: {
   if (!canReview) throw new APIError('Forbidden', 403)
 
   const existing = (await args.req.payload.findByID({
-    collection: collectionOf('achievementRequests') as 'achievement-requests',
+    collection: collectionOf('achievementRequests'),
     id: args.requestId,
     depth: 0,
     overrideAccess: true,
@@ -34,7 +34,7 @@ export async function reviewAchievementRequest(args: {
   }
 
   return args.req.payload.update({
-    collection: collectionOf('achievementRequests') as 'achievement-requests',
+    collection: collectionOf('achievementRequests'),
     id: args.requestId,
     data: {
       status: args.decision,

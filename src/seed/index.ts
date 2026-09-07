@@ -95,7 +95,7 @@ async function writeLocalizedFields(
         ...(name != null ? { name } : {}),
         ...(description != null ? { description } : {}),
       },
-      locale: locale as 'en',
+      locale: locale as never,
       overrideAccess: true,
     })
   }
@@ -107,7 +107,7 @@ async function findIdBySlug(
   slug: string,
 ): Promise<string | null> {
   const result = await payload.find({
-    collection: collectionOf(key) as 'tiers',
+    collection: collectionOf(key),
     depth: 0,
     limit: 1,
     overrideAccess: true,
@@ -140,7 +140,7 @@ async function upsertCatalog(
   let id = existing
   if (existing) {
     await payload.update({
-      collection: collectionOf(key) as 'tiers',
+      collection: collectionOf(key),
       id: existing,
       data,
       locale: 'en',
@@ -148,7 +148,7 @@ async function upsertCatalog(
     })
   } else {
     const created = await payload.create({
-      collection: collectionOf(key) as 'tiers',
+      collection: collectionOf(key),
       data,
       locale: 'en',
       overrideAccess: true,
@@ -160,10 +160,10 @@ async function upsertCatalog(
     const extraLocales = Object.entries(nameParts).filter(([locale]) => locale !== 'en')
     for (const [locale, name] of extraLocales) {
       await payload.update({
-        collection: collectionOf(key) as 'tiers',
+        collection: collectionOf(key),
         id,
         data: { name },
-        locale: locale as 'en',
+        locale: locale as never,
         overrideAccess: true,
       })
     }
@@ -280,7 +280,7 @@ async function renameEngineEventTypeSlug(
 
   const nameParts = localizedParts(name)
   await payload.update({
-    collection: collectionOf('eventTypes') as 'tiers',
+    collection: collectionOf('eventTypes'),
     id: fromId,
     data: { slug: toSlug, name: nameParts.en ?? toSlug, system: true },
     locale: 'en',
@@ -289,10 +289,10 @@ async function renameEngineEventTypeSlug(
   for (const [locale, text] of Object.entries(nameParts)) {
     if (locale === 'en' || !text) continue
     await payload.update({
-      collection: collectionOf('eventTypes') as 'tiers',
+      collection: collectionOf('eventTypes'),
       id: fromId,
       data: { name: text },
-      locale: locale as 'en',
+      locale: locale as never,
       overrideAccess: true,
     })
   }
@@ -311,7 +311,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
 
   for (const tier of input.tiers ?? []) {
     const existing = await payload.find({
-      collection: collectionOf('tiers') as 'tiers',
+      collection: collectionOf('tiers'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -338,7 +338,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
       })
     } else {
       const created = await payload.create({
-        collection: collectionOf('tiers') as 'tiers',
+        collection: collectionOf('tiers'),
         data: {
           ...baseData,
           name: nameParts.en ?? tier.slug,
@@ -360,7 +360,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
 
   for (const achievement of input.achievements ?? []) {
     const existing = await payload.find({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -389,7 +389,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
       })
     } else {
       const created = await payload.create({
-        collection: collectionOf('achievements') as 'achievements',
+        collection: collectionOf('achievements'),
         data: {
           ...baseData,
           name: nameParts.en ?? achievement.slug,
@@ -415,7 +415,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
     if (!hasRules) continue
 
     const existing = await payload.find({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -425,7 +425,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
     if (!doc) continue
 
     await payload.update({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       id: doc.id,
       data: {
         completionRules: await resolveRuleGroup(payload, achievement.completionRules),
@@ -443,7 +443,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
     if (!hasRules) continue
 
     const existing = await payload.find({
-      collection: collectionOf('tiers') as 'tiers',
+      collection: collectionOf('tiers'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -453,7 +453,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
     if (!doc) continue
 
     await payload.update({
-      collection: collectionOf('tiers') as 'tiers',
+      collection: collectionOf('tiers'),
       id: doc.id,
       data: {
         unlockRules: await resolveRuleGroup(payload, tier.unlockRules),
@@ -467,7 +467,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
     if (!id) continue
     try {
       await payload.delete({
-        collection: collectionOf('achievements') as 'achievements',
+        collection: collectionOf('achievements'),
         id,
         overrideAccess: true,
       })

@@ -43,7 +43,7 @@ export async function getEventTypeFlags(args: {
   if (!typeId) return { requiresActor: false, requiresMetric: false }
 
   const found = (await args.payload.findByID({
-    collection: collectionOf('eventTypes') as 'tiers',
+    collection: collectionOf('eventTypes'),
     id: typeId,
     depth: 0,
     overrideAccess: true,

@@ -22,7 +22,7 @@ export function buildAchievementRequestsCollection(): CollectionConfig {
       {
         name: 'achievement',
         type: 'relationship',
-        relationTo: collectionOf('achievements') as 'achievements',
+        relationTo: collectionOf('achievements'),
         required: true,
         index: true,
       },

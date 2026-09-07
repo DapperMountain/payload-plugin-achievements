@@ -63,7 +63,7 @@ export function buildEventTypesCollection(): CollectionConfig {
       {
         name: 'logs',
         type: 'join',
-        collection: collectionOf('logs') as 'users',
+        collection: collectionOf('logs'),
         on: 'type',
         admin: { allowCreate: false, defaultColumns: ['user', 'createdAt'] },
       },

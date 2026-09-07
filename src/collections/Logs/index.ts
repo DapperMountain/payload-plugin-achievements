@@ -36,7 +36,7 @@ export function buildLogsCollection(): CollectionConfig {
           {
             name: 'type',
             type: 'relationship',
-            relationTo: collectionOf('eventTypes') as 'tiers',
+            relationTo: collectionOf('eventTypes'),
             required: true,
             index: true,
             filterOptions: catalogFilterOptions,
@@ -45,7 +45,7 @@ export function buildLogsCollection(): CollectionConfig {
           {
             name: 'actor',
             type: 'relationship',
-            relationTo: users as 'users',
+            relationTo: users,
             index: true,
             validate: validateActor,
             admin: {
@@ -62,7 +62,7 @@ export function buildLogsCollection(): CollectionConfig {
           {
             name: 'metric',
             type: 'relationship',
-            relationTo: collectionOf('metrics') as 'tiers',
+            relationTo: collectionOf('metrics'),
             filterOptions: catalogFilterOptions,
             validate: validateMetric,
             admin: {

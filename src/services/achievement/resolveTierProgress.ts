@@ -53,14 +53,14 @@ export async function resolveTierProgress(args: {
     : undefined
 
   const result = await args.payload.find({
-    collection: collectionOf('tiers') as 'tiers',
+    collection: collectionOf('tiers'),
     depth: 0,
     limit: 100,
     pagination: false,
     overrideAccess: true,
     req: args.req,
     sort: 'rank',
-    ...(locale ? { locale } : {}),
+    ...(locale ? { locale: locale as never } : {}),
     ...(where ? { where } : {}),
   })
 

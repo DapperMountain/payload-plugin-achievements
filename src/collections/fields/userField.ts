@@ -9,7 +9,7 @@ export function userField(): Field {
   return {
     name: 'user',
     type: 'relationship',
-    relationTo: users as 'users',
+    relationTo: users,
     required: true,
     index: true,
   }

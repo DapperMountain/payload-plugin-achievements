@@ -58,11 +58,11 @@ export function buildTiersCollection(): CollectionConfig {
                 'Optional icon key your app maps (e.g. Lucide names: sparkles, shield, crown, gem). Used on the rank ladder when no image is set.',
             },
           },
-          ...(mediaCollection
+          ...((mediaCollection
             ? [
                 {
                   name: 'image',
-                  type: 'upload' as const,
+                  type: 'upload',
                   relationTo: mediaCollection,
                   admin: {
                     width: '50%',
@@ -70,7 +70,7 @@ export function buildTiersCollection(): CollectionConfig {
                   },
                 },
               ]
-            : []),
+            : []) as import('payload').Field[]),
         ],
       },
       {

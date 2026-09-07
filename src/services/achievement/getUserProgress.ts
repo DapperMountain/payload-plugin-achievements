@@ -104,7 +104,7 @@ async function resolveTiersForMe(args: {
   }
 
   const grants = await args.payload.find({
-    collection: collectionOf('grants') as 'achievement-grants',
+    collection: collectionOf('grants'),
     depth: 0,
     limit: 100,
     pagination: false,
@@ -166,7 +166,7 @@ export async function getUserProgress(args: {
 
   const [grants, requests, tiers] = await Promise.all([
     args.payload.find({
-      collection: collectionOf('grants') as 'achievement-grants',
+      collection: collectionOf('grants'),
       depth: 1,
       limit,
       page,
@@ -174,10 +174,10 @@ export async function getUserProgress(args: {
       req: args.req,
       sort: '-completedAt',
       where,
-      ...(locale ? { locale } : {}),
+      ...(locale ? { locale: locale as never } : {}),
     }),
     args.payload.find({
-      collection: collectionOf('achievementRequests') as 'achievement-requests',
+      collection: collectionOf('achievementRequests'),
       depth: 1,
       limit: requestsLimit,
       page: 1,
@@ -185,7 +185,7 @@ export async function getUserProgress(args: {
       req: args.req,
       sort: '-createdAt',
       where,
-      ...(locale ? { locale } : {}),
+      ...(locale ? { locale: locale as never } : {}),
     }),
     resolveTiersForMe({
       payload: args.payload,
@@ -197,8 +197,8 @@ export async function getUserProgress(args: {
   ])
 
   return {
-    ...mapPaginatedDocs(grants, (doc) => leanGrant(doc as Record<string, unknown>)),
+    ...mapPaginatedDocs(grants, (doc) => leanGrant(doc as unknown as Record<string, unknown>)),
     tiers,
-    requests: requests.docs.map((doc) => leanRequest(doc as Record<string, unknown>)),
+    requests: requests.docs.map((doc) => leanRequest(doc as unknown as Record<string, unknown>)),
   }
 }
