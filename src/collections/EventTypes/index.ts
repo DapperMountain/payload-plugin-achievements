@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers'
 import { localizedNameField, scopeField } from '../fields'
@@ -66,7 +66,7 @@ export function buildEventTypesCollection(): CollectionConfig {
         collection: collectionOf('logs'),
         on: 'type',
         admin: { allowCreate: false, defaultColumns: ['user', 'createdAt'] },
-      },
+      } as Field,
     ],
   }
 }

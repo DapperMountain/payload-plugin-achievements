@@ -16,11 +16,11 @@ export function scopeField(): Field | null {
   return {
     name,
     type: 'relationship',
-    relationTo: relationTo,
+    relationTo,
     required: false,
     index: true,
     admin: {
       description: 'Optional tenant or workspace this belongs to.',
     },
-  }
+  } as Field
 }

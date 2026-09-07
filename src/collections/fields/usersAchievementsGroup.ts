@@ -37,5 +37,5 @@ export function usersAchievementsGroup(options: ResolvedAchievementOptions): Fie
         },
       },
     ],
-  }
+  } as Field
 }
