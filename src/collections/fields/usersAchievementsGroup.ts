@@ -19,7 +19,7 @@ export function usersAchievementsGroup(options: ResolvedAchievementOptions): Fie
       {
         name: 'grants',
         type: 'join',
-        collection: slugs.grants as 'users',
+        collection: slugs.grants,
         on: 'user',
         admin: {
           allowCreate: false,
@@ -29,7 +29,7 @@ export function usersAchievementsGroup(options: ResolvedAchievementOptions): Fie
       {
         name: 'requests',
         type: 'join',
-        collection: slugs.achievementRequests as 'users',
+        collection: slugs.achievementRequests,
         on: 'user',
         admin: {
           allowCreate: false,

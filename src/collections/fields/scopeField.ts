@@ -16,7 +16,7 @@ export function scopeField(): Field | null {
   return {
     name,
     type: 'relationship',
-    relationTo: relationTo as 'users',
+    relationTo: relationTo,
     required: false,
     index: true,
     admin: {

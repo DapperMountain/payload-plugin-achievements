@@ -38,7 +38,7 @@ async function scopeIdForAccess(
 
   try {
     const doc = (await args.req.payload.findByID({
-      collection: collectionOf(collectionKey) as 'tiers',
+      collection: collectionOf(collectionKey),
       id: String(args.id),
       depth: 0,
       overrideAccess: true,

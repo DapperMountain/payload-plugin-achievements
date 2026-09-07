@@ -27,7 +27,7 @@ export const ensureUniqueGrant: CollectionBeforeValidateHook = async ({
   else clauses.push({ scope: { exists: false } })
 
   const existing = await req.payload.find({
-    collection: collectionOf('grants') as 'achievement-grants',
+    collection: collectionOf('grants'),
     depth: 0,
     limit: 1,
     overrideAccess: true,

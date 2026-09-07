@@ -23,7 +23,7 @@ async function achievementName(args: {
 
   try {
     const doc = await args.payload.findByID({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       id,
       depth: 0,
       overrideAccess: true,

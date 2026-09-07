@@ -34,7 +34,7 @@ async function resolveAchievement(args: {
   }
 
   const doc = (await args.req.payload.findByID({
-    collection: collectionOf('achievements') as 'achievements',
+    collection: collectionOf('achievements'),
     id: achievementId,
     depth: 0,
     overrideAccess: true,

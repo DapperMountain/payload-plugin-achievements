@@ -16,7 +16,7 @@ async function countMatchingLeaves(args: {
 
   const [tiers, achievements] = await Promise.all([
     args.req.payload.find({
-      collection: collectionOf('tiers') as 'tiers',
+      collection: collectionOf('tiers'),
       depth: 0,
       limit: 1000,
       pagination: false,
@@ -24,7 +24,7 @@ async function countMatchingLeaves(args: {
       req: args.req,
     }),
     args.req.payload.find({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       depth: 0,
       limit: 1000,
       pagination: false,
@@ -51,7 +51,7 @@ export function preventCatalogDelete(args: {
   return async ({ id, req }) => {
     const collectionKey = kind === 'eventType' ? 'eventTypes' : 'metrics'
     const doc = (await req.payload.findByID({
-      collection: collectionOf(collectionKey) as 'tiers',
+      collection: collectionOf(collectionKey),
       id,
       depth: 0,
       overrideAccess: true,
@@ -66,7 +66,7 @@ export function preventCatalogDelete(args: {
 
     if (kind === 'eventType') {
       const logs = await req.payload.count({
-        collection: collectionOf('logs') as 'achievement-logs',
+        collection: collectionOf('logs'),
         overrideAccess: true,
         req,
         where: { type: { equals: id } },
@@ -80,7 +80,7 @@ export function preventCatalogDelete(args: {
       if (rules > 0) parts.push(`${rules} rule(s)`)
     } else {
       const logs = await req.payload.count({
-        collection: collectionOf('logs') as 'achievement-logs',
+        collection: collectionOf('logs'),
         overrideAccess: true,
         req,
         where: { metric: { equals: id } },

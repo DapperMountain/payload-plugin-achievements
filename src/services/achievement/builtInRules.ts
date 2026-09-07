@@ -18,7 +18,7 @@ async function resolveMetricId(args: {
   const metricSlug = typeof args.rule.metricSlug === 'string' ? args.rule.metricSlug : ''
   if (!metricSlug) return null
   const found = await args.payload.find({
-    collection: collectionOf('metrics') as 'tiers',
+    collection: collectionOf('metrics'),
     depth: 0,
     limit: 1,
     overrideAccess: true,
@@ -34,7 +34,7 @@ async function metricValue(args: {
   metricId: string
 }): Promise<number> {
   const logs = await args.payload.find({
-    collection: collectionOf('logs') as 'achievement-logs',
+    collection: collectionOf('logs'),
     depth: 0,
     limit: 1000,
     pagination: false,
@@ -59,7 +59,7 @@ async function resolveEventTypeId(args: {
     // Seeded rules may store a slug string in `eventType` before resolve; only treat
     // opaque ids as final when a catalog row exists.
     const byId = await args.payload.find({
-      collection: collectionOf('eventTypes') as 'tiers',
+      collection: collectionOf('eventTypes'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -75,7 +75,7 @@ async function resolveEventTypeId(args: {
   if (!slugCandidate) return null
 
   const found = await args.payload.find({
-    collection: collectionOf('eventTypes') as 'tiers',
+    collection: collectionOf('eventTypes'),
     depth: 0,
     limit: 1,
     overrideAccess: true,
@@ -103,7 +103,7 @@ async function resolveAchievementRef(args: {
 
   if (!requiredId && requiredSlug) {
     const found = await args.payload.find({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       depth: 0,
       limit: 1,
       overrideAccess: true,
@@ -124,7 +124,7 @@ async function resolveAchievementRef(args: {
 
   if (requiredId && (eligibilityRules === undefined || completionRules === undefined || !requiredSlug)) {
     const doc = (await args.payload.findByID({
-      collection: collectionOf('achievements') as 'achievements',
+      collection: collectionOf('achievements'),
       id: requiredId,
       depth: 0,
       overrideAccess: true,
@@ -151,7 +151,7 @@ async function isAchievementGranted(args: {
   if (args.requiredId) grantClauses.push({ achievement: { equals: args.requiredId } })
 
   const grants = await args.payload.find({
-    collection: collectionOf('grants') as 'achievement-grants',
+    collection: collectionOf('grants'),
     depth: args.requiredSlug && !args.requiredId ? 1 : 0,
     limit: args.requiredId ? 1 : 50,
     overrideAccess: true,
@@ -179,7 +179,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
 
       if (tierId) {
         const tier = (await payload.findByID({
-          collection: collectionOf('tiers') as 'tiers',
+          collection: collectionOf('tiers'),
           id: tierId,
           depth: 0,
           overrideAccess: true,
@@ -190,7 +190,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
         if (!tierSlug) return false
 
         const tiers = await payload.find({
-          collection: collectionOf('tiers') as 'tiers',
+          collection: collectionOf('tiers'),
           depth: 0,
           limit: 1,
           overrideAccess: true,
@@ -291,7 +291,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
       if (!eventTypeId) return false
       const needed = Number(rule.count ?? 1)
       const result = await payload.count({
-        collection: collectionOf('logs') as 'achievement-logs',
+        collection: collectionOf('logs'),
         overrideAccess: true,
         where: {
           and: [userScopeIncludingUnscopedWhere(userId, scopeId), { type: { equals: eventTypeId } }],
@@ -305,7 +305,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
       const needed = Number(rule.count ?? 1)
       if (!(needed > 0)) return 1
       const result = await payload.count({
-        collection: collectionOf('logs') as 'achievement-logs',
+        collection: collectionOf('logs'),
         overrideAccess: true,
         where: {
           and: [userScopeIncludingUnscopedWhere(userId, scopeId), { type: { equals: eventTypeId } }],

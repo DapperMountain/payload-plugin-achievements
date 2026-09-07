@@ -16,7 +16,7 @@ export async function submitAchievementRequest(args: {
   note?: string
 }) {
   return args.req.payload.create({
-    collection: collectionOf('achievementRequests') as 'achievement-requests',
+    collection: collectionOf('achievementRequests'),
     data: {
       // user is overwritten from req.user in beforeValidate
       user: args.userId,
@@ -43,7 +43,7 @@ export async function grantAchievement(args: {
   const achievementId = args.achievementId
 
   const definition = (await args.req.payload.findByID({
-    collection: collectionOf('achievements') as 'achievements',
+    collection: collectionOf('achievements'),
     id: achievementId,
     depth: 0,
     overrideAccess: true,
@@ -58,7 +58,7 @@ export async function grantAchievement(args: {
   else clauses.push({ scope: { exists: false } })
 
   const existing = await args.req.payload.find({
-    collection: collectionOf('grants') as 'achievement-grants',
+    collection: collectionOf('grants'),
     depth: 0,
     limit: 1,
     overrideAccess: true,
@@ -69,7 +69,7 @@ export async function grantAchievement(args: {
   if (existing.docs[0]) return existing.docs[0]
 
   const result = await args.req.payload.create({
-    collection: collectionOf('grants') as 'achievement-grants',
+    collection: collectionOf('grants'),
     data: {
       user: args.userId,
       scope: scopeId ?? undefined,
@@ -119,7 +119,7 @@ async function syncCompositeGrants(args: {
     : undefined
 
   const catalog = await args.req.payload.find({
-    collection: collectionOf('achievements') as 'achievements',
+    collection: collectionOf('achievements'),
     depth: 0,
     limit: 200,
     pagination: false,

@@ -38,7 +38,7 @@ export function buildGrantsCollection(): CollectionConfig {
           {
             name: 'achievement',
             type: 'relationship',
-            relationTo: collectionOf('achievements') as 'achievements',
+            relationTo: collectionOf('achievements'),
             required: true,
             index: true,
             admin: { width: '60%' },

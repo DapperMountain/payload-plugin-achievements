@@ -65,7 +65,7 @@ export async function recordLog(args: RecordLogInput) {
   }
 
   return args.payload.create({
-    collection: collectionOf('logs') as 'achievement-logs',
+    collection: collectionOf('logs'),
     data: {
       user: args.userId,
       scope: scopeId ?? undefined,
@@ -145,7 +145,7 @@ export async function syncTierChangedLog(args: {
   })
 
   const latest = await args.payload.find({
-    collection: collectionOf('logs') as 'achievement-logs',
+    collection: collectionOf('logs'),
     depth: 0,
     limit: 1,
     overrideAccess: true,
