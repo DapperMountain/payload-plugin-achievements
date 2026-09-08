@@ -5,7 +5,7 @@
     "": {
       "name": "@dappermountain/payload-plugin-achievements",
       "devDependencies": {
-        "@dappermountain/agent-payload": "^0.1.3",
+        "@dappermountain/agent-payload": "^0.1.4",
         "@dappermountain/agent-practices": "github:DapperMountain/agent-practices",
         "@payloadcms/ui": "3.88.0",
         "@types/bun": "1.4.0",
@@ -49,7 +49,7 @@
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
-    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@0.1.3", "", { "peerDependencies": { "@dappermountain/agent-practices": "^0.1.0" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "bin/sync.ts" } }, "sha512-op8BBb9HJG2Kqw3ABLFQjvdw3xtR8vTHPkYxnswAh89bkpySy167YCzYyssRRXKnKKEqYlwS1x4Wi48acRG+gg=="],
+    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@0.1.4", "", { "peerDependencies": { "@dappermountain/agent-practices": "^0.1.0" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "bin/sync.ts" } }, "sha512-TvHstMi+C1dxRc965pOG5M8f1PD6NPQJ9ZlkrQ8rjT2yS/5HAbDicGLpXxUf88NuNIiSUcZjz6I/wstY/dNwIw=="],
 
     "@dappermountain/agent-practices": ["@dappermountain/agent-practices@github:DapperMountain/agent-practices#9155378", { "bin": { "agent-practices": "./bin/sync.ts" } }, "DapperMountain-agent-practices-9155378", "sha512-R/5SCJU6a+DMsUpl3e36Pf5XJwxuOQUprTV5ELKGQqeixzKaoOeLR1QipN2J+WbQe7CNO/va1G7IY1ozvMJSYA=="],
 
