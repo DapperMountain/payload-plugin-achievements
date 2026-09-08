@@ -22,10 +22,13 @@ Most gamification features end up as one-off collections and scattered hooks. Th
 
 ## Install
 
+Preferred package manager: **Bun**.
+
 ```bash
-npm install @dappermountain/payload-plugin-achievements
-# or: pnpm add / yarn add / bun add
+bun add @dappermountain/payload-plugin-achievements
 ```
+
+Other clients also work (`npm install @dappermountain/payload-plugin-achievements`, etc.).
 
 ## Quick start
 
