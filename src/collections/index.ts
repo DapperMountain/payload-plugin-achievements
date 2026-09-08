@@ -9,6 +9,7 @@ import { buildEventTypesCollection } from './EventTypes/index'
 import { buildGrantsCollection } from './Grants/index'
 import { buildLogsCollection } from './Logs/index'
 import { buildMetricsCollection } from './Metrics/index'
+import { buildTierRequestsCollection } from './TierRequests/index'
 import { buildTiersCollection } from './Tiers/index'
 
 const builders: Record<AchievementCollectionKey, () => CollectionConfig> = {
@@ -18,6 +19,7 @@ const builders: Record<AchievementCollectionKey, () => CollectionConfig> = {
   achievements: buildAchievementsCollection,
   grants: buildGrantsCollection,
   achievementRequests: buildAchievementRequestsCollection,
+  tierRequests: buildTierRequestsCollection,
   logs: buildLogsCollection,
 }
 

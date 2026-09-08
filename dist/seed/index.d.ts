@@ -14,6 +14,8 @@ export type AchievementSeedTier = {
     /** Optional media upload id when the host configured `mediaCollection`. */
     image?: string;
     scope?: string;
+    /** When true, unlock rules are not enough — an approved tier request is required. */
+    requiresReview?: boolean;
     /** Bare rule array (AND) or `{ combinator, rules }`. Seed slugs resolved to relationships. */
     unlockRules?: Record<string, unknown>[] | {
         combinator?: string;

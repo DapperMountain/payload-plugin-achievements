@@ -83,7 +83,8 @@ Slugs are prefixed with `achievement-` by default so they don’t collide with y
 | `achievements` | `achievement-definitions` | Things a user can earn (with eligibility / completion rules). |
 | `grants` | `achievement-grants` | One row per earned achievement per user (+ scope). |
 | `achievementRequests` | `achievement-requests` | Request → pending / approved / rejected. |
-| `logs` | `achievement-logs` | Append-only history of what happened. |
+| `tierRequests` | `achievement-tier-requests` | Tier unlock awaiting review (when the tier has `requiresReview`). |
+| `logs` | `achievement-logs` | Member activity history (grants, revokes, tier moves, metrics, custom events). |
 
 **System catalog rows** (seeded by `seedAchievementCatalog`) are protected from deletion and slug changes:
 
@@ -92,6 +93,7 @@ Slugs are prefixed with `achievement-` by default so they don’t collide with y
 | `points` | Default metric |
 | `metric.delta` | Metric change log type (requires metric + change amount) |
 | `achievement.granted` | Written when a grant is created |
+| `achievement.revoked` | Written when a grant is deleted |
 | `tier.changed` | Written when derived tier moves |
 
 Event types can require an **actor** and/or a **metric + change**. Admin only prompts for those fields when the type needs them.
@@ -105,7 +107,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 - Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`
 - Custom leaves → register via `extensions.ruleTypes`
 
-**Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
+**Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
 
 | Combinator / leaf | Progress behavior |
 | --- | --- |
@@ -244,6 +246,8 @@ import {
   recordLog,
   recordMetricChange,
   grantAchievement,
+  reconcileProgression,
+  reconcileUserProgression,
   resolveCurrentTier,
   resolveTierProgress,
   getUserProgress,
@@ -254,19 +258,26 @@ import {
 await recordLog({ payload, userId, scopeId, type: 'host.custom-kind', actorId })
 await recordMetricChange({ payload, userId, scopeId, metric: 'points', change: 10 })
 const tier = await resolveCurrentTier({ payload, userId, scopeId })
+
+// Repair users whose grants predate side-effect hooks (idempotent)
+await reconcileProgression({ payload })
 ```
 
-Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the sum of `change` on matching logs. Recording metrics or granting achievements may append a `tier.changed` log when the derived ladder moves.
+Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the sum of `change` on matching logs. Creating or deleting **grants** (Admin or API) writes `achievement.granted` / `achievement.revoked`, syncs composed achievements, and may open tier requests / write `tier.changed`.
+
+**Admin:** Grants list includes **Repair progression**, which `POST`s the reconcile endpoint (requires `canReview`).
 
 ## REST surface
 
 | Goal | Request |
 | --- | --- |
 | Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` |
+| Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, limit }`) |
 | List grants | `GET /api/achievement-grants?where[user][equals]=<userId>` |
 | Log history | `GET /api/achievement-logs?where[user][equals]=<userId>` |
 | Request an achievement | `POST /api/achievement-requests` with `{ achievement }` |
-| Approve / reject | `PATCH /api/achievement-requests/:id` with `{ status: "approved" \| "rejected" }` |
+| Approve / reject achievement | `PATCH /api/achievement-requests/:id` with `{ status: "approved" \| "rejected" }` |
+| Approve / reject tier | `PATCH /api/achievement-tier-requests/:id` with `{ status: "approved" \| "rejected" }` |
 | Browse catalogs | `GET /api/achievement-event-types`, `GET /api/achievement-metrics`, … |
 
 Exact collection paths follow your `collections.prefix` / `slugs` settings.

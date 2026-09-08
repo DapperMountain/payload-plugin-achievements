@@ -10,12 +10,14 @@ export declare function submitAchievementRequest(args: {
     scopeId?: string | null;
     note?: string;
 }): Promise<import("payload").JsonObject & import("payload").TypeWithID>;
-/** Create a grant row, emit achievement.granted, sync tier.changed when the ladder moves. */
+/**
+ * Create a grant row. Side effects (logs, composites, tiers) run in Grants hooks.
+ */
 export declare function grantAchievement(args: {
     req: PayloadRequest;
     userId: string;
     achievementId: string;
     scopeId?: string | null;
     note?: string | null;
-}): Promise<import("payload").JsonObject & import("payload").TypeWithID>;
+}): Promise<Record<string, unknown>>;
 //# sourceMappingURL=submitAchievementRequest.d.ts.map

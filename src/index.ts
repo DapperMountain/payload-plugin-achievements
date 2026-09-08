@@ -24,15 +24,26 @@ export {
   recordEvent,
   recordLog,
   recordMetricChange,
+  reconcileProgression,
+  reconcileUserProgression,
   resolveCurrentTier,
   resolveTierProgress,
   reviewAchievementRequest,
   submitAchievementRequest,
   syncTierChangedLog,
+  syncTierProgression,
+  syncCompositeProgression,
   validateRuleGroup,
   validateRuleNode,
 } from './services/achievement/index'
-export type { ResolvedTier, RuleGroup, TierLadderProgress, CatalogProgressGroup, CatalogProgressItem } from './services/achievement/index'
+export type {
+  ResolvedTier,
+  RuleGroup,
+  TierLadderProgress,
+  CatalogProgressGroup,
+  CatalogProgressItem,
+  ReconcileProgressionResult,
+} from './services/achievement/index'
 export type {
   BuiltInEventType,
   BuiltInRuleType,
@@ -46,6 +57,6 @@ export type {
   AchievementUsersOptions,
 } from './types'
 export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN_GROUP } from './collections/slugs'
-export { DEFAULT_ME_ENDPOINT_PATH } from './defaults'
+export { DEFAULT_ME_ENDPOINT_PATH, DEFAULT_RECONCILE_ENDPOINT_PATH } from './defaults'
 export { collectionOf, slugOf } from './collections/helpers'
 export { isAchievementPluginEnabled } from './enabled'

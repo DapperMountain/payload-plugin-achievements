@@ -6,6 +6,7 @@ import type {
 import { APIError } from 'payload'
 
 import { collectionOf } from '../../../collections/helpers'
+import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags'
 import { evaluateRules, ruleGroupHasProgressRequirements, type RuleGroup } from '../../../services/achievement/evaluateRules'
 import { grantAchievement } from '../../../services/achievement/submitAchievementRequest'
 import { relationId } from '../../../services/achievement/relationId'
@@ -58,10 +59,20 @@ export const prepareAchievementRequest: CollectionBeforeValidateHook = async ({
   if (!data) return data
 
   if (operation === 'create') {
-    const userId = req.user?.id
-    if (typeof userId !== 'string') throw new APIError('Unauthorized', 401)
+    const system = Boolean(req.context?.[CTX_SYSTEM_REQUEST])
 
-    data.user = userId
+    if (!system) {
+      const userId = req.user?.id
+      if (typeof userId !== 'string') throw new APIError('Unauthorized', 401)
+      data.user = userId
+    } else {
+      const bound = relationId((data as { user?: unknown }).user)
+      if (!bound) throw new APIError('user required', 400)
+      data.user = bound
+    }
+
+    const userId = relationId((data as { user?: unknown }).user)
+    if (!userId) throw new APIError('user required', 400)
 
     const scopeId = scopeIdOf(data as Record<string, unknown>)
     const achievement = await resolveAchievement({
@@ -71,25 +82,31 @@ export const prepareAchievementRequest: CollectionBeforeValidateHook = async ({
 
     data.achievement = achievement.id
 
-    if (ruleGroupHasProgressRequirements(achievement.completionRules as never)) {
+    if (!system && ruleGroupHasProgressRequirements(achievement.completionRules as never)) {
       throw new APIError(
         'This achievement is granted automatically when its completion rules pass.',
         400,
       )
     }
 
-    const eligible = await evaluateRules({
-      payload: req.payload,
-      req,
-      rules: achievement.eligibilityRules as never,
-      userId: userId,
-      scopeId,
-    })
-    if (!eligible) {
-      throw new APIError('Eligibility rules not met for this achievement.', 400)
+    if (!system) {
+      const eligible = await evaluateRules({
+        payload: req.payload,
+        req,
+        rules: achievement.eligibilityRules as never,
+        userId,
+        scopeId,
+      })
+      if (!eligible) {
+        throw new APIError('Eligibility rules not met for this achievement.', 400)
+      }
     }
 
-    data.status = achievement.requiresReview === false ? 'approved' : 'pending'
+    if (system) {
+      data.status = data.status ?? 'pending'
+    } else {
+      data.status = achievement.requiresReview === false ? 'approved' : 'pending'
+    }
     return data
   }
 

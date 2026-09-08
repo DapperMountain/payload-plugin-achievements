@@ -1,5 +1,6 @@
 import { APIError } from 'payload';
 import { collectionOf } from '../../../collections/helpers';
+import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags';
 import { evaluateRules, ruleGroupHasProgressRequirements } from '../../../services/achievement/evaluateRules';
 import { grantAchievement } from '../../../services/achievement/submitAchievementRequest';
 import { relationId } from '../../../services/achievement/relationId';
@@ -34,30 +35,49 @@ export const prepareAchievementRequest = async ({ data, operation, req, original
     if (!data)
         return data;
     if (operation === 'create') {
-        const userId = req.user?.id;
-        if (typeof userId !== 'string')
-            throw new APIError('Unauthorized', 401);
-        data.user = userId;
+        const system = Boolean(req.context?.[CTX_SYSTEM_REQUEST]);
+        if (!system) {
+            const userId = req.user?.id;
+            if (typeof userId !== 'string')
+                throw new APIError('Unauthorized', 401);
+            data.user = userId;
+        }
+        else {
+            const bound = relationId(data.user);
+            if (!bound)
+                throw new APIError('user required', 400);
+            data.user = bound;
+        }
+        const userId = relationId(data.user);
+        if (!userId)
+            throw new APIError('user required', 400);
         const scopeId = scopeIdOf(data);
         const achievement = await resolveAchievement({
             req,
             data: data,
         });
         data.achievement = achievement.id;
-        if (ruleGroupHasProgressRequirements(achievement.completionRules)) {
+        if (!system && ruleGroupHasProgressRequirements(achievement.completionRules)) {
             throw new APIError('This achievement is granted automatically when its completion rules pass.', 400);
         }
-        const eligible = await evaluateRules({
-            payload: req.payload,
-            req,
-            rules: achievement.eligibilityRules,
-            userId: userId,
-            scopeId,
-        });
-        if (!eligible) {
-            throw new APIError('Eligibility rules not met for this achievement.', 400);
+        if (!system) {
+            const eligible = await evaluateRules({
+                payload: req.payload,
+                req,
+                rules: achievement.eligibilityRules,
+                userId,
+                scopeId,
+            });
+            if (!eligible) {
+                throw new APIError('Eligibility rules not met for this achievement.', 400);
+            }
         }
-        data.status = achievement.requiresReview === false ? 'approved' : 'pending';
+        if (system) {
+            data.status = data.status ?? 'pending';
+        }
+        else {
+            data.status = achievement.requiresReview === false ? 'approved' : 'pending';
+        }
         return data;
     }
     if (operation === 'update') {

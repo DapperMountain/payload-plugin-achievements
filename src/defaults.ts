@@ -6,6 +6,7 @@ import {
 
 export const DEFAULT_USERS_COLLECTION = 'users'
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me'
+export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile'
 
 export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' | 'endpoints'> & {
   enabled: boolean
@@ -15,19 +16,25 @@ export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' 
   collectionSlugs: ReturnType<typeof resolveCollectionSlugs>
   /** Admin nav group for plugin collections (`false` = ungrouped). */
   adminGroup: string | false
-  endpoints: { me: string | false }
+  endpoints: { me: string | false; reconcile: string | false }
 }
 
-function normalizeEndpointPath(path: string): string {
+function normalizeEndpointPath(path: string, fallback: string): string {
   const trimmed = path.trim()
-  if (!trimmed) return DEFAULT_ME_ENDPOINT_PATH
+  if (!trimmed) return fallback
   return trimmed.startsWith('/') ? trimmed : `/${trimmed}`
 }
 
 export function resolveMeEndpointPath(me?: string | false): string | false {
   if (me === false) return false
   if (me == null) return DEFAULT_ME_ENDPOINT_PATH
-  return normalizeEndpointPath(me)
+  return normalizeEndpointPath(me, DEFAULT_ME_ENDPOINT_PATH)
+}
+
+export function resolveReconcileEndpointPath(path?: string | false): string | false {
+  if (path === false) return false
+  if (path == null) return DEFAULT_RECONCILE_ENDPOINT_PATH
+  return normalizeEndpointPath(path, DEFAULT_RECONCILE_ENDPOINT_PATH)
 }
 
 export function resolveOptions(options: AchievementPluginOptions = {}): ResolvedAchievementOptions {
@@ -42,6 +49,7 @@ export function resolveOptions(options: AchievementPluginOptions = {}): Resolved
     adminGroup: resolveAdminGroup(options),
     endpoints: {
       me: resolveMeEndpointPath(options.endpoints?.me),
+      reconcile: resolveReconcileEndpointPath(options.endpoints?.reconcile),
     },
   }
 }

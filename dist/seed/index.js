@@ -221,6 +221,7 @@ export async function seedAchievements(payload, input) {
             slug: tier.slug,
             rank: tier.rank,
             scope: tier.scope,
+            requiresReview: tier.requiresReview ?? false,
             ...(tier.icon ? { icon: tier.icon } : {}),
             ...(tier.image ? { image: tier.image } : {}),
             unlockRules: { combinator: 'and', rules: [] },

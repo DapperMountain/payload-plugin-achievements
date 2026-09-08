@@ -1,10 +1,11 @@
 import { resolveAdminGroup, resolveCollectionSlugs, } from './collections/slugs';
 export const DEFAULT_USERS_COLLECTION = 'users';
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me';
-function normalizeEndpointPath(path) {
+export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile';
+function normalizeEndpointPath(path, fallback) {
     const trimmed = path.trim();
     if (!trimmed)
-        return DEFAULT_ME_ENDPOINT_PATH;
+        return fallback;
     return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
 }
 export function resolveMeEndpointPath(me) {
@@ -12,7 +13,14 @@ export function resolveMeEndpointPath(me) {
         return false;
     if (me == null)
         return DEFAULT_ME_ENDPOINT_PATH;
-    return normalizeEndpointPath(me);
+    return normalizeEndpointPath(me, DEFAULT_ME_ENDPOINT_PATH);
+}
+export function resolveReconcileEndpointPath(path) {
+    if (path === false)
+        return false;
+    if (path == null)
+        return DEFAULT_RECONCILE_ENDPOINT_PATH;
+    return normalizeEndpointPath(path, DEFAULT_RECONCILE_ENDPOINT_PATH);
 }
 export function resolveOptions(options = {}) {
     return {
@@ -26,6 +34,7 @@ export function resolveOptions(options = {}) {
         adminGroup: resolveAdminGroup(options),
         endpoints: {
             me: resolveMeEndpointPath(options.endpoints?.me),
+            reconcile: resolveReconcileEndpointPath(options.endpoints?.reconcile),
         },
     };
 }

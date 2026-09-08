@@ -71,6 +71,14 @@ export async function recordMetricChange(args) {
         change: args.change,
         reason: args.reason,
     });
+    if (args.req) {
+        const { syncTierProgression } = await import('./tierProgression');
+        await syncTierProgression({
+            req: args.req,
+            userId: args.userId,
+            scopeId,
+        });
+    }
     await syncTierChangedLog({
         payload: args.payload,
         req: args.req,

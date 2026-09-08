@@ -54,7 +54,7 @@ Host owns migrations and when to seed. See [reference/host-wiring.md](reference/
 | achievementRequests | `achievement-requests` | Request → review |
 | logs | `achievement-logs` | Append-only history |
 
-System seed rows (`points`, `metric.delta`, `achievement.granted`, `tier.changed`) are protected.
+System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected.
 
 ## Rules engine
 

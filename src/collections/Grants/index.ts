@@ -2,10 +2,17 @@ import type { CollectionConfig, Field } from 'payload'
 
 import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers'
 import { scopeField, userField } from '../fields'
+import { getAchievementOptions } from '../../options-store'
 import { access } from './access'
 import { hooks } from './hooks'
 
 export function buildGrantsCollection(): CollectionConfig {
+  const reconcilePath = getAchievementOptions().endpoints?.reconcile
+  const apiPath =
+    typeof reconcilePath === 'string' && reconcilePath.length > 0
+      ? `/api${reconcilePath.startsWith('/') ? reconcilePath : `/${reconcilePath}`}`
+      : null
+
   return {
     slug: slugOf('grants'),
     labels: {
@@ -18,7 +25,20 @@ export function buildGrantsCollection(): CollectionConfig {
       useAsTitle: 'title',
       defaultColumns: columnsWithOptionalScope(['title', 'user', 'completedAt', 'scope']),
       listSearchableFields: ['title'],
-      description: 'What someone has earned — one row per grant. Bulk create works here.',
+      description:
+        'What someone has earned — one row per grant. Creating or deleting a grant updates logs and composed progression automatically.',
+      ...(apiPath
+        ? {
+            components: {
+              beforeListTable: [
+                {
+                  path: '@dappermountain/payload-plugin-achievements/client#ReconcileProgressionButton',
+                  clientProps: { reconcilePath: apiPath },
+                },
+              ],
+            },
+          }
+        : {}),
     }),
     fields: [
       {

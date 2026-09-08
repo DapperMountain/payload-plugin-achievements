@@ -15,9 +15,9 @@ export function buildTiersCollection(): CollectionConfig {
     hooks,
     admin: collectionAdmin({
       useAsTitle: 'name',
-      defaultColumns: columnsWithOptionalScope(['name', 'slug', 'rank', 'scope']),
+      defaultColumns: columnsWithOptionalScope(['name', 'slug', 'rank', 'requiresReview', 'scope']),
       description:
-        'Unlock rules decide when someone reaches this step. Current tier is derived by walking the ladder (lowest rank first) — there is no stored progress row.',
+        'Unlock rules decide when someone reaches this step. Current tier is derived by walking the ladder (lowest rank first). Tiers with Requires review also need an approved tier request.',
     }),
     fields: [
       ...optionalFields(scopeField()),
@@ -74,12 +74,21 @@ export function buildTiersCollection(): CollectionConfig {
         ],
       },
       {
+        name: 'requiresReview',
+        type: 'checkbox',
+        defaultValue: false,
+        admin: {
+          description:
+            'When enabled, unlock rules alone are not enough — an approved tier request is required before this step becomes the member’s current tier.',
+        },
+      },
+      {
         name: 'unlockRules',
         type: 'group',
         label: 'Unlock rules',
         admin: {
           description:
-            'Rules that must pass to unlock this tier (all-of or any-of). Empty rules mean this step is open. The plugin derives current tier by walking ranks; optional tier.changed logs record moves.',
+            'Rules that must pass to unlock this tier (all-of or any-of). Empty rules mean this step is open. Current tier is derived by walking ranks; optional tier.changed logs record moves.',
         },
         fields: buildRuleTreeFields(),
       },
