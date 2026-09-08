@@ -8,7 +8,7 @@ description: >-
 
 # Payload plugin: achievements
 
-Read this skill **before** [`payload-host`](../payload-host/SKILL.md) and the vendored [`payload`](../payload/SKILL.md) skill when changing this package or integrating it.
+Read this skill **before** [`payload-overlay`](../payload-overlay/SKILL.md) and the vendored [`payload`](../payload/SKILL.md) skill when changing this package or integrating it.
 
 ## Package facts
 

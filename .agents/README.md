@@ -5,7 +5,7 @@
 ├── rules/                         # Synced from agent-practices + agent-payload
 └── skills/
     ├── payload/                   # Vendored via skills:install — do not hand-edit
-    ├── payload-host/              # Synced overlay — do not hand-edit
+    ├── payload-overlay/              # Synced overlay — do not hand-edit
     └── payload-plugin-achievements/  # Hand-maintained plugin skill
 ```
 
