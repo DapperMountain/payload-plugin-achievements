@@ -8,7 +8,7 @@ description: >-
 
 # Payload plugin: achievements
 
-Read this skill **before** [`payload-overlay`](../payload-overlay/SKILL.md) and the vendored [`payload`](../payload/SKILL.md) skill when changing this package or integrating it.
+Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) and the vendored [`payload`](../payload/SKILL.md) skill when changing this package or integrating it.
 
 ## Package facts
 
@@ -40,7 +40,7 @@ import { seedAchievementCatalog } from '@dappermountain/payload-plugin-achieveme
 await seedAchievementCatalog(payload)
 ```
 
-Host owns migrations and when to seed. See [references/host-wiring.md](references/host-wiring.md).
+Host owns migrations and when to seed. See [reference/host-wiring.md](reference/host-wiring.md).
 
 ## Collections (default prefix `achievement-`)
 
@@ -72,6 +72,6 @@ Catalog `name` / `description` (and metric/event `name`) are `localized: true` w
 
 ## More detail
 
-- [references/collections.md](references/collections.md)
-- [references/host-wiring.md](references/host-wiring.md)
+- [reference/collections.md](reference/collections.md)
+- [reference/host-wiring.md](reference/host-wiring.md)
 - Root [README.md](../../../README.md)
