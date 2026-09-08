@@ -9,11 +9,11 @@ describe('resolveCurrentTier', () => {
 
     const find = mock(async () => ({
       docs: [
-        { id: 't0', name: 'Prospect', slug: 'prospect', rank: 0, unlockRules: { combinator: 'and', rules: [] } },
+        { id: 't0', name: 'Tier Zero', slug: 'tier-0', rank: 0, unlockRules: { combinator: 'and', rules: [] } },
         {
           id: 't1',
-          name: 'Solid',
-          slug: 'solid',
+          name: 'Tier One',
+          slug: 'tier-1',
           rank: 1,
           unlockRules: {
             combinator: 'and',
@@ -35,7 +35,7 @@ describe('resolveCurrentTier', () => {
     })
 
     expect(tier?.id).toBe('t1')
-    expect(tier?.slug).toBe('solid')
+    expect(tier?.slug).toBe('tier-1')
     expect(tier?.rank).toBe(1)
   })
 })

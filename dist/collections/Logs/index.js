@@ -20,7 +20,7 @@ export function buildLogsCollection() {
         admin: collectionAdmin({
             useAsTitle: 'id',
             defaultColumns: ['type', 'user', 'actor', 'metric', 'change', 'createdAt'],
-            description: 'A running history of what happened — grants, score changes, tier moves, and anything else you log.',
+            description: 'Member activity history — grants, revokes, score changes, tier moves, and host custom events. Not a second grant store.',
         }),
         fields: [
             ...optionalFields(scopeField()),

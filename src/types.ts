@@ -42,6 +42,7 @@ export type AchievementCollectionKey =
   | 'achievements'
   | 'grants'
   | 'achievementRequests'
+  | 'tierRequests'
   | 'logs'
   | 'eventTypes'
   | 'metrics'
@@ -95,6 +96,12 @@ export type AchievementEndpointsOptions = {
    * Pass `false` to skip registering the endpoint.
    */
   me?: string | false
+  /**
+   * Root REST path to repair progression from existing grants (`POST`).
+   * Default: `'/achievements/reconcile'`. Requires host `canReview`.
+   * Pass `false` to skip.
+   */
+  reconcile?: string | false
 }
 
 export type AchievementPluginOptions = {
@@ -135,4 +142,9 @@ export type BuiltInRuleType =
   | 'tier-at-least'
 
 /** Engine log-type catalog slugs (seeded as system catalog rows). */
-export type BuiltInEventType = 'achievement.granted' | 'metric.delta' | 'tier.changed'
+export type BuiltInEventType =
+  | 'achievement.granted'
+  | 'achievement.revoked'
+  | 'metric.delta'
+  | 'tier.changed'
+

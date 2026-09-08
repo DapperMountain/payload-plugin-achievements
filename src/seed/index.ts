@@ -17,6 +17,8 @@ export type AchievementSeedTier = {
   /** Optional media upload id when the host configured `mediaCollection`. */
   image?: string
   scope?: string
+  /** When true, unlock rules are not enough — an approved tier request is required. */
+  requiresReview?: boolean
   /** Bare rule array (AND) or `{ combinator, rules }`. Seed slugs resolved to relationships. */
   unlockRules?: Record<string, unknown>[] | { combinator?: string; rules?: Record<string, unknown>[] }
 }
@@ -323,6 +325,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
       slug: tier.slug,
       rank: tier.rank,
       scope: tier.scope,
+      requiresReview: tier.requiresReview ?? false,
       ...(tier.icon ? { icon: tier.icon } : {}),
       ...(tier.image ? { image: tier.image } : {}),
       unlockRules: { combinator: 'and' as const, rules: [] as Record<string, unknown>[] },

@@ -8,7 +8,7 @@ export type ResolvedTier = {
 };
 /**
  * Derive current tier by walking unlock rules in rank order (lowest first).
- * Empty unlock rules pass. `tier-at-least` uses the rank unlocked so far on this walk.
+ * Empty unlock rules pass. Tiers with `requiresReview` only count once an approved tier request exists.
  */
 export declare function resolveCurrentTier(args: {
     payload: Payload;

@@ -11,4 +11,8 @@ export type { TierLadderProgress } from './resolveTierProgress';
 export { grantAchievement, submitAchievementRequest } from './submitAchievementRequest';
 export { reviewAchievementRequest } from './reviewAchievementRequest';
 export { validateRuleGroup, validateRuleNode } from './validateRules';
+export { syncCompositeProgression } from './grantSideEffects';
+export { syncTierProgression } from './tierProgression';
+export { reconcileProgression, reconcileUserProgression } from './reconcile';
+export type { ReconcileProgressionResult } from './reconcile';
 //# sourceMappingURL=index.d.ts.map

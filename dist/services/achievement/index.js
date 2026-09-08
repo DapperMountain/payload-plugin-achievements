@@ -7,3 +7,6 @@ export { resolveTierProgress } from './resolveTierProgress';
 export { grantAchievement, submitAchievementRequest } from './submitAchievementRequest';
 export { reviewAchievementRequest } from './reviewAchievementRequest';
 export { validateRuleGroup, validateRuleNode } from './validateRules';
+export { syncCompositeProgression } from './grantSideEffects';
+export { syncTierProgression } from './tierProgression';
+export { reconcileProgression, reconcileUserProgression } from './reconcile';

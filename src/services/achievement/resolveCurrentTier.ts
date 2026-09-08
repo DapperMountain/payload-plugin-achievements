@@ -3,6 +3,7 @@ import type { Payload, PayloadRequest } from 'payload'
 import { collectionOf } from '../../collections/helpers'
 import { evaluateRules } from './evaluateRules'
 import { relationId } from './relationId'
+import { hasApprovedTierRequest } from './tierApproval'
 
 export type ResolvedTier = {
   id: string
@@ -19,11 +20,12 @@ type TierDoc = {
   rank?: number
   scope?: unknown
   unlockRules?: unknown
+  requiresReview?: boolean
 }
 
 /**
  * Derive current tier by walking unlock rules in rank order (lowest first).
- * Empty unlock rules pass. `tier-at-least` uses the rank unlocked so far on this walk.
+ * Empty unlock rules pass. Tiers with `requiresReview` only count once an approved tier request exists.
  */
 export async function resolveCurrentTier(args: {
   payload: Payload
@@ -57,7 +59,6 @@ export async function resolveCurrentTier(args: {
     (a, b) => Number(a.rank ?? 0) - Number(b.rank ?? 0),
   )
 
-  // evaluateRules requires a PayloadRequest; synthesize a minimal one when only payload is passed.
   const req = (args.req ?? ({ payload: args.payload } as PayloadRequest))
 
   let current: ResolvedTier | null = null
@@ -73,6 +74,16 @@ export async function resolveCurrentTier(args: {
     })
 
     if (!unlocked) continue
+
+    if (tier.requiresReview === true) {
+      const approved = await hasApprovedTierRequest({
+        req,
+        userId: args.userId,
+        tierId: String(tier.id),
+        scopeId,
+      })
+      if (!approved) break
+    }
 
     current = {
       id: String(tier.id),

@@ -14,6 +14,7 @@ export const DEFAULT_COLLECTION_BASE_SLUGS = {
     achievements: 'definitions',
     grants: 'grants',
     achievementRequests: 'requests',
+    tierRequests: 'tier-requests',
     logs: 'logs',
     eventTypes: 'event-types',
     metrics: 'metrics',

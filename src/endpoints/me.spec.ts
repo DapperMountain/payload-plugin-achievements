@@ -1,6 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 
-import { DEFAULT_ME_ENDPOINT_PATH, resolveMeEndpointPath, resolveOptions } from '../defaults'
+import {
+  DEFAULT_ME_ENDPOINT_PATH,
+  DEFAULT_RECONCILE_ENDPOINT_PATH,
+  resolveMeEndpointPath,
+  resolveOptions,
+  resolveReconcileEndpointPath,
+} from '../defaults'
 import { buildAchievementEndpoints } from './index'
 
 describe('resolveMeEndpointPath', () => {
@@ -18,22 +24,42 @@ describe('resolveMeEndpointPath', () => {
   })
 })
 
+describe('resolveReconcileEndpointPath', () => {
+  test('defaults to /achievements/reconcile', () => {
+    expect(resolveReconcileEndpointPath()).toBe(DEFAULT_RECONCILE_ENDPOINT_PATH)
+  })
+
+  test('can be disabled', () => {
+    expect(resolveReconcileEndpointPath(false)).toBe(false)
+  })
+})
+
 describe('buildAchievementEndpoints', () => {
-  test('registers the me route by default', () => {
+  test('registers me and reconcile by default', () => {
     const endpoints = buildAchievementEndpoints(resolveOptions({}))
-    expect(endpoints).toHaveLength(1)
+    expect(endpoints).toHaveLength(2)
     expect(endpoints[0]?.path).toBe('/achievements/me')
     expect(endpoints[0]?.method).toBe('get')
+    expect(endpoints[1]?.path).toBe('/achievements/reconcile')
+    expect(endpoints[1]?.method).toBe('post')
   })
 
   test('skips me when disabled', () => {
-    expect(buildAchievementEndpoints(resolveOptions({ endpoints: { me: false } }))).toEqual([])
+    const endpoints = buildAchievementEndpoints(resolveOptions({ endpoints: { me: false } }))
+    expect(endpoints).toHaveLength(1)
+    expect(endpoints[0]?.path).toBe('/achievements/reconcile')
   })
 
-  test('uses a custom path', () => {
+  test('skips reconcile when disabled', () => {
+    const endpoints = buildAchievementEndpoints(resolveOptions({ endpoints: { reconcile: false } }))
+    expect(endpoints).toHaveLength(1)
+    expect(endpoints[0]?.path).toBe('/achievements/me')
+  })
+
+  test('uses a custom me path', () => {
     const endpoints = buildAchievementEndpoints(
-      resolveOptions({ endpoints: { me: '/ring/progress/me' } }),
+      resolveOptions({ endpoints: { me: '/progress/me', reconcile: false } }),
     )
-    expect(endpoints[0]?.path).toBe('/ring/progress/me')
+    expect(endpoints[0]?.path).toBe('/progress/me')
   })
 })

@@ -33,7 +33,7 @@ export type AchievementRuleType = {
     progressRole?: 'requirement' | 'gate';
 };
 /** Logical collection ids — map to configurable slugs via `collections`. */
-export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'logs' | 'eventTypes' | 'metrics';
+export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'tierRequests' | 'logs' | 'eventTypes' | 'metrics';
 /**
  * Host overrides layered onto a plugin collection (Form Builder–style).
  * Access/admin merge shallowly; hook arrays are appended after plugin hooks.
@@ -80,6 +80,12 @@ export type AchievementEndpointsOptions = {
      * Pass `false` to skip registering the endpoint.
      */
     me?: string | false;
+    /**
+     * Root REST path to repair progression from existing grants (`POST`).
+     * Default: `'/achievements/reconcile'`. Requires host `canReview`.
+     * Pass `false` to skip.
+     */
+    reconcile?: string | false;
 };
 export type AchievementPluginOptions = {
     /**
@@ -113,5 +119,5 @@ export type AchievementPluginOptions = {
 };
 export type BuiltInRuleType = 'achievement-complete' | 'event-count' | 'metric-minimum' | 'tier-at-least';
 /** Engine log-type catalog slugs (seeded as system catalog rows). */
-export type BuiltInEventType = 'achievement.granted' | 'metric.delta' | 'tier.changed';
+export type BuiltInEventType = 'achievement.granted' | 'achievement.revoked' | 'metric.delta' | 'tier.changed';
 //# sourceMappingURL=types.d.ts.map

@@ -2,6 +2,9 @@ export declare const ENGINE_EVENT_TYPES: readonly [{
     readonly slug: "achievement.granted";
     readonly name: "Achievement granted";
 }, {
+    readonly slug: "achievement.revoked";
+    readonly name: "Achievement revoked";
+}, {
     readonly slug: "metric.delta";
     readonly name: "Metric delta";
     readonly requiresMetric: true;
