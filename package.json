@@ -76,8 +76,8 @@
     "typescript": "5.9.2",
     "prettier": "^3.6.2",
     "@types/bun": "1.4.0",
-    "@dappermountain/agent-practices": "github:DapperMountain/agent-practices",
-    "@dappermountain/agent-payload": "github:DapperMountain/agent-payload"
+    "@dappermountain/agent-practices": "^0.1.0",
+    "@dappermountain/agent-payload": "^0.1.0"
   },
   "engines": {
     "node": ">=20"
