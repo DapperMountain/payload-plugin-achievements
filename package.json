@@ -6,7 +6,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DapperMountain/payload-plugin-achievements.git"
+    "url": "https://github.com/DapperMountain/payload-plugin-achievements.git"
   },
   "bugs": {
     "url": "https://github.com/DapperMountain/payload-plugin-achievements/issues"
