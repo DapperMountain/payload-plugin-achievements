@@ -6,6 +6,7 @@
 4. Host migrations for new collections (plugin does not own migrate runner).
 5. `seedAchievementCatalog(payload)` once for system metric + event types.
 6. Record gameplay via server helpers (`recordMetricChange`, `recordLog`, …) from trusted code only.
-7. Optional REST: `GET /api/achievements/me` (disable with `endpoints.me: false`).
+7. Optional REST: `GET /api/achievements/me` (disable with `endpoints.me: false`); repair via `POST /api/achievements/reconcile` or host one-liner `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
+8. Turning **Requires review** off auto-approves pending requests for that definition/tier (plugin hooks).
 
 GitHub install note: consume built `dist/` — do not rely on consumer `prepare` for Bun GitHub deps.

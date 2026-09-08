@@ -72,7 +72,7 @@ export function buildTiersCollection() {
                 type: 'checkbox',
                 defaultValue: false,
                 admin: {
-                    description: 'When enabled, unlock rules alone are not enough — an approved tier request is required before this step becomes the member’s current tier.',
+                    description: 'When enabled, unlock rules alone are not enough — an approved tier request is required before this step becomes the member’s current tier. Turning it off approves pending requests for this tier automatically.',
                 },
             },
             {

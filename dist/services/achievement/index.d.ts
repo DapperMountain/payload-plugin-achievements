@@ -14,5 +14,7 @@ export { validateRuleGroup, validateRuleNode } from './validateRules';
 export { syncCompositeProgression } from './grantSideEffects';
 export { syncTierProgression } from './tierProgression';
 export { reconcileProgression, reconcileUserProgression } from './reconcile';
-export type { ReconcileProgressionResult } from './reconcile';
+export type { ReconcileProgressionArgs, ReconcileProgressionResult } from './reconcile';
+export { didDisableRequiresReview, releasePendingAchievementReviews, releasePendingTierReviews, } from './releaseReviewGate';
+export type { ReleaseReviewGateResult } from './releaseReviewGate';
 //# sourceMappingURL=index.d.ts.map

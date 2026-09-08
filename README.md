@@ -261,9 +261,25 @@ const tier = await resolveCurrentTier({ payload, userId, scopeId })
 
 // Repair users whose grants predate side-effect hooks (idempotent)
 await reconcileProgression({ payload })
+
+// Optional filters (ids or slugs)
+await reconcileProgression({
+  payload,
+  userId: '…',
+  scopeId: '…',
+  achievementSlug: 'ring-grim',
+  tierSlug: 'ring-solid',
+})
+
+// Host CLI (only boot config in the app — flags live in the plugin):
+//   bun --env-file=.env ./scripts/reconcile-achievements.ts -- --user=<id> --achievement=ring-grim
+import { runReconcileCli } from '@dappermountain/payload-plugin-achievements/cli'
+await runReconcileCli({ config })
 ```
 
 Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the sum of `change` on matching logs. Creating or deleting **grants** (Admin or API) writes `achievement.granted` / `achievement.revoked`, syncs composed achievements, and may open tier requests / write `tier.changed`.
+
+Turning **Requires review** off on a definition or tier **approves pending requests** for that row only (each waiting user goes through the existing request hooks).
 
 **Admin:** Grants list includes **Repair progression**, which `POST`s the reconcile endpoint (requires `canReview`).
 
@@ -272,7 +288,7 @@ Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the s
 | Goal | Request |
 | --- | --- |
 | Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` |
-| Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, limit }`) |
+| Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, achievementId\|achievementSlug, tierId\|tierSlug, limit }`) |
 | List grants | `GET /api/achievement-grants?where[user][equals]=<userId>` |
 | Log history | `GET /api/achievement-logs?where[user][equals]=<userId>` |
 | Request an achievement | `POST /api/achievement-requests` with `{ achievement }` |

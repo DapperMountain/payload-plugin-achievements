@@ -41,6 +41,10 @@ export function buildAchievementsCollection(): CollectionConfig {
         type: 'checkbox',
         defaultValue: true,
         label: 'Requires review',
+        admin: {
+          description:
+            'When turned off, any pending requests for this achievement are approved automatically (one user at a time via existing grant hooks).',
+        },
       },
       {
         name: 'eligibilityRules',

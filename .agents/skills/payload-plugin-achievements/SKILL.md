@@ -13,7 +13,7 @@ Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) 
 ## Package facts
 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
-- Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`
+- Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`; CLI from `./cli` (`runReconcileCli`)
 - Peer: `payload` ^3.88, `@payloadcms/ui` ^3.88, `react` ^19
 - Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps)
 
@@ -64,7 +64,9 @@ Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveT
 
 ## Server helpers (trusted only)
 
-`recordLog`, `recordMetricChange`, `grantAchievement`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+`recordLog`, `recordMetricChange`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+
+Turning **Requires review** off on a definition/tier approves that row’s pending requests (plugin `afterChange`). Host CLI: `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli` (optional `--user` / `--achievement` / `--tier` / `--scope`).
 
 ## Localization
 

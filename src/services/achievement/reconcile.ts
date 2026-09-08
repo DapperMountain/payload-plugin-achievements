@@ -19,6 +19,23 @@ export type ReconcileProgressionResult = {
   tierLogsWritten: number
 }
 
+export type ReconcileProgressionArgs = {
+  payload: Payload
+  req?: PayloadRequest
+  /** Limit to one member. */
+  userId?: string | null
+  scopeId?: string | null
+  /** Limit discovery to grants / requests for this achievement (id or slug). */
+  achievementId?: string | null
+  achievementSlug?: string | null
+  /** Limit discovery to tier requests for this tier (id or slug). */
+  tierId?: string | null
+  tierSlug?: string | null
+  limit?: number
+}
+
+type UserScopePair = { userId: string; scopeId: string | null }
+
 async function backfillGrantedLogs(args: {
   req: PayloadRequest
   userId: string
@@ -150,13 +167,193 @@ function scopeKey(scope: unknown): string {
   return id ?? ''
 }
 
-/** Scan grants and reconcile each distinct (user, scope) pair. */
-export async function reconcileProgression(args: {
+function addPair(
+  pairs: Map<string, UserScopePair>,
+  userId: string | null,
+  scopeId: string | null,
+  filterUserId?: string | null,
+  filterScopeId?: string | null,
+): void {
+  if (!userId) return
+  if (filterUserId && userId !== filterUserId) return
+  if (filterScopeId != null && filterScopeId !== '' && scopeId !== filterScopeId) return
+  const key = `${userId}::${scopeKey(scopeId)}`
+  if (!pairs.has(key)) pairs.set(key, { userId, scopeId })
+}
+
+async function resolveDefinitionId(args: {
   payload: Payload
-  req?: PayloadRequest
+  req: PayloadRequest
+  collection: 'achievements' | 'tiers'
+  id?: string | null
+  slug?: string | null
+}): Promise<string | null> {
+  if (args.id && args.id.length > 0) return args.id
+  if (!args.slug || args.slug.length === 0) return null
+  const found = await args.payload.find({
+    collection: collectionOf(args.collection),
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    req: args.req,
+    where: { slug: { equals: args.slug } },
+  })
+  return relationId(found.docs[0]?.id) ?? null
+}
+
+async function collectPairs(args: {
+  payload: Payload
+  req: PayloadRequest
+  userId?: string | null
   scopeId?: string | null
-  limit?: number
-}): Promise<ReconcileProgressionResult> {
+  achievementId?: string | null
+  achievementSlug?: string | null
+  tierId?: string | null
+  tierSlug?: string | null
+  limit: number
+}): Promise<UserScopePair[]> {
+  const pairs = new Map<string, UserScopePair>()
+  const filterUserId = args.userId?.trim() || null
+  const filterScopeId = args.scopeId ?? null
+
+  const achievementId = await resolveDefinitionId({
+    payload: args.payload,
+    req: args.req,
+    collection: 'achievements',
+    id: args.achievementId,
+    slug: args.achievementSlug,
+  })
+  const tierId = await resolveDefinitionId({
+    payload: args.payload,
+    req: args.req,
+    collection: 'tiers',
+    id: args.tierId,
+    slug: args.tierSlug,
+  })
+
+  if (filterUserId && !achievementId && !tierId) {
+    addPair(pairs, filterUserId, filterScopeId)
+    return [...pairs.values()]
+  }
+
+  if (achievementId) {
+    const grantWhere: Where = {
+      and: [
+        { achievement: { equals: achievementId } },
+        ...(filterUserId ? [{ user: { equals: filterUserId } }] : []),
+        ...(filterScopeId
+          ? [{ scope: { equals: filterScopeId } }]
+          : []),
+      ],
+    }
+    const grants = await args.payload.find({
+      collection: collectionOf('grants'),
+      depth: 0,
+      limit: args.limit,
+      pagination: false,
+      overrideAccess: true,
+      req: args.req,
+      where: grantWhere,
+    })
+    for (const grant of grants.docs) {
+      addPair(
+        pairs,
+        relationId((grant as { user?: unknown }).user),
+        relationId((grant as { scope?: unknown }).scope),
+        filterUserId,
+        filterScopeId,
+      )
+    }
+
+    const requestWhere: Where = {
+      and: [
+        { achievement: { equals: achievementId } },
+        ...(filterUserId ? [{ user: { equals: filterUserId } }] : []),
+        ...(filterScopeId ? [{ scope: { equals: filterScopeId } }] : []),
+      ],
+    }
+    const requests = await args.payload.find({
+      collection: collectionOf('achievementRequests'),
+      depth: 0,
+      limit: args.limit,
+      pagination: false,
+      overrideAccess: true,
+      req: args.req,
+      where: requestWhere,
+    })
+    for (const request of requests.docs) {
+      addPair(
+        pairs,
+        relationId((request as { user?: unknown }).user),
+        relationId((request as { scope?: unknown }).scope),
+        filterUserId,
+        filterScopeId,
+      )
+    }
+  }
+
+  if (tierId) {
+    const requestWhere: Where = {
+      and: [
+        { tier: { equals: tierId } },
+        ...(filterUserId ? [{ user: { equals: filterUserId } }] : []),
+        ...(filterScopeId ? [{ scope: { equals: filterScopeId } }] : []),
+      ],
+    }
+    const requests = await args.payload.find({
+      collection: collectionOf('tierRequests'),
+      depth: 0,
+      limit: args.limit,
+      pagination: false,
+      overrideAccess: true,
+      req: args.req,
+      where: requestWhere,
+    })
+    for (const request of requests.docs) {
+      addPair(
+        pairs,
+        relationId((request as { user?: unknown }).user),
+        relationId((request as { scope?: unknown }).scope),
+        filterUserId,
+        filterScopeId,
+      )
+    }
+  }
+
+  if (!achievementId && !tierId) {
+    const where: Where | undefined = filterScopeId
+      ? { scope: { equals: filterScopeId } }
+      : undefined
+    const grants = await args.payload.find({
+      collection: collectionOf('grants'),
+      depth: 0,
+      limit: args.limit,
+      pagination: false,
+      overrideAccess: true,
+      req: args.req,
+      ...(where ? { where } : {}),
+    })
+    for (const grant of grants.docs) {
+      addPair(
+        pairs,
+        relationId((grant as { user?: unknown }).user),
+        relationId((grant as { scope?: unknown }).scope),
+        filterUserId,
+        filterScopeId,
+      )
+    }
+  }
+
+  return [...pairs.values()]
+}
+
+/**
+ * Scan matching (user, scope) pairs and repair progression.
+ * Optional filters: `userId`, `scopeId`, `achievementId`/`achievementSlug`, `tierId`/`tierSlug`.
+ */
+export async function reconcileProgression(
+  args: ReconcileProgressionArgs,
+): Promise<ReconcileProgressionResult> {
   const req =
     args.req ??
     ({
@@ -165,28 +362,17 @@ export async function reconcileProgression(args: {
     } as PayloadRequest)
   if (!req.context) (req as { context: Record<string, unknown> }).context = {}
 
-  const where: Where | undefined = args.scopeId
-    ? { scope: { equals: args.scopeId } }
-    : undefined
-
-  const grants = await args.payload.find({
-    collection: collectionOf('grants'),
-    depth: 0,
-    limit: args.limit ?? 5000,
-    pagination: false,
-    overrideAccess: true,
+  const pairs = await collectPairs({
+    payload: args.payload,
     req,
-    ...(where ? { where } : {}),
+    userId: args.userId,
+    scopeId: args.scopeId,
+    achievementId: args.achievementId,
+    achievementSlug: args.achievementSlug,
+    tierId: args.tierId,
+    tierSlug: args.tierSlug,
+    limit: args.limit ?? 5000,
   })
-
-  const pairs = new Map<string, { userId: string; scopeId: string | null }>()
-  for (const grant of grants.docs) {
-    const userId = relationId((grant as { user?: unknown }).user)
-    if (!userId) continue
-    const scopeId = relationId((grant as { scope?: unknown }).scope)
-    const key = `${userId}::${scopeKey(scopeId)}`
-    if (!pairs.has(key)) pairs.set(key, { userId, scopeId })
-  }
 
   const totals: ReconcileProgressionResult = {
     usersScanned: 0,
@@ -197,7 +383,7 @@ export async function reconcileProgression(args: {
     tierLogsWritten: 0,
   }
 
-  for (const pair of pairs.values()) {
+  for (const pair of pairs) {
     const result = await reconcileUserProgression({
       payload: args.payload,
       req,

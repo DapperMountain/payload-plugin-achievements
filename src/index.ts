@@ -26,6 +26,8 @@ export {
   recordMetricChange,
   reconcileProgression,
   reconcileUserProgression,
+  releasePendingAchievementReviews,
+  releasePendingTierReviews,
   resolveCurrentTier,
   resolveTierProgress,
   reviewAchievementRequest,
@@ -42,7 +44,9 @@ export type {
   TierLadderProgress,
   CatalogProgressGroup,
   CatalogProgressItem,
+  ReconcileProgressionArgs,
   ReconcileProgressionResult,
+  ReleaseReviewGateResult,
 } from './services/achievement/index'
 export type {
   BuiltInEventType,
