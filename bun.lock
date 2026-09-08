@@ -5,8 +5,8 @@
     "": {
       "name": "@dappermountain/payload-plugin-achievements",
       "devDependencies": {
-        "@dappermountain/agent-payload": "^0.1.4",
-        "@dappermountain/agent-practices": "github:DapperMountain/agent-practices",
+        "@dappermountain/agent-payload": "^0.1.5",
+        "@dappermountain/agent-practices": "^0.1.2",
         "@payloadcms/ui": "3.88.0",
         "@types/bun": "1.4.0",
         "@types/react": "^19.0.0",
@@ -49,9 +49,9 @@
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
-    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@0.1.4", "", { "peerDependencies": { "@dappermountain/agent-practices": "^0.1.0" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "bin/sync.ts" } }, "sha512-TvHstMi+C1dxRc965pOG5M8f1PD6NPQJ9ZlkrQ8rjT2yS/5HAbDicGLpXxUf88NuNIiSUcZjz6I/wstY/dNwIw=="],
+    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@0.1.5", "", { "peerDependencies": { "@dappermountain/agent-practices": "^0.1.0" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "bin/sync.ts" } }, "sha512-OgvsnvwkKorfZcWxROXIbwbeVqBh9dX4naRC45EPGaI5wgwtfRYDM3c1mrRwqxavRRSfqPQTg+jSrHc/qI9h9g=="],
 
-    "@dappermountain/agent-practices": ["@dappermountain/agent-practices@github:DapperMountain/agent-practices#9155378", { "bin": { "agent-practices": "./bin/sync.ts" } }, "DapperMountain-agent-practices-9155378", "sha512-R/5SCJU6a+DMsUpl3e36Pf5XJwxuOQUprTV5ELKGQqeixzKaoOeLR1QipN2J+WbQe7CNO/va1G7IY1ozvMJSYA=="],
+    "@dappermountain/agent-practices": ["@dappermountain/agent-practices@0.1.2", "", { "bin": { "agent-practices": "bin/sync.ts" } }, "sha512-rWITiIIVZwwTVXQA4urV05vrCB+kawWceBcgZmi/+9rVmh0KYgpsPRoc0OMnyc5JzbXrxATMvkrBuQaUbkYuNg=="],
 
     "@date-fns/tz": ["@date-fns/tz@1.2.0", "", {}, "sha512-LBrd7MiJZ9McsOgxqWX7AaxrDjcFVjWH/tIKJd7pnR7McaslGYOP1QmmiBXdJH/H/yLCT+rcQ7FaPBUxRGUtrg=="],
 

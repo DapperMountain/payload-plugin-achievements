@@ -69,8 +69,8 @@
     "react": "^19.0.0"
   },
   "devDependencies": {
-    "@dappermountain/agent-payload": "^0.1.4",
-    "@dappermountain/agent-practices": "github:DapperMountain/agent-practices",
+    "@dappermountain/agent-payload": "^0.1.5",
+    "@dappermountain/agent-practices": "^0.1.2",
     "@payloadcms/ui": "3.88.0",
     "@types/bun": "1.4.0",
     "@types/react": "^19.0.0",
