@@ -312,8 +312,8 @@ This repo vendors AI agent rules and skills under [`.agents/`](.agents/). See [`
 
 ```bash
 bun install
-bun run agents:sync      # practices + payload rules/overlay + .cursor → .agents symlinks
-bun run skills:install   # vendor payloadcms/skills → .agents/skills/payload
+bun run agents:sync
+bun run skills:install
 ```
 
-Dependencies: [`@dappermountain/agent-practices`](https://github.com/DapperMountain/agent-practices), [`@dappermountain/agent-payload`](https://github.com/DapperMountain/agent-payload) (dev). Prefer explicit sync over postinstall (Bun blocks untrusted GitHub lifecycle scripts).
+Dev dependencies: [`@dappermountain/agent-practices`](https://www.npmjs.com/package/@dappermountain/agent-practices), [`@dappermountain/agent-payload`](https://www.npmjs.com/package/@dappermountain/agent-payload). Run `agents:sync` after install or upgrade so rules land under `.agents/`.
