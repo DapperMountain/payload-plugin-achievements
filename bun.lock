@@ -49,7 +49,7 @@
 
     "@borewit/text-codec": ["@borewit/text-codec@0.2.2", "", {}, "sha512-DDaRehssg1aNrH4+2hnj1B7vnUGEjU6OIlyRdkMd0aUdIUvKXrJfXsy8LVtXAy7DRvYVluWbMspsRhz2lcW0mQ=="],
 
-    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@github:DapperMountain/agent-payload#8be57f3", { "peerDependencies": { "@dappermountain/agent-practices": "*" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "./bin/sync.ts" } }, "DapperMountain-agent-payload-8be57f3", "sha512-oSJJwtz1jUPJMw2ZKS3MTOynGCxvZ4zSg4QyzB9TeduGPWbyg+y3lZn7bUG41Kegz5W6fi06icxhmJpWt5H9uA=="],
+    "@dappermountain/agent-payload": ["@dappermountain/agent-payload@github:DapperMountain/agent-payload#f92ab77", { "peerDependencies": { "@dappermountain/agent-practices": "*" }, "optionalPeers": ["@dappermountain/agent-practices"], "bin": { "agent-payload": "./bin/sync.ts" } }, "DapperMountain-agent-payload-f92ab77", "sha512-Rm2YW46OkdwAB+vgzAsqb8vHX5pxl6BJTPqqKBkH8vvCB9yAZu/HG7s3m3va4gq8aYUV7YKADmSD86P2rQbnqg=="],
 
     "@dappermountain/agent-practices": ["@dappermountain/agent-practices@github:DapperMountain/agent-practices#9155378", { "bin": { "agent-practices": "./bin/sync.ts" } }, "DapperMountain-agent-practices-9155378", "sha512-R/5SCJU6a+DMsUpl3e36Pf5XJwxuOQUprTV5ELKGQqeixzKaoOeLR1QipN2J+WbQe7CNO/va1G7IY1ozvMJSYA=="],
 
