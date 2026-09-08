@@ -10,3 +10,4 @@ export { validateRuleGroup, validateRuleNode } from './validateRules';
 export { syncCompositeProgression } from './grantSideEffects';
 export { syncTierProgression } from './tierProgression';
 export { reconcileProgression, reconcileUserProgression } from './reconcile';
+export { didDisableRequiresReview, releasePendingAchievementReviews, releasePendingTierReviews, } from './releaseReviewGate';
