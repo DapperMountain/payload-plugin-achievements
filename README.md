@@ -305,3 +305,15 @@ await seedAchievements(payload, {
 ## License
 
 MIT © Dapper Mountain
+
+## Agent context (Cursor)
+
+This repo vendors AI agent rules and skills under [`.agents/`](.agents/). See [`AGENTS.md`](AGENTS.md).
+
+```bash
+bun install
+bun run agents:sync      # practices + payload rules/overlay + .cursor → .agents symlinks
+bun run skills:install   # vendor payloadcms/skills → .agents/skills/payload
+```
+
+Dependencies: [`@dappermountain/agent-practices`](https://github.com/DapperMountain/agent-practices), [`@dappermountain/agent-payload`](https://github.com/DapperMountain/agent-payload) (dev). Prefer explicit sync over postinstall (Bun blocks untrusted GitHub lifecycle scripts).

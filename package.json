@@ -57,7 +57,11 @@
     "test": "bun test src",
     "prepublishOnly": "bun run build",
     "clean": "rm -rf dist *.tsbuildinfo",
-    "format": "prettier --write \"src/**/*.{ts,tsx,md}\" \"*.md\""
+    "format": "prettier --write \"src/**/*.{ts,tsx,md}\" \"*.md\"",
+    "agents:sync": "bunx @dappermountain/agent-payload sync",
+    "skills:install": "bunx skills add payloadcms/skills --skill payload -y --copy -a cursor",
+    "skills:update": "bunx skills update payload -y -p",
+    "skills:check": "bunx skills check -p"
   },
   "peerDependencies": {
     "@payloadcms/ui": "^3.88.0",
@@ -71,7 +75,9 @@
     "react": "19.2.4",
     "typescript": "5.9.2",
     "prettier": "^3.6.2",
-    "@types/bun": "1.4.0"
+    "@types/bun": "1.4.0",
+    "@dappermountain/agent-practices": "github:DapperMountain/agent-practices",
+    "@dappermountain/agent-payload": "github:DapperMountain/agent-payload"
   },
   "engines": {
     "node": ">=20"
