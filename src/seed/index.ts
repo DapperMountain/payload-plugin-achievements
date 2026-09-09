@@ -204,9 +204,12 @@ async function resolveRuleNode(
   const next = { ...rule }
 
   if (next.type === 'group' && Array.isArray(next.rules)) {
-    next.rules = await Promise.all(
-      (next.rules as Record<string, unknown>[]).map((child) => resolveRuleNode(payload, child)),
-    )
+    const children: Record<string, unknown>[] = []
+    for (const child of next.rules as Record<string, unknown>[]) {
+      // Sequential: Payload/pg clients warn (and will error in pg@9) if queries overlap.
+      children.push(await resolveRuleNode(payload, child))
+    }
+    next.rules = children
     return next
   }
 
@@ -266,9 +269,13 @@ async function resolveRuleGroup(
   input: AchievementSeedTier['unlockRules'],
 ): Promise<{ combinator: 'and' | 'or'; rules: Record<string, unknown>[] }> {
   const group = normalizeRuleGroup(input as never)
+  const rules: Record<string, unknown>[] = []
+  for (const rule of group.rules) {
+    rules.push(await resolveRuleNode(payload, rule))
+  }
   return {
     combinator: group.combinator,
-    rules: await Promise.all(group.rules.map((rule) => resolveRuleNode(payload, rule))),
+    rules,
   }
 }
 
