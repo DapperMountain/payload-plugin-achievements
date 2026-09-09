@@ -32,6 +32,7 @@ export function buildMetricsCollection(): CollectionConfig {
         type: 'select',
         required: true,
         defaultValue: 'stored',
+        enumName: 'ach_metric_kind',
         options: [
           { label: 'Stored (log deltas)', value: 'stored' },
           { label: 'Computed', value: 'computed' },
@@ -44,6 +45,7 @@ export function buildMetricsCollection(): CollectionConfig {
         name: 'compute',
         type: 'select',
         defaultValue: 'elapsed',
+        enumName: 'ach_metric_compute',
         options: [{ label: 'Elapsed time', value: 'elapsed' }],
         admin: {
           condition: (_, sibling) => sibling?.kind === 'computed',
@@ -54,6 +56,7 @@ export function buildMetricsCollection(): CollectionConfig {
         name: 'unit',
         type: 'select',
         defaultValue: 'days',
+        enumName: 'ach_metric_unit',
         options: [
           { label: 'Days', value: 'days' },
           { label: 'Hours', value: 'hours' },
@@ -68,6 +71,7 @@ export function buildMetricsCollection(): CollectionConfig {
         name: 'since',
         type: 'select',
         defaultValue: 'user-created-at',
+        enumName: 'ach_metric_since',
         options: elapsedSinceSelectOptions(),
         admin: {
           condition: (_, sibling) => sibling?.kind === 'computed' && sibling?.compute === 'elapsed',
