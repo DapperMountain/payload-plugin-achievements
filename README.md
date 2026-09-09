@@ -110,7 +110,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 - Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`, `elapsed-since`
 - Custom leaves → register via `extensions.ruleTypes`
 
-**Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
+**Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. Turning **`requiresReview` off** approves pending tier requests and writes missing `tier.changed` logs for members who already meet unlock rules (including those who never had a pending request). **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
 
 | Combinator / leaf | Progress behavior |
 | --- | --- |

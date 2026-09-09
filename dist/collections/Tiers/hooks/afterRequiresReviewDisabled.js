@@ -1,7 +1,8 @@
 import { didDisableRequiresReview, releasePendingTierReviews, } from '../../../services/achievement/releaseReviewGate.js';
 /**
- * When Requires review is turned off, approve pending tier requests for this step
- * so each waiting user gets a tier.changed audit via existing request hooks.
+ * When Requires review is turned off, approve pending tier requests and sync
+ * `tier.changed` for members who already met unlock rules (including those with
+ * no pending request — otherwise the UI advances with no audit until Repair).
  */
 export const afterRequiresReviewDisabled = async ({ doc, operation, previousDoc, req, }) => {
     if (operation !== 'update')
