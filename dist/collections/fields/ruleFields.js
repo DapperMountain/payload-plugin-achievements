@@ -93,6 +93,8 @@ function ruleParamFields() {
         {
             name: 'since',
             type: 'select',
+            // Nested under eligibility/completion/unlock → rules → rules; keep PG enum ≤63 chars.
+            enumName: 'ach_elapsed_since',
             defaultValue: 'user-created-at',
             options: elapsedSinceSelectOptions(),
             admin: {
@@ -117,6 +119,7 @@ function ruleParamFields() {
                 {
                     name: 'unit',
                     type: 'select',
+                    enumName: 'ach_elapsed_unit',
                     defaultValue: 'days',
                     options: [
                         { label: 'Days', value: 'days' },
