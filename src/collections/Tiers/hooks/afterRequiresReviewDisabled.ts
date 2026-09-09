@@ -3,7 +3,7 @@ import type { CollectionAfterChangeHook } from 'payload'
 import {
   didDisableRequiresReview,
   releasePendingTierReviews,
-} from '../../../services/achievement/releaseReviewGate'
+} from '../../../services/achievement/releaseReviewGate.js'
 
 /**
  * When Requires review is turned off, approve pending tier requests for this step

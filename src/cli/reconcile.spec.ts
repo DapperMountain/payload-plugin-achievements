@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { parseReconcileCliArgs } from './reconcile'
+import { parseReconcileCliArgs } from './reconcile.js'
 
 describe('parseReconcileCliArgs', () => {
   test('reads user, scope, achievement, and tier flags', () => {

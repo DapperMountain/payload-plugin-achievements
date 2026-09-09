@@ -1,4 +1,4 @@
-import { collectionOf } from '../../collections/helpers';
+import { collectionOf } from '../../collections/helpers.js';
 export async function hasApprovedTierRequest(args) {
     const clauses = [
         { user: { equals: args.userId } },

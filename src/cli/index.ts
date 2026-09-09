@@ -2,5 +2,5 @@ export {
   parseReconcileCliArgs,
   printReconcileCliHelp,
   runReconcileCli,
-} from './reconcile'
-export type { ReconcileCliFilters } from './reconcile'
+} from './reconcile.js'
+export type { ReconcileCliFilters } from './reconcile.js'

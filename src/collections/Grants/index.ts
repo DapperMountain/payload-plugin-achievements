@@ -1,10 +1,10 @@
 import type { CollectionConfig, Field } from 'payload'
 
-import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers'
-import { scopeField, userField } from '../fields'
-import { getAchievementOptions } from '../../options-store'
-import { access } from './access'
-import { hooks } from './hooks'
+import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js'
+import { scopeField, userField } from '../fields/index.js'
+import { getAchievementOptions } from '../../options-store.js'
+import { access } from './access/index.js'
+import { hooks } from './hooks/index.js'
 
 export function buildGrantsCollection(): CollectionConfig {
   const reconcilePath = getAchievementOptions().endpoints?.reconcile

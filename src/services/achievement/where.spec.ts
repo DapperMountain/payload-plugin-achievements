@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where'
+import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where.js'
 
 describe('userScopeWhere', () => {
   test('filters by user alone when scope is null', () => {

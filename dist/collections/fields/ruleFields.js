@@ -1,5 +1,5 @@
-import { catalogFilterOptions } from './catalogFilter';
-import { collectionOf } from '../helpers';
+import { catalogFilterOptions } from './catalogFilter.js';
+import { collectionOf } from '../helpers.js';
 function combinatorField(visibleWhenGroup) {
     return {
         name: 'combinator',

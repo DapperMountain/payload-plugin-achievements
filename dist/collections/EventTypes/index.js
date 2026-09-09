@@ -1,7 +1,7 @@
-import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers';
-import { localizedNameField, scopeField } from '../fields';
-import { access } from './access';
-import { hooks } from './hooks';
+import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js';
+import { localizedNameField, scopeField } from '../fields/index.js';
+import { access } from './access/index.js';
+import { hooks } from './hooks/index.js';
 export function buildEventTypesCollection() {
     return {
         slug: slugOf('eventTypes'),

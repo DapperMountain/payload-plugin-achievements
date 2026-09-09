@@ -1,5 +1,5 @@
-import { relationId } from './relationId'
-import { collectAchievementCompleteRefs } from './evaluateRules'
+import { relationId } from './relationId.js'
+import { collectAchievementCompleteRefs } from './evaluateRules.js'
 
 export type CatalogProgressItem = {
   id: string

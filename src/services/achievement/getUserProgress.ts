@@ -1,9 +1,9 @@
 import type { PaginatedDocs, Payload, PayloadRequest } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
-import { relationId } from './relationId'
-import { resolveCurrentTier } from './resolveCurrentTier'
-import { userScopeWhere } from './where'
+import { collectionOf } from '../../collections/helpers.js'
+import { relationId } from './relationId.js'
+import { resolveCurrentTier } from './resolveCurrentTier.js'
+import { userScopeWhere } from './where.js'
 
 type LeanCatalog = { id: string; name?: string; slug?: string; description?: string }
 type LeanTier = LeanCatalog & { rank?: number; scopeId?: string | null }

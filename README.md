@@ -30,6 +30,8 @@ bun add @dappermountain/payload-plugin-achievements
 
 Other clients also work (`npm install @dappermountain/payload-plugin-achievements`, etc.).
 
+Next.js hosts should list the package in `transpilePackages` so `'use client'` admin components compile. Host imports stay on the package name; relative `.js` specifiers are internal to this package.
+
 ## Quick start
 
 ```ts

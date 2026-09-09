@@ -1,5 +1,5 @@
-import { collectionOf } from '../../collections/helpers';
-import { createGrantRow } from './grantSideEffects';
+import { collectionOf } from '../../collections/helpers.js';
+import { createGrantRow } from './grantSideEffects.js';
 /**
  * Create an achievement request (or auto-approved grant) via the collection.
  * Hooks bind the requesting user, check eligibility, and grant when approved.

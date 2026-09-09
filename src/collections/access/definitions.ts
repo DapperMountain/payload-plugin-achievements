@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
-import type { AchievementCollectionKey } from '../../types'
-import { isAuthenticated, requireOne } from '../../access/index'
-import { isReviewer } from '../../access/roles/index'
+import type { AchievementCollectionKey } from '../../types.js'
+import { isAuthenticated, requireOne } from '../../access/index.js'
+import { isReviewer } from '../../access/roles/index.js'
 
 /** Catalog / definition collections (writes gated by `canReview`). */
 export function definitionAccess(

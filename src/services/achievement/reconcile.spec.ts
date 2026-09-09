@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 
-import { setAchievementOptions } from '../../options-store'
-import { reconcileProgression } from './reconcile'
+import { setAchievementOptions } from '../../options-store.js'
+import { reconcileProgression } from './reconcile.js'
 
 function mockPayload(findImpl: (args: { collection: string }) => { docs: unknown[] }) {
   const find = mock(async (args: { collection: string }) => {

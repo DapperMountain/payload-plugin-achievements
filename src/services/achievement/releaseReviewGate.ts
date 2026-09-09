@@ -1,7 +1,7 @@
 import type { PayloadRequest } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
-import { relationId } from './relationId'
+import { collectionOf } from '../../collections/helpers.js'
+import { relationId } from './relationId.js'
 
 export type ReleaseReviewGateResult = {
   requestsApproved: number

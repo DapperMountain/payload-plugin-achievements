@@ -1,5 +1,5 @@
-import type { AchievementPluginOptions } from './types'
-import { resolveOptions, type ResolvedAchievementOptions } from './defaults'
+import type { AchievementPluginOptions } from './types.js'
+import { resolveOptions, type ResolvedAchievementOptions } from './defaults.js'
 
 let stored: ResolvedAchievementOptions | null = null
 

@@ -1,5 +1,5 @@
-import { relationId } from './relationId';
-import { collectAchievementCompleteRefs } from './evaluateRules';
+import { relationId } from './relationId.js';
+import { collectAchievementCompleteRefs } from './evaluateRules.js';
 function grantKey(achievement) {
     const id = relationId(achievement);
     const slug = achievement && typeof achievement === 'object' && 'slug' in achievement

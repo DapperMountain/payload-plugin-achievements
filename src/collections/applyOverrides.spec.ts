@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import type { CollectionConfig } from 'payload'
 
-import { applyCollectionOverrides } from './applyOverrides'
+import { applyCollectionOverrides } from './applyOverrides.js'
 
 const pluginHook = () => undefined
 const hostHook = () => undefined

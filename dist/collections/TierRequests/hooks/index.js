@@ -1,4 +1,4 @@
-import { afterTierRequestChange, prepareTierRequest } from './prepareTierRequest';
+import { afterTierRequestChange, prepareTierRequest } from './prepareTierRequest.js';
 export const hooks = {
     beforeValidate: [prepareTierRequest],
     afterChange: [afterTierRequestChange],

@@ -1,5 +1,5 @@
-import { relationId } from '../../../services/achievement/relationId';
-import { collectionOf } from '../../helpers';
+import { relationId } from '../../../services/achievement/relationId.js';
+import { collectionOf } from '../../helpers.js';
 async function achievementName(args) {
     const id = relationId(args.value);
     if (!id)

@@ -1,6 +1,6 @@
-import { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, runAfterGrantCreated, runAfterGrantDeleted } from '../../../services/achievement/grantSideEffects';
-import { relationId } from '../../../services/achievement/relationId';
-import { collectionOf } from '../../../collections/helpers';
+import { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, runAfterGrantCreated, runAfterGrantDeleted } from '../../../services/achievement/grantSideEffects.js';
+import { relationId } from '../../../services/achievement/relationId.js';
+import { collectionOf } from '../../../collections/helpers.js';
 async function achievementSlug(req, achievementId) {
     try {
         const def = (await req.payload.findByID({

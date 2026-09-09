@@ -6,8 +6,8 @@ import {
   resolveMeEndpointPath,
   resolveOptions,
   resolveReconcileEndpointPath,
-} from '../defaults'
-import { buildAchievementEndpoints } from './index'
+} from '../defaults.js'
+import { buildAchievementEndpoints } from './index.js'
 
 describe('resolveMeEndpointPath', () => {
   test('defaults to /achievements/me', () => {

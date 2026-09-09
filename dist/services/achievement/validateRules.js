@@ -1,6 +1,6 @@
 import { APIError } from 'payload';
-import { relationId } from './relationId';
-import { normalizeRuleGroup } from './evaluateRules';
+import { relationId } from './relationId.js';
+import { normalizeRuleGroup } from './evaluateRules.js';
 /**
  * Validate a single rule node (leaf or group). Returns an error message or null.
  * Built-in types require their fields; unknown types are left to host extensions.

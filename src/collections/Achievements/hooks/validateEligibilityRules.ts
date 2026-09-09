@@ -1,6 +1,6 @@
 import type { CollectionBeforeValidateHook } from 'payload'
 
-import { assertRuleGroupValid } from '../../../services/achievement/validateRules'
+import { assertRuleGroupValid } from '../../../services/achievement/validateRules.js'
 
 export const validateAchievementRules: CollectionBeforeValidateHook = ({ data }) => {
   if (!data) return data

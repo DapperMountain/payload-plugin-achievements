@@ -1,4 +1,4 @@
-import { ensureTypeRequirements } from './ensureTypeRequirements';
+import { ensureTypeRequirements } from './ensureTypeRequirements.js';
 export const hooks = {
     beforeValidate: [ensureTypeRequirements],
 };

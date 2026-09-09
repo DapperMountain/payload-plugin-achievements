@@ -1,7 +1,7 @@
-import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers';
-import { scopeField, userField } from '../fields';
-import { access } from './access';
-import { hooks } from './hooks';
+import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers.js';
+import { scopeField, userField } from '../fields/index.js';
+import { access } from './access/index.js';
+import { hooks } from './hooks/index.js';
 export function buildTierRequestsCollection() {
     return {
         slug: slugOf('tierRequests'),

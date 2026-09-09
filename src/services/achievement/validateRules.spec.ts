@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { APIError } from 'payload'
 
-import { assertRuleGroupValid, validateRuleGroup, validateRuleNode } from './validateRules'
+import { assertRuleGroupValid, validateRuleGroup, validateRuleNode } from './validateRules.js'
 
 describe('validateRuleNode', () => {
   test('requires fields for built-in leaf types', () => {

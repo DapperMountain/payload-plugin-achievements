@@ -1,7 +1,7 @@
-import type { AchievementRuleEvalArgs, AchievementRuleType } from '../../types'
-import { collectionOf } from '../../collections/helpers'
-import { relationId } from './relationId'
-import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where'
+import type { AchievementRuleEvalArgs, AchievementRuleType } from '../../types.js'
+import { collectionOf } from '../../collections/helpers.js'
+import { relationId } from './relationId.js'
+import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where.js'
 import type { Where } from 'payload'
 
 function clamp01(value: number): number {
@@ -205,7 +205,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
 
       let currentRank = ladderRank
       if (currentRank === undefined) {
-        const { resolveCurrentTier } = await import('./resolveCurrentTier')
+        const { resolveCurrentTier } = await import('./resolveCurrentTier.js')
         const current = await resolveCurrentTier({
           payload,
           req,
@@ -249,7 +249,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
       if (visited.has(visitKey)) return 0
       visited.add(visitKey)
 
-      const { evaluateRuleProgress, ruleGroupHasProgressRequirements } = await import('./evaluateRules')
+      const { evaluateRuleProgress, ruleGroupHasProgressRequirements } = await import('./evaluateRules.js')
       const composition = ruleGroupHasProgressRequirements(ref.completionRules as never)
         ? ref.completionRules
         : ref.eligibilityRules

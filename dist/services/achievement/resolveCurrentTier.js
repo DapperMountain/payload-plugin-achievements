@@ -1,7 +1,7 @@
-import { collectionOf } from '../../collections/helpers';
-import { evaluateRules } from './evaluateRules';
-import { relationId } from './relationId';
-import { hasApprovedTierRequest } from './tierApproval';
+import { collectionOf } from '../../collections/helpers.js';
+import { evaluateRules } from './evaluateRules.js';
+import { relationId } from './relationId.js';
+import { hasApprovedTierRequest } from './tierApproval.js';
 /**
  * Derive current tier by walking unlock rules in rank order (lowest first).
  * Empty unlock rules pass. Tiers with `requiresReview` only count once an approved tier request exists.

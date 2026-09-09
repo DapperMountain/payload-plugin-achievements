@@ -2,7 +2,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { RelationshipField, useField } from '@payloadcms/ui';
 import { useEffect } from 'react';
-import { useEventTypeFlags } from './useEventTypeFlags';
+import { useEventTypeFlags } from './useEventTypeFlags.js';
 /** Metric relationship — only for event types that adjust a score. */
 export function MetricField(props) {
     const { eventTypesSlug, ...fieldArgs } = props;

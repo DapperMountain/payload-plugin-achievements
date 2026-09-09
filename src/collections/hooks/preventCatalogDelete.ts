@@ -1,9 +1,9 @@
 import type { CollectionBeforeDeleteHook } from 'payload'
 import { APIError } from 'payload'
 
-import { collectionOf } from '../helpers'
-import { relationId } from '../../services/achievement/relationId'
-import { eachRuleLeaf, type LeafVisitor } from './eachRuleLeaf'
+import { collectionOf } from '../helpers.js'
+import { relationId } from '../../services/achievement/relationId.js'
+import { eachRuleLeaf, type LeafVisitor } from './eachRuleLeaf.js'
 
 async function countMatchingLeaves(args: {
   req: Parameters<CollectionBeforeDeleteHook>[0]['req']

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { buildCatalogProgressGroups } from './buildCatalogProgressGroups'
+import { buildCatalogProgressGroups } from './buildCatalogProgressGroups.js'
 
 describe('buildCatalogProgressGroups', () => {
   test('orders children from completion rules and marks unearned rows', () => {

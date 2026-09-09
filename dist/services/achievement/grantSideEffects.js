@@ -1,12 +1,12 @@
-import { collectionOf } from '../../collections/helpers';
-import { CTX_CASCADING_REVOKE, CTX_SYSTEM_REQUEST } from './contextFlags';
-import { evaluateRules, ruleGroupHasProgressRequirements } from './evaluateRules';
-import { transitionLogData } from './logData';
-import { recordLog, syncTierChangedLog } from './recordEvent';
-import { relationId } from './relationId';
-import { syncTierProgression } from './tierProgression';
-import { userScopeWhere } from './where';
-export { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, CTX_SYSTEM_REQUEST } from './contextFlags';
+import { collectionOf } from '../../collections/helpers.js';
+import { CTX_CASCADING_REVOKE, CTX_SYSTEM_REQUEST } from './contextFlags.js';
+import { evaluateRules, ruleGroupHasProgressRequirements } from './evaluateRules.js';
+import { transitionLogData } from './logData.js';
+import { recordLog, syncTierChangedLog } from './recordEvent.js';
+import { relationId } from './relationId.js';
+import { syncTierProgression } from './tierProgression.js';
+import { userScopeWhere } from './where.js';
+export { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, CTX_SYSTEM_REQUEST } from './contextFlags.js';
 /** Create a grant row only — side effects run in Grants afterChange. */
 export async function createGrantRow(args) {
     const scopeId = args.scopeId ?? null;

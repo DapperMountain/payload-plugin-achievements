@@ -1,7 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
-import { isAuthenticated, requireOne } from '../../../access/index'
-import { isReviewer, isSelfUser } from '../../../access/roles/index'
+import { isAuthenticated, requireOne } from '../../../access/index.js'
+import { isReviewer, isSelfUser } from '../../../access/roles/index.js'
 
 export const access: NonNullable<CollectionConfig['access']> = {
   read: requireOne(isReviewer('tierRequests'), isSelfUser('user')),

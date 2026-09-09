@@ -1,7 +1,7 @@
-import { buildRuleTreeFields, localizedDescriptionField, localizedNameField, scopeField } from '../fields';
-import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers';
-import { access } from './access';
-import { hooks } from './hooks';
+import { buildRuleTreeFields, localizedDescriptionField, localizedNameField, scopeField } from '../fields/index.js';
+import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js';
+import { access } from './access/index.js';
+import { hooks } from './hooks/index.js';
 export function buildAchievementsCollection() {
     return {
         slug: slugOf('achievements'),

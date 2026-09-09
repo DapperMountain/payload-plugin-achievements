@@ -1,5 +1,5 @@
 import { type SanitizedConfig } from 'payload';
-import { type ReconcileProgressionArgs, type ReconcileProgressionResult } from '../services/achievement/reconcile';
+import { type ReconcileProgressionArgs, type ReconcileProgressionResult } from '../services/achievement/reconcile.js';
 export type ReconcileCliFilters = Omit<ReconcileProgressionArgs, 'payload' | 'req'>;
 /** Parse `--user`, `--achievement`, `--tier`, `--scope`, `--limit` (ids or slugs). */
 export declare function parseReconcileCliArgs(argv?: string[]): ReconcileCliFilters;

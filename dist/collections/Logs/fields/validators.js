@@ -1,5 +1,5 @@
-import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor';
-import { relationId } from '../../../services/achievement/relationId';
+import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor.js';
+import { relationId } from '../../../services/achievement/relationId.js';
 export const validateActor = async (value, { data, req }) => {
     if (!req?.payload)
         return true;

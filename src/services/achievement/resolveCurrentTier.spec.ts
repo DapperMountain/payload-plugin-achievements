@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 
-import { setAchievementOptions } from '../../options-store'
-import { resolveCurrentTier } from './resolveCurrentTier'
+import { setAchievementOptions } from '../../options-store.js'
+import { resolveCurrentTier } from './resolveCurrentTier.js'
 
 describe('resolveCurrentTier', () => {
   test('walks ranks and keeps the highest unlocked tier', async () => {

@@ -1,5 +1,5 @@
 import type { Payload, PayloadRequest } from 'payload';
-import { type ResolvedTier } from './resolveCurrentTier';
+import { type ResolvedTier } from './resolveCurrentTier.js';
 export type TierLadderProgress = {
     current: ResolvedTier | null;
     next: ResolvedTier | null;

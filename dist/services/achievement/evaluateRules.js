@@ -1,5 +1,5 @@
-import { relationId } from './relationId';
-import { getRuleTypeMap } from '../../extensions/registry';
+import { relationId } from './relationId.js';
+import { getRuleTypeMap } from '../../extensions/registry.js';
 export function normalizeRuleGroup(input) {
     if (!input)
         return { combinator: 'and', rules: [] };

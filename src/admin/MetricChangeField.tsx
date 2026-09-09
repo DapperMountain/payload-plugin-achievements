@@ -4,7 +4,7 @@ import type { NumberFieldClientProps } from 'payload'
 import { NumberField, useField, useFormFields } from '@payloadcms/ui'
 import React, { useEffect } from 'react'
 
-import { useEventTypeFlags } from './useEventTypeFlags'
+import { useEventTypeFlags } from './useEventTypeFlags.js'
 
 type MetricChangeFieldProps = NumberFieldClientProps & {
   eventTypesSlug: string

@@ -1,7 +1,7 @@
 import { APIError } from 'payload';
-import { collectionOf } from '../../collections/helpers';
-import { getAchievementOptions } from '../../options-store';
-import { relationId } from './relationId';
+import { collectionOf } from '../../collections/helpers.js';
+import { getAchievementOptions } from '../../options-store.js';
+import { relationId } from './relationId.js';
 /**
  * Approve or reject via collection update. Grant runs in afterChange when approved.
  */

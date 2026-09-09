@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { relationId } from './relationId'
+import { relationId } from './relationId.js'
 
 describe('relationId', () => {
   test('accepts string and number ids', () => {

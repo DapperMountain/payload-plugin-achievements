@@ -1,4 +1,4 @@
-import { assertRuleGroupValid } from '../../../services/achievement/validateRules';
+import { assertRuleGroupValid } from '../../../services/achievement/validateRules.js';
 export const validateAchievementRules = ({ data }) => {
     if (!data)
         return data;

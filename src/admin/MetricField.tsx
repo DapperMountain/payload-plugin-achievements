@@ -4,7 +4,7 @@ import type { RelationshipFieldClientProps } from 'payload'
 import { RelationshipField, useField } from '@payloadcms/ui'
 import React, { useEffect } from 'react'
 
-import { useEventTypeFlags } from './useEventTypeFlags'
+import { useEventTypeFlags } from './useEventTypeFlags.js'
 
 type MetricFieldProps = RelationshipFieldClientProps & {
   eventTypesSlug: string

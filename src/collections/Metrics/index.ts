@@ -1,9 +1,9 @@
 import type { CollectionConfig } from 'payload'
 
-import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers'
-import { localizedNameField, scopeField } from '../fields'
-import { access } from './access'
-import { hooks } from './hooks'
+import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js'
+import { localizedNameField, scopeField } from '../fields/index.js'
+import { access } from './access/index.js'
+import { hooks } from './hooks/index.js'
 
 export function buildMetricsCollection(): CollectionConfig {
   return {

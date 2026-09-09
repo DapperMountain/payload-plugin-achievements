@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 
-import { setAchievementOptions } from '../../options-store'
-import { resolveCurrentTier } from './resolveCurrentTier'
+import { setAchievementOptions } from '../../options-store.js'
+import { resolveCurrentTier } from './resolveCurrentTier.js'
 
 describe('resolveCurrentTier requiresReview', () => {
   test('stops before a review-required tier without an approved request', async () => {

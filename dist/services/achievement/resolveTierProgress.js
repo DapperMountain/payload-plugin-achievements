@@ -1,7 +1,7 @@
-import { collectionOf } from '../../collections/helpers';
-import { evaluateRuleProgress } from './evaluateRules';
-import { relationId } from './relationId';
-import { resolveCurrentTier } from './resolveCurrentTier';
+import { collectionOf } from '../../collections/helpers.js';
+import { evaluateRuleProgress } from './evaluateRules.js';
+import { relationId } from './relationId.js';
+import { resolveCurrentTier } from './resolveCurrentTier.js';
 /**
  * Current tier, next tier, and fractional progress toward the next unlock rules.
  *

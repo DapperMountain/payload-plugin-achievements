@@ -1,8 +1,8 @@
 import type { Payload } from 'payload'
 
-import { ENGINE_EVENT_TYPES, ENGINE_METRICS } from '../catalog'
-import { collectionOf } from '../collections/helpers'
-import { normalizeRuleGroup } from '../services/achievement/evaluateRules'
+import { ENGINE_EVENT_TYPES, ENGINE_METRICS } from '../catalog.js'
+import { collectionOf } from '../collections/helpers.js'
+import { normalizeRuleGroup } from '../services/achievement/evaluateRules.js'
 
 /** Default-locale string, or per-locale map for fields marked `localized: true` (host locales). */
 export type AchievementSeedLocalizedText = string | { en: string; [locale: string]: string | undefined }

@@ -1,8 +1,8 @@
 import { APIError } from 'payload';
-import { collectionOf } from '../../../collections/helpers';
-import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags';
-import { syncTierChangedLog } from '../../../services/achievement/recordEvent';
-import { relationId } from '../../../services/achievement/relationId';
+import { collectionOf } from '../../../collections/helpers.js';
+import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags.js';
+import { syncTierChangedLog } from '../../../services/achievement/recordEvent.js';
+import { relationId } from '../../../services/achievement/relationId.js';
 function scopeIdOf(data) {
     return relationId(data?.scope);
 }

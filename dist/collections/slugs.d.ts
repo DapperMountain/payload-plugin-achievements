@@ -1,4 +1,4 @@
-import type { AchievementCollectionKey, AchievementPluginOptions } from '../types';
+import type { AchievementCollectionKey, AchievementPluginOptions } from '../types.js';
 /**
  * Default slug prefix — always applied unless a per-collection `slugs` override is set.
  * Drives collection slug, REST `/api/{slug}`, and default DB table names.

@@ -1,5 +1,5 @@
-import type { AchievementPluginOptions } from './types';
-import { resolveCollectionSlugs } from './collections/slugs';
+import type { AchievementPluginOptions } from './types.js';
+import { resolveCollectionSlugs } from './collections/slugs.js';
 export declare const DEFAULT_USERS_COLLECTION = "users";
 export declare const DEFAULT_ME_ENDPOINT_PATH = "/achievements/me";
 export declare const DEFAULT_RECONCILE_ENDPOINT_PATH = "/achievements/reconcile";

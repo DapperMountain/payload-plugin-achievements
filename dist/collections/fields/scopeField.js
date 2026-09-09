@@ -1,4 +1,4 @@
-import { getAchievementOptions } from '../../options-store';
+import { getAchievementOptions } from '../../options-store.js';
 /**
  * Optional relationship to the host scope collection.
  * Returns `null` when `options.scope.collection` is unset — callers should omit it.

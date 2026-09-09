@@ -1,2 +1,2 @@
-import { definitionAccess } from '../../access/definitions';
+import { definitionAccess } from '../../access/definitions.js';
 export const access = definitionAccess('eventTypes');

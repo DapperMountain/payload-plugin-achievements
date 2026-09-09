@@ -1,7 +1,7 @@
 import type { CollectionConfig, Field } from 'payload'
 
-import type { AchievementCollectionKey } from '../types'
-import { getAchievementOptions } from '../options-store'
+import type { AchievementCollectionKey } from '../types.js'
+import { getAchievementOptions } from '../options-store.js'
 
 /** Resolved slug for a logical achievement collection. */
 export function slugOf(key: AchievementCollectionKey): string {

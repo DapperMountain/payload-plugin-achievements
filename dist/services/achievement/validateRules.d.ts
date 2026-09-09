@@ -1,4 +1,4 @@
-import { type RuleGroup } from './evaluateRules';
+import { type RuleGroup } from './evaluateRules.js';
 /**
  * Validate a single rule node (leaf or group). Returns an error message or null.
  * Built-in types require their fields; unknown types are left to host extensions.

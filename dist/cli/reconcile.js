@@ -1,5 +1,5 @@
 import { getPayload } from 'payload';
-import { reconcileProgression, } from '../services/achievement/reconcile';
+import { reconcileProgression, } from '../services/achievement/reconcile.js';
 function readFlag(argv, names) {
     for (const name of names) {
         const prefix = `${name}=`;

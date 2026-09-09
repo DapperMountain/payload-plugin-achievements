@@ -3,8 +3,8 @@ import type { Validate } from 'payload'
 import {
   eventTypeRequiresActor,
   eventTypeRequiresMetric,
-} from '../../../services/achievement/eventTypeRequiresActor'
-import { relationId } from '../../../services/achievement/relationId'
+} from '../../../services/achievement/eventTypeRequiresActor.js'
+import { relationId } from '../../../services/achievement/relationId.js'
 
 export const validateActor: Validate = async (value, { data, req }) => {
   if (!req?.payload) return true

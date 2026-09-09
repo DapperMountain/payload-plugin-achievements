@@ -1,5 +1,5 @@
 import type { Plugin } from 'payload';
-import type { AchievementPluginOptions } from './types';
+import type { AchievementPluginOptions } from './types.js';
 /**
  * Payload achievements plugin — merges collections (hooks own request/grant flow)
  * and an optional current-user grants endpoint.

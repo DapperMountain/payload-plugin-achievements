@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { lockSystemCatalogFields } from './lockSystemCatalogFields'
+import { lockSystemCatalogFields } from './lockSystemCatalogFields.js'
 
 describe('lockSystemCatalogFields', () => {
   test('locks slug and system on system row updates', () => {
