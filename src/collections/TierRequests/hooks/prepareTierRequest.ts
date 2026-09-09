@@ -63,22 +63,16 @@ export const prepareTierRequest: CollectionBeforeValidateHook = async ({
 
 export const afterTierRequestChange: CollectionAfterChangeHook = async ({
   doc,
-  operation,
-  previousDoc,
   req,
 }) => {
-  const status = (doc as { status?: string }).status
-  if (status !== 'approved') return doc
-
-  const previousStatus =
-    operation === 'update' ? (previousDoc as { status?: string } | undefined)?.status : undefined
-  if (previousStatus === 'approved') return doc
-
   const userId = relationId((doc as { user?: unknown }).user)
   if (!userId) return doc
 
   const scopeId = scopeIdOf(doc as unknown as Record<string, unknown>)
 
+  // Any status transition (or create as pending/rejected/approved) can change the
+  // live ladder — including demotions when approved → pending/rejected. Sync is
+  // idempotent when the latest audit already matches resolveCurrentTier.
   await syncTierChangedLog({
     payload: req.payload,
     req: req as PayloadRequest,
