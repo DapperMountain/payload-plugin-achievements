@@ -1,5 +1,6 @@
 import { collectionOf } from '../../collections/helpers.js';
 import { getAchievementOptions } from '../../options-store.js';
+import { getMetricAnchorResolver } from '../../extensions/metricAnchors.js';
 import { parseDate } from './duration.js';
 import { relationId } from './relationId.js';
 import { userScopeIncludingUnscopedWhere } from './where.js';
@@ -81,7 +82,7 @@ export async function resolveElapsedAnchor(args) {
         });
         return parseDate(logs.docs[0]?.createdAt);
     }
-    const hostAnchor = getAchievementOptions().extensions?.metricAnchors?.[since];
+    const hostAnchor = getMetricAnchorResolver(since);
     if (!hostAnchor)
         return null;
     try {
