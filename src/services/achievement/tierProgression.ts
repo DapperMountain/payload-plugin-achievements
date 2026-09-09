@@ -14,30 +14,55 @@ type TierDoc = {
   requiresReview?: boolean
 }
 
+function tierRequestScopeClauses(scopeId: string | null): Where[] {
+  if (scopeId) return [{ scope: { equals: scopeId } }]
+  return [{ scope: { exists: false } }]
+}
+
+/**
+ * Ensure a tier request exists when unlock rules pass.
+ * Prefer open (pending/approved) rows. If only a **rejected** request exists,
+ * leave it alone — do not auto-queue a new pending after a denial.
+ */
 export async function ensureTierRequest(args: {
   req: PayloadRequest
   userId: string
   tierId: string
   scopeId: string | null
 }): Promise<{ doc: Record<string, unknown>; created: boolean }> {
-  const clauses: Where[] = [
+  const base: Where[] = [
     { user: { equals: args.userId } },
     { tier: { equals: args.tierId } },
-    { status: { in: ['pending', 'approved'] } },
+    ...tierRequestScopeClauses(args.scopeId),
   ]
-  if (args.scopeId) clauses.push({ scope: { equals: args.scopeId } })
-  else clauses.push({ scope: { exists: false } })
 
-  const existing = await args.req.payload.find({
+  const open = await args.req.payload.find({
     collection: collectionOf('tierRequests'),
     depth: 0,
     limit: 1,
     overrideAccess: true,
     req: args.req,
-    where: { and: clauses },
+    where: {
+      and: [...base, { status: { in: ['pending', 'approved'] } }],
+    },
   })
-  if (existing.docs[0]) {
-    return { doc: existing.docs[0] as Record<string, unknown>, created: false }
+  if (open.docs[0]) {
+    return { doc: open.docs[0] as Record<string, unknown>, created: false }
+  }
+
+  const rejected = await args.req.payload.find({
+    collection: collectionOf('tierRequests'),
+    depth: 0,
+    limit: 1,
+    overrideAccess: true,
+    req: args.req,
+    sort: '-updatedAt',
+    where: {
+      and: [...base, { status: { equals: 'rejected' } }],
+    },
+  })
+  if (rejected.docs[0]) {
+    return { doc: rejected.docs[0] as Record<string, unknown>, created: false }
   }
 
   args.req.context[CTX_SYSTEM_REQUEST] = true
@@ -60,7 +85,8 @@ export async function ensureTierRequest(args: {
 }
 
 /**
- * When unlock rules pass and the tier requires review, ensure a pending/approved request exists.
+ * When unlock rules pass and the tier requires review, ensure a request exists.
+ * Does not recreate a request after rejection — reopen by updating that row or creating manually.
  */
 export async function syncTierProgression(args: {
   req: PayloadRequest
