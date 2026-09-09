@@ -6,5 +6,6 @@ import type { Field } from 'payload';
 export declare function localizedNameField(admin?: {
     width?: string;
 }): Field;
+/** Catalog blurb — Lexical in Admin; seed may still pass plain strings (coerced). */
 export declare function localizedDescriptionField(): Field;
 //# sourceMappingURL=localizedText.d.ts.map

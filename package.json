@@ -1,6 +1,6 @@
 {
   "name": "@dappermountain/payload-plugin-achievements",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "A robust, Admin-configured achievements engine for Payload: composable unlock rules, derived rank progress, request/review grants, metrics, and scoped multi-tenant support.",
   "license": "MIT",
   "type": "module",
@@ -69,16 +69,20 @@
     "skills:check": "bunx skills check -p"
   },
   "peerDependencies": {
+    "@payloadcms/richtext-lexical": "^3.88.0",
     "@payloadcms/ui": "^3.88.0",
+    "lucide-react": "^0.543.0",
     "payload": "^3.88.0",
     "react": "^19.0.0"
   },
   "devDependencies": {
     "@dappermountain/agent-payload": "^0.1.5",
     "@dappermountain/agent-practices": "^0.1.2",
+    "@payloadcms/richtext-lexical": "3.88.0",
     "@payloadcms/ui": "3.88.0",
     "@types/bun": "1.4.0",
     "@types/react": "^19.0.0",
+    "lucide-react": "0.543.0",
     "payload": "3.88.0",
     "prettier": "^3.6.2",
     "react": "19.2.4",

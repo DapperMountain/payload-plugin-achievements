@@ -10,4 +10,6 @@ export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN
 export { DEFAULT_ME_ENDPOINT_PATH, DEFAULT_RECONCILE_ENDPOINT_PATH } from './defaults.js';
 export { collectionOf, slugOf } from './collections/helpers.js';
 export { isAchievementPluginEnabled } from './enabled.js';
+export { descriptionToPlaintext } from './fields/descriptionPlaintext.js';
+export { plainTextToLexical } from './fields/plainTextToLexical.js';
 //# sourceMappingURL=index.d.ts.map
