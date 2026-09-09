@@ -16,6 +16,20 @@ describe('validateRuleNode', () => {
 
     expect(validateRuleNode({ type: 'achievement-complete' })).toMatch(/achievement/i)
     expect(validateRuleNode({ type: 'achievement-complete', achievement: 'a1' })).toBeNull()
+
+    expect(validateRuleNode({ type: 'elapsed-since', amount: 30 })).toBeNull()
+    expect(validateRuleNode({ type: 'elapsed-since', since: 'first-event', amount: 7 })).toMatch(
+      /event type/i,
+    )
+    expect(
+      validateRuleNode({
+        type: 'elapsed-since',
+        since: 'first-event',
+        eventType: 'e1',
+        amount: 7,
+        unit: 'days',
+      }),
+    ).toBeNull()
   })
 
   test('rejects empty groups and validates nested leaves', () => {

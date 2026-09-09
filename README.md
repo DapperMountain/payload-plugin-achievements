@@ -79,7 +79,8 @@ Slugs are prefixed with `achievement-` by default so they don’t collide with y
 
 | Config key | Default slug | Purpose |
 | --- | --- | --- |
-| `metrics` | `achievement-metrics` | Named scores (points, streaks, …). Totals are derived by summing `metric.delta` logs. |
+| `metrics` | `achievement-metrics` | Named numbers: **stored** (score totals) or **computed** (e.g. elapsed days). |
+| `metricBalances` | `achievement-metric-balances` | Projection of stored metric totals per user (+ scope) for fast reads / leaderboards. |
 | `eventTypes` | `achievement-event-types` | Kinds of log entries you can count or require. |
 | `tiers` | `achievement-tiers` | Ordered ladder steps with unlock rules. |
 | `achievements` | `achievement-definitions` | Things a user can earn (with eligibility / completion rules). |
@@ -106,7 +107,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 
 - Top-level empty list → everyone passes
 - Nested groups → AND (“all of these”) or OR (“any of these”)
-- Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`
+- Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`, `elapsed-since`
 - Custom leaves → register via `extensions.ruleTypes`
 
 **Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
@@ -116,8 +117,16 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 | AND | Equal average of *requirement* children |
 | OR | Best child (max) |
 | `tier-at-least` | Gate — skipped in AND averages |
-| `event-count` / `metric-minimum` | Fraction of the target |
+| `event-count` / `metric-minimum` / `elapsed-since` | Fraction of the target |
 | `achievement-complete` | `1` if granted; otherwise rolls up that achievement’s completion (or eligibility) rules |
+
+**`elapsed-since`** — time since an anchor ≥ amount (unit: `days` | `hours` | `minutes`). Built-in anchors: user `createdAt`, or earliest log of an event type (`since: 'first-event'`). Hosts register more anchors via `extensions.metricAnchors` (same keys work on computed metrics).
+
+**Stored vs computed metrics** — `kind: stored` (default) totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances. `kind: computed` + `compute: elapsed` exposes a live number (e.g. days since an anchor); use `metric-minimum` against it. System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
+
+**Leaderboards** — `getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points` ranks stored balances (authenticated). Disable with `endpoints.leaderboard: false`.
+
+**System catalog** — by default the plugin runs `seedAchievementCatalog` on Payload `onInit` (opt out with `seedSystemCatalog: false`). Hosts still seed product catalog + locales via `seedAchievements`.
 
 **Eligibility rules** gate who may request an achievement. **Completion rules** define what a composed achievement is made of. When `requiresReview` is false and completion rules pass, the parent can auto-grant. Cycles in nested achievement graphs are ignored.
 
@@ -159,8 +168,11 @@ achievementPlugin({
     overrides?: Partial<Record<AchievementCollectionKey, AchievementCollectionOverride>>
   }
   users?: { includeJoins?: boolean }
-  endpoints?: { me?: string | false }
-  extensions?: { ruleTypes?: AchievementRuleType[] }
+  endpoints?: { me?: string | false; leaderboard?: string | false; reconcile?: string | false }
+  extensions?: {
+    ruleTypes?: AchievementRuleType[]
+    metricAnchors?: Record<string, AchievementMetricAnchor>
+  }
 })
 ```
 
@@ -169,10 +181,12 @@ achievementPlugin({
 | Option | Default | Notes |
 | --- | --- | --- |
 | `enabled` | `true` | Set `false` to leave the plugin installed but inactive (no collections / endpoints merged). |
+| `seedSystemCatalog` | `true` | On `onInit`, upsert system metrics + event types (`points`, `metric.delta`, …). |
 | `usersCollectionSlug` | `'users'` | Users collection the plugin relates to (grants, requests, joins). |
 | `canReview` | _(denied)_ | **Important.** Without this, users cannot manage catalogs or approve requests. Receives `(user, scopeId)` where `scopeId` may be `null`. |
 | `scope` | _(none)_ | Multi-tenant hook-up. `collection` is the relation target (e.g. `'tenants'`). `relationField` defaults to `'scope'`. Adds an optional scope field across plugin collections. |
 | `mediaCollection` | _(none)_ | When set (e.g. `'media'`), tiers get an optional upload field for ladder badge images. Icon string keys still work without this. |
+| `extensions.metricAnchors` | _(none)_ | Named `(ctx) => Date | null` resolvers for computed elapsed metrics / `elapsed-since`. Keys appear in Admin `since` selects. |
 
 ### `collections`
 
@@ -217,17 +231,25 @@ achievementPlugin({
 | Option | Default | Notes |
 | --- | --- | --- |
 | `me` | `'/achievements/me'` | Registers `GET /api/achievements/me` for the signed-in user’s grants snapshot (+ derived tiers and lean requests). Pass `false` to skip. Having review access does **not** widen this endpoint to other users. |
+| `leaderboard` | `'/achievements/leaderboard'` | Registers `GET /api/achievements/leaderboard?metric=<slug>` for authenticated users (stored metrics only). Pass `false` to skip. |
+| `reconcile` | `'/achievements/reconcile'` | Registers `POST /api/achievements/reconcile` for reviewers. Pass `false` to skip. |
 
-Query params: `scope`, `limit`, `page`, `requestsLimit`.
+Query params (`me`): `scope`, `limit`, `page`, `requestsLimit`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
 
-### `extensions.ruleTypes`
+### `extensions.ruleTypes` / `metricAnchors`
 
-Register custom rule evaluators merged with the built-ins:
+Register custom rule evaluators and/or date anchors:
 
 ```ts
 achievementPlugin({
   canReview,
   extensions: {
+    metricAnchors: {
+      'membership-granted': async ({ payload, userId, scopeId }) => {
+        // return a Date from host data, or null
+        return null
+      },
+    },
     ruleTypes: [
       {
         type: 'host.custom-check',
@@ -251,6 +273,8 @@ Use these from hooks, jobs, and trusted endpoints — not from the public client
 import {
   recordLog,
   recordMetricChange,
+  getMetricLeaderboard,
+  resolveMetricValue,
   grantAchievement,
   reconcileProgression,
   reconcileUserProgression,
@@ -263,6 +287,7 @@ import {
 
 await recordLog({ payload, userId, scopeId, type: 'host.custom-kind', actorId })
 await recordMetricChange({ payload, userId, scopeId, metric: 'points', change: 10 })
+const board = await getMetricLeaderboard({ payload, metric: 'points', scopeId, limit: 20 })
 const tier = await resolveCurrentTier({ payload, userId, scopeId })
 
 // Repair users whose grants predate side-effect hooks (idempotent)
@@ -306,6 +331,7 @@ Turning **Requires review** off on a definition or tier **approves pending reque
 | Goal | Request |
 | --- | --- |
 | Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` |
+| Stored metric leaderboard | `GET /api/achievements/leaderboard?metric=points&scope=<scopeId>&limit=20&page=1` |
 | Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, achievementId\|achievementSlug, tierId\|tierSlug, limit }`) |
 | List grants | `GET /api/achievement-grants?where[user][equals]=<userId>` |
 | Log history | `GET /api/achievement-logs?where[user][equals]=<userId>` |

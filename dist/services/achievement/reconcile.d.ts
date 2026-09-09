@@ -6,6 +6,7 @@ export type ReconcileProgressionResult = {
     achievementRequestsEnsured: number;
     tierRequestsEnsured: number;
     tierLogsWritten: number;
+    metricBalancesRebuilt: number;
 };
 export type ReconcileProgressionArgs = {
     payload: Payload;

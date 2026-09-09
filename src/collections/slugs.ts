@@ -21,6 +21,7 @@ export const DEFAULT_COLLECTION_BASE_SLUGS: Record<AchievementCollectionKey, str
   logs: 'logs',
   eventTypes: 'event-types',
   metrics: 'metrics',
+  metricBalances: 'metric-balances',
 }
 
 export const DEFAULT_ADMIN_GROUP = 'Achievements'

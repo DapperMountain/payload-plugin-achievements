@@ -5,7 +5,7 @@ export const ENGINE_EVENT_TYPES = [
   { slug: 'tier.changed', name: 'Tier changed' },
 ] as const
 
-export const ENGINE_METRICS = [{ slug: 'points', name: 'Points' }] as const
+export const ENGINE_METRICS = [{ slug: 'points', name: 'Points', kind: 'stored' as const }] as const
 
 export type EngineEventTypeSlug = (typeof ENGINE_EVENT_TYPES)[number]['slug']
 export type EngineMetricSlug = (typeof ENGINE_METRICS)[number]['slug']

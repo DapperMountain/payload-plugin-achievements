@@ -1,6 +1,9 @@
 import type { AchievementRuleEvalArgs, AchievementRuleType } from '../../types.js'
 import { collectionOf } from '../../collections/helpers.js'
+import { durationMs } from './duration.js'
 import { relationId } from './relationId.js'
+import { resolveElapsedAnchor } from './resolveElapsedAnchor.js'
+import { resolveMetricValue } from './resolveMetricValue.js'
 import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where.js'
 import type { Where } from 'payload'
 
@@ -25,29 +28,6 @@ async function resolveMetricId(args: {
     where: { slug: { equals: metricSlug } },
   })
   return relationId(found.docs[0])
-}
-
-async function metricValue(args: {
-  payload: AchievementRuleEvalArgs['payload']
-  userId: string
-  scopeId: string | null
-  metricId: string
-}): Promise<number> {
-  const logs = await args.payload.find({
-    collection: collectionOf('logs'),
-    depth: 0,
-    limit: 1000,
-    pagination: false,
-    overrideAccess: true,
-    where: {
-      and: [userScopeWhere(args.userId, args.scopeId), { metric: { equals: args.metricId } }],
-    },
-  })
-
-  return logs.docs.reduce((sum, doc) => {
-    const change = (doc as { change?: unknown }).change
-    return sum + (typeof change === 'number' && Number.isFinite(change) ? change : 0)
-  }, 0)
 }
 
 async function resolveEventTypeId(args: {
@@ -268,19 +248,31 @@ export const builtInRuleTypes: AchievementRuleType[] = [
   },
   {
     type: 'metric-minimum',
-    async evaluate({ payload, rule, userId, scopeId }) {
+    async evaluate({ payload, req, rule, userId, scopeId }) {
       const resolvedId = await resolveMetricId({ payload, rule })
       if (!resolvedId) return false
       const minimum = Number(rule.minimum ?? 0)
-      const value = await metricValue({ payload, userId, scopeId, metricId: resolvedId })
+      const value = await resolveMetricValue({
+        payload,
+        req,
+        metric: resolvedId,
+        userId,
+        scopeId,
+      })
       return value >= minimum
     },
-    async progress({ payload, rule, userId, scopeId }) {
+    async progress({ payload, req, rule, userId, scopeId }) {
       const resolvedId = await resolveMetricId({ payload, rule })
       if (!resolvedId) return 0
       const minimum = Number(rule.minimum ?? 0)
       if (!(minimum > 0)) return 1
-      const value = await metricValue({ payload, userId, scopeId, metricId: resolvedId })
+      const value = await resolveMetricValue({
+        payload,
+        req,
+        metric: resolvedId,
+        userId,
+        scopeId,
+      })
       return clamp01(value / minimum)
     },
   },
@@ -312,6 +304,40 @@ export const builtInRuleTypes: AchievementRuleType[] = [
         },
       })
       return clamp01(result.totalDocs / needed)
+    },
+  },
+  {
+    type: 'elapsed-since',
+    async evaluate({ payload, req, rule, userId, scopeId }) {
+      const needed = durationMs(Number(rule.amount ?? NaN), rule.unit)
+      if (needed == null) return false
+      const anchor = await resolveElapsedAnchor({
+        payload,
+        req,
+        since: rule.since,
+        eventType: rule.eventType,
+        eventTypeSlug: rule.eventTypeSlug,
+        userId,
+        scopeId,
+      })
+      if (!anchor) return false
+      return Date.now() - anchor.getTime() >= needed
+    },
+    async progress({ payload, req, rule, userId, scopeId }) {
+      const needed = durationMs(Number(rule.amount ?? NaN), rule.unit)
+      if (needed == null) return 0
+      if (!(needed > 0)) return 1
+      const anchor = await resolveElapsedAnchor({
+        payload,
+        req,
+        since: rule.since,
+        eventType: rule.eventType,
+        eventTypeSlug: rule.eventTypeSlug,
+        userId,
+        scopeId,
+      })
+      if (!anchor) return 0
+      return clamp01((Date.now() - anchor.getTime()) / needed)
     },
   },
 ]

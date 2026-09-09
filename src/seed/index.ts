@@ -40,6 +40,16 @@ export type AchievementSeedCatalogRow = {
   slug: string
   scope?: string
   system?: boolean
+  /** Metrics — `stored` (default) or `computed`. */
+  kind?: 'stored' | 'computed'
+  /** Computed metrics — v1 only `elapsed`. */
+  compute?: 'elapsed'
+  /** Computed elapsed — unit of the exposed number. */
+  unit?: 'days' | 'hours' | 'minutes'
+  /** Computed elapsed — built-in or host `metricAnchors` key. */
+  since?: string
+  /** Computed elapsed with `since: first-event` — event type slug. */
+  eventTypeSlug?: string
   /** Event types only — when true, logging the event requires an actor. */
   requiresActor?: boolean
   /** Event types only — when true, logging the event requires metric + change. */
@@ -127,6 +137,20 @@ async function upsertCatalog(
 ): Promise<void> {
   const existing = await findIdBySlug(payload, key, row.slug)
   const nameParts = localizedParts(row.name)
+
+  let metricComputed: Record<string, unknown> = {}
+  if (key === 'metrics') {
+    metricComputed = { kind: row.kind ?? 'stored' }
+    if (row.kind === 'computed') {
+      metricComputed.compute = row.compute ?? 'elapsed'
+      metricComputed.unit = row.unit ?? 'days'
+      metricComputed.since = row.since ?? 'user-created-at'
+      if (row.eventTypeSlug) {
+        metricComputed.eventType = await findIdBySlug(payload, 'eventTypes', row.eventTypeSlug)
+      }
+    }
+  }
+
   const data = {
     name: nameParts.en ?? row.slug,
     slug: row.slug,
@@ -137,7 +161,7 @@ async function upsertCatalog(
           requiresActor: row.requiresActor ?? false,
           requiresMetric: row.requiresMetric ?? false,
         }
-      : {}),
+      : metricComputed),
   }
 
   let id = existing
@@ -206,7 +230,7 @@ async function resolveRuleNode(
     }
   }
 
-  if (next.type === 'event-count') {
+  if (next.type === 'event-count' || next.type === 'elapsed-since') {
     const slug =
       typeof next.eventTypeSlug === 'string'
         ? next.eventTypeSlug

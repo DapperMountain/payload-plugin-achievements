@@ -1,4 +1,11 @@
-import type { CollectionConfig, PayloadRequest, TypedUser } from 'payload';
+import type { CollectionConfig, Payload, PayloadRequest, TypedUser } from 'payload';
+/** Host-registered date anchors for computed elapsed metrics / `elapsed-since` rules. */
+export type AchievementMetricAnchor = (args: {
+    payload: Payload;
+    req?: PayloadRequest;
+    userId: string;
+    scopeId: string | null;
+}) => Date | null | Promise<Date | null>;
 export type AchievementScopeConfig = {
     collection: string;
     relationField?: string;
@@ -33,7 +40,7 @@ export type AchievementRuleType = {
     progressRole?: 'requirement' | 'gate';
 };
 /** Logical collection ids — map to configurable slugs via `collections`. */
-export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'tierRequests' | 'logs' | 'eventTypes' | 'metrics';
+export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'tierRequests' | 'logs' | 'eventTypes' | 'metrics' | 'metricBalances';
 /**
  * Host overrides layered onto a plugin collection (Form Builder–style).
  * Access/admin merge shallowly; hook arrays are appended after plugin hooks.
@@ -81,6 +88,12 @@ export type AchievementEndpointsOptions = {
      */
     me?: string | false;
     /**
+     * Root REST path for a stored-metric leaderboard (`GET`).
+     * Default: `'/achievements/leaderboard'`. Requires an authenticated user.
+     * Pass `false` to skip.
+     */
+    leaderboard?: string | false;
+    /**
      * Root REST path to repair progression from existing grants (`POST`).
      * Default: `'/achievements/reconcile'`. Requires host `canReview`.
      * Pass `false` to skip.
@@ -101,7 +114,17 @@ export type AchievementPluginOptions = {
     extensions?: {
         /** Custom rule evaluators merged with built-ins. */
         ruleTypes?: AchievementRuleType[];
+        /**
+         * Named date anchors for computed `elapsed` metrics and `elapsed-since` rules.
+         * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
+         */
+        metricAnchors?: Record<string, AchievementMetricAnchor>;
     };
+    /**
+     * When true (default), ensure system metrics + event types exist on Payload `onInit`
+     * (`seedAchievementCatalog`). Host product catalogs still seed via `seedAchievements`.
+     */
+    seedSystemCatalog?: boolean;
     /**
      * Host upload collection slug (e.g. `'media'`). When set, tiers gain an optional
      * `image` upload field for ladder badges. Icon keys still work without this.
@@ -117,7 +140,7 @@ export type AchievementPluginOptions = {
     users?: AchievementUsersOptions;
     usersCollectionSlug?: string;
 };
-export type BuiltInRuleType = 'achievement-complete' | 'event-count' | 'metric-minimum' | 'tier-at-least';
+export type BuiltInRuleType = 'achievement-complete' | 'elapsed-since' | 'event-count' | 'metric-minimum' | 'tier-at-least';
 /** Engine log-type catalog slugs (seeded as system catalog rows). */
 export type BuiltInEventType = 'achievement.granted' | 'achievement.revoked' | 'metric.delta' | 'tier.changed';
 //# sourceMappingURL=types.d.ts.map

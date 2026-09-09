@@ -15,6 +15,7 @@ export declare const ENGINE_EVENT_TYPES: readonly [{
 export declare const ENGINE_METRICS: readonly [{
     readonly slug: "points";
     readonly name: "Points";
+    readonly kind: "stored";
 }];
 export type EngineEventTypeSlug = (typeof ENGINE_EVENT_TYPES)[number]['slug'];
 export type EngineMetricSlug = (typeof ENGINE_METRICS)[number]['slug'];

@@ -33,20 +33,16 @@ plugins: [
 
 Required: implement **`canReview`** or privileged catalog/request writes are denied.
 
-After install: regenerate Admin import map (`payload generate:importmap`), run host migrations, then seed:
+System catalog (`points`, `metric.delta`, …) seeds automatically on Payload **`onInit`** (`seedSystemCatalog`, default `true`). Hosts still call `seedAchievements` for product rows and extra locales; `seedAchievementCatalog` remains available for explicit runs.
 
-```ts
-import { seedAchievementCatalog } from '@dappermountain/payload-plugin-achievements'
-await seedAchievementCatalog(payload)
-```
-
-Host owns migrations and when to seed. See [reference/host-wiring.md](reference/host-wiring.md).
+After install: regenerate Admin import map (`payload generate:importmap`), run host migrations, then seed product catalog as needed. See [reference/host-wiring.md](reference/host-wiring.md).
 
 ## Collections (default prefix `achievement-`)
 
 | Key | Default slug | Role |
 | --- | --- | --- |
-| metrics | `achievement-metrics` | Named scores; totals from `metric.delta` logs |
+| metrics | `achievement-metrics` | Named scores; `kind: stored` \| `computed` |
+| metricBalances | `achievement-metric-balances` | Stored totals per user (+ scope); leaderboards |
 | eventTypes | `achievement-event-types` | Log kinds for counts / requirements |
 | tiers | `achievement-tiers` | Ladder steps + unlock rules |
 | achievements | `achievement-definitions` | Earnable items + eligibility/completion rules |
@@ -54,17 +50,19 @@ Host owns migrations and when to seed. See [reference/host-wiring.md](reference/
 | achievementRequests | `achievement-requests` | Request → review |
 | logs | `achievement-logs` | Append-only history |
 
-System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected.
+System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected. System seed does **not** create computed metrics or host anchors.
 
 ## Rules engine
 
-Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`; custom via `extensions.ruleTypes`.
+Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`, `elapsed-since`; custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed + `elapsed-since`).
 
 Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveTierProgress`) — no separate progress table.
 
 ## Server helpers (trusted only)
 
-`recordLog`, `recordMetricChange`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+
+`recordMetricChange` dual-writes `metric.delta` + balance; rejects computed metrics. Reconcile rebuilds balances from logs.
 
 Turning **Requires review** off on a definition/tier approves that row’s pending requests (plugin `afterChange`). Host CLI: `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli` (optional `--user` / `--achievement` / `--tier` / `--scope`).
 
