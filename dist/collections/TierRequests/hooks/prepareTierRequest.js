@@ -46,17 +46,14 @@ export const prepareTierRequest = async ({ data, operation, req, originalDoc, })
     }
     return data;
 };
-export const afterTierRequestChange = async ({ doc, operation, previousDoc, req, }) => {
-    const status = doc.status;
-    if (status !== 'approved')
-        return doc;
-    const previousStatus = operation === 'update' ? previousDoc?.status : undefined;
-    if (previousStatus === 'approved')
-        return doc;
+export const afterTierRequestChange = async ({ doc, req, }) => {
     const userId = relationId(doc.user);
     if (!userId)
         return doc;
     const scopeId = scopeIdOf(doc);
+    // Any status transition (or create as pending/rejected/approved) can change the
+    // live ladder — including demotions when approved → pending/rejected. Sync is
+    // idempotent when the latest audit already matches resolveCurrentTier.
     await syncTierChangedLog({
         payload: req.payload,
         req: req,

@@ -97,7 +97,7 @@ Slugs are prefixed with `achievement-` by default so they don’t collide with y
 | `metric.delta` | Metric change log type (requires metric + change amount) |
 | `achievement.granted` | Written when a grant is created |
 | `achievement.revoked` | Written when a grant is deleted |
-| `tier.changed` | Written when derived tier moves |
+| `tier.changed` | Written when derived tier moves (including demotions when a tier request leaves `approved`) |
 
 Event types can require an **actor** and/or a **metric + change**. Admin only prompts for those fields when the type needs them.
 
