@@ -1,8 +1,8 @@
-import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers';
-import { buildRuleTreeFields, localizedDescriptionField, localizedNameField, scopeField } from '../fields';
-import { getAchievementOptions } from '../../options-store';
-import { access } from './access';
-import { hooks } from './hooks';
+import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js';
+import { buildRuleTreeFields, localizedDescriptionField, localizedNameField, scopeField } from '../fields/index.js';
+import { getAchievementOptions } from '../../options-store.js';
+import { access } from './access/index.js';
+import { hooks } from './hooks/index.js';
 export function buildTiersCollection() {
     const mediaCollection = getAchievementOptions().mediaCollection?.trim();
     return {

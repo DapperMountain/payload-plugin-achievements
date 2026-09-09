@@ -1,6 +1,6 @@
 import type { Where } from 'payload'
 
-import { relationId } from '../../services/achievement/relationId'
+import { relationId } from '../../services/achievement/relationId.js'
 
 /** Relationship picker: same scope as the parent doc, or unscoped (global) catalog rows. */
 export function catalogFilterOptions({ data }: { data?: { scope?: unknown } }): Where | true {

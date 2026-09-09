@@ -1,11 +1,11 @@
 import { APIError } from 'payload';
-import { DEFAULT_ACHIEVEMENT_METRIC_SLUG } from '../../catalog';
-import { collectionOf } from '../../collections/helpers';
-import { eventTypeRequiresActor } from './eventTypeRequiresActor';
-import { transitionLogData, transitionToId } from './logData';
-import { resolveCatalogId } from './resolveCatalog';
-import { resolveCurrentTier } from './resolveCurrentTier';
-import { userScopeWhere } from './where';
+import { DEFAULT_ACHIEVEMENT_METRIC_SLUG } from '../../catalog.js';
+import { collectionOf } from '../../collections/helpers.js';
+import { eventTypeRequiresActor } from './eventTypeRequiresActor.js';
+import { transitionLogData, transitionToId } from './logData.js';
+import { resolveCatalogId } from './resolveCatalog.js';
+import { resolveCurrentTier } from './resolveCurrentTier.js';
+import { userScopeWhere } from './where.js';
 async function catalogId(args) {
     return resolveCatalogId({
         payload: args.payload,
@@ -72,7 +72,7 @@ export async function recordMetricChange(args) {
         reason: args.reason,
     });
     if (args.req) {
-        const { syncTierProgression } = await import('./tierProgression');
+        const { syncTierProgression } = await import('./tierProgression.js');
         await syncTierProgression({
             req: args.req,
             userId: args.userId,

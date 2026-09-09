@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { transitionLogData, transitionToId } from './logData'
+import { transitionLogData, transitionToId } from './logData.js'
 
 describe('transitionLogData', () => {
   test('builds from/to refs for tier moves', () => {

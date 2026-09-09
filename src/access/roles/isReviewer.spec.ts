@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import type { AccessArgs, PayloadRequest } from 'payload'
 
-import { isReviewer } from './index'
-import { resetAchievementOptions, setAchievementOptions } from '../../options-store'
+import { isReviewer } from './index.js'
+import { resetAchievementOptions, setAchievementOptions } from '../../options-store.js'
 
 afterEach(() => {
   resetAchievementOptions()

@@ -1,6 +1,6 @@
-import type { AchievementRuleType } from '../types'
-import { getAchievementOptions } from '../options-store'
-import { builtInRuleTypes } from '../services/achievement/builtInRules'
+import type { AchievementRuleType } from '../types.js'
+import { getAchievementOptions } from '../options-store.js'
+import { builtInRuleTypes } from '../services/achievement/builtInRules.js'
 
 export function getRuleTypeMap(): Map<string, AchievementRuleType> {
   const map = new Map<string, AchievementRuleType>()

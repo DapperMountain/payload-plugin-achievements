@@ -1,11 +1,11 @@
-import { collectionOf } from '../../collections/helpers';
-import { syncCompositeProgression, } from './grantSideEffects';
-import { transitionLogData, transitionToId } from './logData';
-import { recordLog, syncTierChangedLog } from './recordEvent';
-import { relationId } from './relationId';
-import { resolveCatalogId } from './resolveCatalog';
-import { syncTierProgression } from './tierProgression';
-import { userScopeWhere } from './where';
+import { collectionOf } from '../../collections/helpers.js';
+import { syncCompositeProgression, } from './grantSideEffects.js';
+import { transitionLogData, transitionToId } from './logData.js';
+import { recordLog, syncTierChangedLog } from './recordEvent.js';
+import { relationId } from './relationId.js';
+import { resolveCatalogId } from './resolveCatalog.js';
+import { syncTierProgression } from './tierProgression.js';
+import { userScopeWhere } from './where.js';
 async function backfillGrantedLogs(args) {
     const typeId = await resolveCatalogId({
         payload: args.req.payload,

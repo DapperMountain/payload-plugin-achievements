@@ -4,8 +4,8 @@ import { APIError } from 'payload'
 import {
   eventTypeRequiresActor,
   eventTypeRequiresMetric,
-} from '../../../services/achievement/eventTypeRequiresActor'
-import { relationId } from '../../../services/achievement/relationId'
+} from '../../../services/achievement/eventTypeRequiresActor.js'
+import { relationId } from '../../../services/achievement/relationId.js'
 
 export const ensureTypeRequirements: CollectionBeforeValidateHook = async ({ data, req }) => {
   if (!data) return data

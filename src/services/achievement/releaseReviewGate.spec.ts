@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { didDisableRequiresReview } from './releaseReviewGate'
+import { didDisableRequiresReview } from './releaseReviewGate.js'
 
 describe('didDisableRequiresReview', () => {
   test('true only when flipping required → not required', () => {

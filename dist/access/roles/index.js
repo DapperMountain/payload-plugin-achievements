@@ -1,7 +1,7 @@
-import { collectionOf } from '../../collections/helpers';
-import { getAchievementOptions } from '../../options-store';
-import { relationId } from '../../services/achievement/relationId';
-import { getUserId } from '../helpers/index';
+import { collectionOf } from '../../collections/helpers.js';
+import { getAchievementOptions } from '../../options-store.js';
+import { relationId } from '../../services/achievement/relationId.js';
+import { getUserId } from '../helpers/index.js';
 /** Authenticated user may read/write rows tied to themselves. */
 export const isSelfUser = (userRelationField = 'user') => ({ req, data }) => {
     const userId = getUserId(req);

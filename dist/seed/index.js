@@ -1,6 +1,6 @@
-import { ENGINE_EVENT_TYPES, ENGINE_METRICS } from '../catalog';
-import { collectionOf } from '../collections/helpers';
-import { normalizeRuleGroup } from '../services/achievement/evaluateRules';
+import { ENGINE_EVENT_TYPES, ENGINE_METRICS } from '../catalog.js';
+import { collectionOf } from '../collections/helpers.js';
+import { normalizeRuleGroup } from '../services/achievement/evaluateRules.js';
 function localizedParts(value) {
     if (value == null)
         return {};

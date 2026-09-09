@@ -1,5 +1,5 @@
 import type { CollectionConfig } from 'payload';
-import type { AchievementCollectionOverride } from '../types';
+import type { AchievementCollectionOverride } from '../types.js';
 /**
  * Layer host overrides on a plugin collection:
  * - `access` / `admin` / `labels`: shallow merge (host wins per key)

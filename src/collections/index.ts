@@ -1,16 +1,16 @@
 import type { CollectionConfig } from 'payload'
 
-import { getAchievementOptions } from '../options-store'
-import type { AchievementCollectionKey } from '../types'
-import { applyCollectionOverrides } from './applyOverrides'
-import { buildAchievementRequestsCollection } from './AchievementRequests/index'
-import { buildAchievementsCollection } from './Achievements/index'
-import { buildEventTypesCollection } from './EventTypes/index'
-import { buildGrantsCollection } from './Grants/index'
-import { buildLogsCollection } from './Logs/index'
-import { buildMetricsCollection } from './Metrics/index'
-import { buildTierRequestsCollection } from './TierRequests/index'
-import { buildTiersCollection } from './Tiers/index'
+import { getAchievementOptions } from '../options-store.js'
+import type { AchievementCollectionKey } from '../types.js'
+import { applyCollectionOverrides } from './applyOverrides.js'
+import { buildAchievementRequestsCollection } from './AchievementRequests/index.js'
+import { buildAchievementsCollection } from './Achievements/index.js'
+import { buildEventTypesCollection } from './EventTypes/index.js'
+import { buildGrantsCollection } from './Grants/index.js'
+import { buildLogsCollection } from './Logs/index.js'
+import { buildMetricsCollection } from './Metrics/index.js'
+import { buildTierRequestsCollection } from './TierRequests/index.js'
+import { buildTiersCollection } from './Tiers/index.js'
 
 const builders: Record<AchievementCollectionKey, () => CollectionConfig> = {
   metrics: buildMetricsCollection,

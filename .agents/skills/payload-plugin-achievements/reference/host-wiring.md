@@ -9,4 +9,4 @@
 7. Optional REST: `GET /api/achievements/me` (disable with `endpoints.me: false`); repair via `POST /api/achievements/reconcile` or host one-liner `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
 8. Turning **Requires review** off auto-approves pending requests for that definition/tier (plugin hooks).
 
-GitHub install note: consume built `dist/` — do not rely on consumer `prepare` for Bun GitHub deps.
+GitHub install note: consume built `dist/` — do not rely on consumer `prepare` for Bun GitHub deps. The package is Node ESM (`NodeNext`); host imports stay on the package name (`@dappermountain/payload-plugin-achievements`, `./cli`, `./client`, `./types`). Next hosts still list this package in `transpilePackages` so `'use client'` admin components compile.

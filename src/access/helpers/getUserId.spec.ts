@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import type { PayloadRequest } from 'payload'
 
-import { getUserId } from './index'
+import { getUserId } from './index.js'
 
 describe('getUserId', () => {
   test('reads string ids', () => {

@@ -1,7 +1,7 @@
-import { relationId } from './relationId'
+import { relationId } from './relationId.js'
 import type { PayloadRequest } from 'payload'
 
-import { getRuleTypeMap } from '../../extensions/registry'
+import { getRuleTypeMap } from '../../extensions/registry.js'
 
 export type RuleGroup = {
   combinator?: 'and' | 'or' | null

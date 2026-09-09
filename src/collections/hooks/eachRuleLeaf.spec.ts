@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { eachRuleLeaf } from './eachRuleLeaf'
+import { eachRuleLeaf } from './eachRuleLeaf.js'
 
 describe('eachRuleLeaf', () => {
   test('walks nested groups', () => {

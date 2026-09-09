@@ -1,9 +1,9 @@
 import { APIError } from 'payload';
-import { collectionOf } from '../../../collections/helpers';
-import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags';
-import { evaluateRules, ruleGroupHasProgressRequirements } from '../../../services/achievement/evaluateRules';
-import { grantAchievement } from '../../../services/achievement/submitAchievementRequest';
-import { relationId } from '../../../services/achievement/relationId';
+import { collectionOf } from '../../../collections/helpers.js';
+import { CTX_SYSTEM_REQUEST } from '../../../services/achievement/contextFlags.js';
+import { evaluateRules, ruleGroupHasProgressRequirements } from '../../../services/achievement/evaluateRules.js';
+import { grantAchievement } from '../../../services/achievement/submitAchievementRequest.js';
+import { relationId } from '../../../services/achievement/relationId.js';
 function scopeIdOf(data) {
     const scope = data?.scope;
     if (!scope)

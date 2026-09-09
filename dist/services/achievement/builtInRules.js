@@ -1,6 +1,6 @@
-import { collectionOf } from '../../collections/helpers';
-import { relationId } from './relationId';
-import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where';
+import { collectionOf } from '../../collections/helpers.js';
+import { relationId } from './relationId.js';
+import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where.js';
 function clamp01(value) {
     if (!Number.isFinite(value))
         return 0;
@@ -163,7 +163,7 @@ export const builtInRuleTypes = [
                 return false;
             let currentRank = ladderRank;
             if (currentRank === undefined) {
-                const { resolveCurrentTier } = await import('./resolveCurrentTier');
+                const { resolveCurrentTier } = await import('./resolveCurrentTier.js');
                 const current = await resolveCurrentTier({
                     payload,
                     req,
@@ -206,7 +206,7 @@ export const builtInRuleTypes = [
             if (visited.has(visitKey))
                 return 0;
             visited.add(visitKey);
-            const { evaluateRuleProgress, ruleGroupHasProgressRequirements } = await import('./evaluateRules');
+            const { evaluateRuleProgress, ruleGroupHasProgressRequirements } = await import('./evaluateRules.js');
             const composition = ruleGroupHasProgressRequirements(ref.completionRules)
                 ? ref.completionRules
                 : ref.eligibilityRules;

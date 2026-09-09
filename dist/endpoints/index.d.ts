@@ -1,4 +1,4 @@
 import type { Endpoint } from 'payload';
-import type { ResolvedAchievementOptions } from '../defaults';
+import type { ResolvedAchievementOptions } from '../defaults.js';
 export declare function buildAchievementEndpoints(options: ResolvedAchievementOptions): Endpoint[];
 //# sourceMappingURL=index.d.ts.map

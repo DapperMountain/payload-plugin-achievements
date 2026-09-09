@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { readEventTypeFlags } from './eventTypeRequiresActor'
+import { readEventTypeFlags } from './eventTypeRequiresActor.js'
 
 describe('readEventTypeFlags', () => {
   test('reads requiresActor / requiresMetric', () => {

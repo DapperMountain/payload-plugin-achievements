@@ -1,8 +1,8 @@
 import type { Endpoint } from 'payload'
 
-import type { ResolvedAchievementOptions } from '../defaults'
-import { buildMeEndpoint } from './me'
-import { buildReconcileEndpoint } from './reconcile'
+import type { ResolvedAchievementOptions } from '../defaults.js'
+import { buildMeEndpoint } from './me.js'
+import { buildReconcileEndpoint } from './reconcile.js'
 
 export function buildAchievementEndpoints(options: ResolvedAchievementOptions): Endpoint[] {
   const endpoints: Endpoint[] = []

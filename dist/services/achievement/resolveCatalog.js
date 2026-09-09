@@ -1,5 +1,5 @@
 import { APIError } from 'payload';
-import { collectionOf } from '../../collections/helpers';
+import { collectionOf } from '../../collections/helpers.js';
 /**
  * Resolve a catalog relationship from a slug or document id.
  */

@@ -1,8 +1,8 @@
 import type { CollectionBeforeValidateHook, Where } from 'payload'
 import { APIError } from 'payload'
 
-import { collectionOf } from '../../helpers'
-import { relationId } from '../../../services/achievement/relationId'
+import { collectionOf } from '../../helpers.js'
+import { relationId } from '../../../services/achievement/relationId.js'
 
 /** Reject a second grant of the same achievement for the same user (+ scope). */
 export const ensureUniqueGrant: CollectionBeforeValidateHook = async ({

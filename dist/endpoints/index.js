@@ -1,5 +1,5 @@
-import { buildMeEndpoint } from './me';
-import { buildReconcileEndpoint } from './reconcile';
+import { buildMeEndpoint } from './me.js';
+import { buildReconcileEndpoint } from './reconcile.js';
 export function buildAchievementEndpoints(options) {
     const endpoints = [];
     if (options.endpoints.me !== false) {

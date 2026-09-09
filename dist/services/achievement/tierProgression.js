@@ -1,7 +1,7 @@
-import { collectionOf } from '../../collections/helpers';
-import { CTX_SYSTEM_REQUEST } from './contextFlags';
-import { evaluateRules } from './evaluateRules';
-import { hasApprovedTierRequest } from './tierApproval';
+import { collectionOf } from '../../collections/helpers.js';
+import { CTX_SYSTEM_REQUEST } from './contextFlags.js';
+import { evaluateRules } from './evaluateRules.js';
+import { hasApprovedTierRequest } from './tierApproval.js';
 export async function ensureTierRequest(args) {
     const clauses = [
         { user: { equals: args.userId } },
@@ -97,4 +97,4 @@ export async function syncTierProgression(args) {
     }
     return { requested };
 }
-export { hasApprovedTierRequest } from './tierApproval';
+export { hasApprovedTierRequest } from './tierApproval.js';

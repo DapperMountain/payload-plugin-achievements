@@ -5,8 +5,8 @@ import type {
   PayloadRequest,
 } from 'payload'
 
-import { relationId } from '../../../services/achievement/relationId'
-import { collectionOf } from '../../helpers'
+import { relationId } from '../../../services/achievement/relationId.js'
+import { collectionOf } from '../../helpers.js'
 
 async function achievementName(args: {
   payload: Payload

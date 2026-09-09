@@ -1,8 +1,8 @@
 import type { Payload, PayloadRequest } from 'payload'
 import { APIError } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
-import type { AchievementCollectionKey } from '../../types'
+import { collectionOf } from '../../collections/helpers.js'
+import type { AchievementCollectionKey } from '../../types.js'
 
 type CatalogKey = Extract<AchievementCollectionKey, 'eventTypes' | 'metrics'>
 

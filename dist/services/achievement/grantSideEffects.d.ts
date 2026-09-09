@@ -1,5 +1,5 @@
 import type { PayloadRequest } from 'payload';
-export { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, CTX_SYSTEM_REQUEST } from './contextFlags';
+export { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, CTX_SYSTEM_REQUEST } from './contextFlags.js';
 /** Create a grant row only — side effects run in Grants afterChange. */
 export declare function createGrantRow(args: {
     req: PayloadRequest;

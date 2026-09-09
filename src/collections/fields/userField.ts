@@ -1,6 +1,6 @@
 import type { Field } from 'payload'
 
-import { getAchievementOptions } from '../../options-store'
+import { getAchievementOptions } from '../../options-store.js'
 
 /** Relationship to the users collection. */
 export function userField(): Field {

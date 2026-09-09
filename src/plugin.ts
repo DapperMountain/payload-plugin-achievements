@@ -1,11 +1,11 @@
 import type { Config, Plugin } from 'payload'
 
-import { buildAchievementCollections } from './collections/index'
-import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup'
-import { resolveOptions } from './defaults'
-import { buildAchievementEndpoints } from './endpoints/index'
-import { setAchievementOptions } from './options-store'
-import type { AchievementPluginOptions } from './types'
+import { buildAchievementCollections } from './collections/index.js'
+import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup.js'
+import { resolveOptions } from './defaults.js'
+import { buildAchievementEndpoints } from './endpoints/index.js'
+import { setAchievementOptions } from './options-store.js'
+import type { AchievementPluginOptions } from './types.js'
 
 /**
  * Payload achievements plugin — merges collections (hooks own request/grant flow)

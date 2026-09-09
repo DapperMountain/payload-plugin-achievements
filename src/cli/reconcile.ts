@@ -4,7 +4,7 @@ import {
   reconcileProgression,
   type ReconcileProgressionArgs,
   type ReconcileProgressionResult,
-} from '../services/achievement/reconcile'
+} from '../services/achievement/reconcile.js'
 
 export type ReconcileCliFilters = Omit<ReconcileProgressionArgs, 'payload' | 'req'>
 

@@ -18,5 +18,5 @@ export declare function syncTierProgression(args: {
 }): Promise<{
     requested: number;
 }>;
-export { hasApprovedTierRequest } from './tierApproval';
+export { hasApprovedTierRequest } from './tierApproval.js';
 //# sourceMappingURL=tierProgression.d.ts.map

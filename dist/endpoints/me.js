@@ -1,5 +1,5 @@
-import { getUserId } from '../access/helpers/index';
-import { getUserProgress } from '../services/achievement/getUserProgress';
+import { getUserId } from '../access/helpers/index.js';
+import { getUserProgress } from '../services/achievement/getUserProgress.js';
 function requestUrl(req) {
     return req.url ? new URL(req.url, 'http://local') : null;
 }

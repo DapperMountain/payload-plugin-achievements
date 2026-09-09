@@ -1,4 +1,4 @@
-export { ActorField } from '../admin/ActorField'
-export { MetricChangeField } from '../admin/MetricChangeField'
-export { MetricField } from '../admin/MetricField'
-export { ReconcileProgressionButton } from '../admin/ReconcileProgressionButton'
+export { ActorField } from '../admin/ActorField.js'
+export { MetricChangeField } from '../admin/MetricChangeField.js'
+export { MetricField } from '../admin/MetricField.js'
+export { ReconcileProgressionButton } from '../admin/ReconcileProgressionButton.js'

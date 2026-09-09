@@ -1,4 +1,4 @@
-import { getAchievementOptions } from '../options-store';
+import { getAchievementOptions } from '../options-store.js';
 /** Resolved slug for a logical achievement collection. */
 export function slugOf(key) {
     return getAchievementOptions().collectionSlugs[key];

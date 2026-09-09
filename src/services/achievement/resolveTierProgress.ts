@@ -1,9 +1,9 @@
 import type { Payload, PayloadRequest } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
-import { evaluateRuleProgress } from './evaluateRules'
-import { relationId } from './relationId'
-import { resolveCurrentTier, type ResolvedTier } from './resolveCurrentTier'
+import { collectionOf } from '../../collections/helpers.js'
+import { evaluateRuleProgress } from './evaluateRules.js'
+import { relationId } from './relationId.js'
+import { resolveCurrentTier, type ResolvedTier } from './resolveCurrentTier.js'
 
 export type TierLadderProgress = {
   current: ResolvedTier | null

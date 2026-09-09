@@ -1,5 +1,5 @@
 import type { AccessArgs } from 'payload';
-import type { AchievementCollectionKey } from '../../types';
+import type { AchievementCollectionKey } from '../../types.js';
 /** Authenticated user may read/write rows tied to themselves. */
 export declare const isSelfUser: (userRelationField?: string) => ({ req, data }: AccessArgs) => boolean | {
     [x: string]: {

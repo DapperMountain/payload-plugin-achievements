@@ -1,4 +1,4 @@
-import { resolveOptions } from './defaults';
+import { resolveOptions } from './defaults.js';
 let stored = null;
 export function setAchievementOptions(options) {
     stored = resolveOptions(options);

@@ -1,5 +1,5 @@
-import { collectionOf } from '../../collections/helpers';
-import { relationId } from './relationId';
+import { collectionOf } from '../../collections/helpers.js';
+import { relationId } from './relationId.js';
 /** Read flags from a loaded event-type document (or populated relationship). */
 export function readEventTypeFlags(doc) {
     if (!doc || typeof doc !== 'object')

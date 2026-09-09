@@ -1,4 +1,4 @@
-import { resolveAdminGroup, resolveCollectionSlugs, } from './collections/slugs';
+import { resolveAdminGroup, resolveCollectionSlugs, } from './collections/slugs.js';
 export const DEFAULT_USERS_COLLECTION = 'users';
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me';
 export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile';

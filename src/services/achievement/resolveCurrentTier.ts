@@ -1,9 +1,9 @@
 import type { Payload, PayloadRequest } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
-import { evaluateRules } from './evaluateRules'
-import { relationId } from './relationId'
-import { hasApprovedTierRequest } from './tierApproval'
+import { collectionOf } from '../../collections/helpers.js'
+import { evaluateRules } from './evaluateRules.js'
+import { relationId } from './relationId.js'
+import { hasApprovedTierRequest } from './tierApproval.js'
 
 export type ResolvedTier = {
   id: string

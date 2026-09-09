@@ -1,8 +1,8 @@
 import type { CollectionConfig } from 'payload'
 
-import { ensureUniqueGrant } from './ensureUniqueGrant'
-import { fillGrantTitle, setGrantTitle } from './setGrantTitle'
-import { afterGrantChange, afterGrantDelete } from './afterGrantMutation'
+import { ensureUniqueGrant } from './ensureUniqueGrant.js'
+import { fillGrantTitle, setGrantTitle } from './setGrantTitle.js'
+import { afterGrantChange, afterGrantDelete } from './afterGrantMutation.js'
 
 export const hooks: CollectionConfig['hooks'] = {
   beforeValidate: [ensureUniqueGrant],

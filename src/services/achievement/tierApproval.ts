@@ -1,6 +1,6 @@
 import type { PayloadRequest, Where } from 'payload'
 
-import { collectionOf } from '../../collections/helpers'
+import { collectionOf } from '../../collections/helpers.js'
 
 export async function hasApprovedTierRequest(args: {
   req: PayloadRequest

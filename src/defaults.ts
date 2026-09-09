@@ -1,8 +1,8 @@
-import type { AchievementPluginOptions } from './types'
+import type { AchievementPluginOptions } from './types.js'
 import {
   resolveAdminGroup,
   resolveCollectionSlugs,
-} from './collections/slugs'
+} from './collections/slugs.js'
 
 export const DEFAULT_USERS_COLLECTION = 'users'
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me'

@@ -1,5 +1,5 @@
-import { getAchievementOptions } from '../options-store';
-import { builtInRuleTypes } from '../services/achievement/builtInRules';
+import { getAchievementOptions } from '../options-store.js';
+import { builtInRuleTypes } from '../services/achievement/builtInRules.js';
 export function getRuleTypeMap() {
     const map = new Map();
     for (const rule of builtInRuleTypes) {

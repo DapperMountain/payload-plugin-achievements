@@ -1,8 +1,8 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 
-import { getUserId } from '../access/helpers/index'
-import { getAchievementOptions } from '../options-store'
-import { reconcileProgression } from '../services/achievement/reconcile'
+import { getUserId } from '../access/helpers/index.js'
+import { getAchievementOptions } from '../options-store.js'
+import { reconcileProgression } from '../services/achievement/reconcile.js'
 
 function requestUrl(req: PayloadRequest): URL | null {
   return req.url ? new URL(req.url, 'http://local') : null

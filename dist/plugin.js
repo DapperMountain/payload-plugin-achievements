@@ -1,8 +1,8 @@
-import { buildAchievementCollections } from './collections/index';
-import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup';
-import { resolveOptions } from './defaults';
-import { buildAchievementEndpoints } from './endpoints/index';
-import { setAchievementOptions } from './options-store';
+import { buildAchievementCollections } from './collections/index.js';
+import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup.js';
+import { resolveOptions } from './defaults.js';
+import { buildAchievementEndpoints } from './endpoints/index.js';
+import { setAchievementOptions } from './options-store.js';
 /**
  * Payload achievements plugin — merges collections (hooks own request/grant flow)
  * and an optional current-user grants endpoint.

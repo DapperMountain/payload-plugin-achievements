@@ -1,7 +1,7 @@
 import { describe, expect, mock, test } from 'bun:test'
 
-import { setAchievementOptions } from '../../options-store'
-import { resolveTierProgress } from './resolveTierProgress'
+import { setAchievementOptions } from '../../options-store.js'
+import { resolveTierProgress } from './resolveTierProgress.js'
 
 describe('resolveTierProgress', () => {
   test('places the traveler between current and next from unlock progress', async () => {

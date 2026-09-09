@@ -3,17 +3,17 @@ export {
   DEFAULT_ACHIEVEMENT_METRIC_SLUG,
   ENGINE_EVENT_TYPES,
   ENGINE_METRICS,
-} from './catalog'
-export type { EngineEventTypeSlug, EngineMetricSlug } from './catalog'
-export { achievementPlugin } from './plugin'
-export { seedAchievementCatalog, seedAchievements } from './seed/index'
+} from './catalog.js'
+export type { EngineEventTypeSlug, EngineMetricSlug } from './catalog.js'
+export { achievementPlugin } from './plugin.js'
+export { seedAchievementCatalog, seedAchievements } from './seed/index.js'
 export type {
   AchievementSeedAchievement,
   AchievementSeedCatalogRow,
   AchievementSeedInput,
   AchievementSeedLocalizedText,
   AchievementSeedTier,
-} from './seed/index'
+} from './seed/index.js'
 export {
   evaluateRules,
   evaluateRuleProgress,
@@ -40,7 +40,7 @@ export {
   transitionToId,
   validateRuleGroup,
   validateRuleNode,
-} from './services/achievement/index'
+} from './services/achievement/index.js'
 export type {
   ResolvedTier,
   RuleGroup,
@@ -52,7 +52,7 @@ export type {
   ReconcileProgressionArgs,
   ReconcileProgressionResult,
   ReleaseReviewGateResult,
-} from './services/achievement/index'
+} from './services/achievement/index.js'
 export type {
   BuiltInEventType,
   BuiltInRuleType,
@@ -64,8 +64,8 @@ export type {
   AchievementRuleType,
   AchievementScopeConfig,
   AchievementUsersOptions,
-} from './types'
-export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN_GROUP } from './collections/slugs'
-export { DEFAULT_ME_ENDPOINT_PATH, DEFAULT_RECONCILE_ENDPOINT_PATH } from './defaults'
-export { collectionOf, slugOf } from './collections/helpers'
-export { isAchievementPluginEnabled } from './enabled'
+} from './types.js'
+export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN_GROUP } from './collections/slugs.js'
+export { DEFAULT_ME_ENDPOINT_PATH, DEFAULT_RECONCILE_ENDPOINT_PATH } from './defaults.js'
+export { collectionOf, slugOf } from './collections/helpers.js'
+export { isAchievementPluginEnabled } from './enabled.js'

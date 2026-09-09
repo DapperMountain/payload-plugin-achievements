@@ -2,7 +2,7 @@
 import { jsx as _jsx } from "react/jsx-runtime";
 import { NumberField, useField, useFormFields } from '@payloadcms/ui';
 import { useEffect } from 'react';
-import { useEventTypeFlags } from './useEventTypeFlags';
+import { useEventTypeFlags } from './useEventTypeFlags.js';
 /** Signed change amount — only when the type adjusts a metric and a metric is selected. */
 export function MetricChangeField(props) {
     const { eventTypesSlug, ...fieldArgs } = props;

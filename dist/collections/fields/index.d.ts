@@ -1,6 +1,6 @@
-export { scopeField } from './scopeField';
-export { userField } from './userField';
-export { buildRuleRowFields, buildRuleTreeFields } from './ruleFields';
-export { usersAchievementsGroup } from './usersAchievementsGroup';
-export { localizedDescriptionField, localizedNameField } from './localizedText';
+export { scopeField } from './scopeField.js';
+export { userField } from './userField.js';
+export { buildRuleRowFields, buildRuleTreeFields } from './ruleFields.js';
+export { usersAchievementsGroup } from './usersAchievementsGroup.js';
+export { localizedDescriptionField, localizedNameField } from './localizedText.js';
 //# sourceMappingURL=index.d.ts.map

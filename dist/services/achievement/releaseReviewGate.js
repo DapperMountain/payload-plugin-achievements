@@ -1,5 +1,5 @@
-import { collectionOf } from '../../collections/helpers';
-import { relationId } from './relationId';
+import { collectionOf } from '../../collections/helpers.js';
+import { relationId } from './relationId.js';
 /**
  * When a definition stops requiring review, approve each pending request for that
  * definition so existing grant / tier.changed hooks run for that user + scope only.

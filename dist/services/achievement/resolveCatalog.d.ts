@@ -1,5 +1,5 @@
 import type { Payload, PayloadRequest } from 'payload';
-import type { AchievementCollectionKey } from '../../types';
+import type { AchievementCollectionKey } from '../../types.js';
 type CatalogKey = Extract<AchievementCollectionKey, 'eventTypes' | 'metrics'>;
 /**
  * Resolve a catalog relationship from a slug or document id.

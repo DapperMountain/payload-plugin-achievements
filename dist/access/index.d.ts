@@ -1,3 +1,3 @@
-export * from './helpers/index';
-export * from './roles/index';
+export * from './helpers/index.js';
+export * from './roles/index.js';
 //# sourceMappingURL=index.d.ts.map

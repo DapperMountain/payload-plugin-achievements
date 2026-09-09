@@ -15,7 +15,7 @@ Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
 - Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`; CLI from `./cli` (`runReconcileCli`)
 - Peer: `payload` ^3.88, `@payloadcms/ui` ^3.88, `react` ^19
-- Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps)
+- Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps). TypeScript `NodeNext`: relative imports in source use `.js` specifiers so emitted ESM is Node-resolvable.
 
 ## Host wiring
 

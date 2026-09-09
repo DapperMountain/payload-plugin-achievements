@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, mock, test } from 'bun:test'
 
-import { resetAchievementOptions, setAchievementOptions } from '../../options-store'
-import { evaluateRules, evaluateRuleProgress, normalizeRuleGroup } from './evaluateRules'
+import { resetAchievementOptions, setAchievementOptions } from '../../options-store.js'
+import { evaluateRules, evaluateRuleProgress, normalizeRuleGroup } from './evaluateRules.js'
 
 afterEach(() => {
   resetAchievementOptions()

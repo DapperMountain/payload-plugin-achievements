@@ -1,7 +1,7 @@
 import { APIError } from 'payload';
-import { collectionOf } from '../helpers';
-import { relationId } from '../../services/achievement/relationId';
-import { eachRuleLeaf } from './eachRuleLeaf';
+import { collectionOf } from '../helpers.js';
+import { relationId } from '../../services/achievement/relationId.js';
+import { eachRuleLeaf } from './eachRuleLeaf.js';
 async function countMatchingLeaves(args) {
     let count = 0;
     const visit = (rule) => {

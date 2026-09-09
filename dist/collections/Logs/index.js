@@ -1,10 +1,10 @@
-import { catalogFilterOptions } from '../fields/catalogFilter';
-import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers';
-import { getAchievementOptions } from '../../options-store';
-import { scopeField, userField } from '../fields';
-import { access } from './access';
-import { validateActor, validateChange, validateMetric } from './fields/validators';
-import { hooks } from './hooks';
+import { catalogFilterOptions } from '../fields/catalogFilter.js';
+import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers.js';
+import { getAchievementOptions } from '../../options-store.js';
+import { scopeField, userField } from '../fields/index.js';
+import { access } from './access/index.js';
+import { validateActor, validateChange, validateMetric } from './fields/validators.js';
+import { hooks } from './hooks/index.js';
 /** Append-only occurrence log. `type` / `metric` are catalog relationships. */
 export function buildLogsCollection() {
     const users = getAchievementOptions().usersCollectionSlug ?? 'users';
