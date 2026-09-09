@@ -21,3 +21,9 @@ export {
   releasePendingTierReviews,
 } from './releaseReviewGate'
 export type { ReleaseReviewGateResult } from './releaseReviewGate'
+export {
+  catalogRef,
+  transitionLogData,
+  transitionToId,
+} from './logData'
+export type { CatalogRef, TransitionLogData } from './logData'

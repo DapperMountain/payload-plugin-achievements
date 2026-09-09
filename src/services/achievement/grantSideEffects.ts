@@ -3,6 +3,7 @@ import type { PayloadRequest, Where } from 'payload'
 import { collectionOf } from '../../collections/helpers'
 import { CTX_CASCADING_REVOKE, CTX_SYSTEM_REQUEST } from './contextFlags'
 import { evaluateRules, ruleGroupHasProgressRequirements } from './evaluateRules'
+import { transitionLogData } from './logData'
 import { recordLog, syncTierChangedLog } from './recordEvent'
 import { relationId } from './relationId'
 import { syncTierProgression } from './tierProgression'
@@ -253,10 +254,10 @@ export async function runAfterGrantCreated(args: {
     userId: args.userId,
     scopeId: args.scopeId,
     type: 'achievement.granted',
-    data: {
-      achievement: args.achievementId,
-      ...(args.achievementSlug ? { achievementSlug: args.achievementSlug } : {}),
-    },
+    data: transitionLogData({
+      from: null,
+      to: { id: args.achievementId, slug: args.achievementSlug },
+    }),
   })
 
   await syncCompositeProgression({
@@ -293,10 +294,10 @@ export async function runAfterGrantDeleted(args: {
     userId: args.userId,
     scopeId: args.scopeId,
     type: 'achievement.revoked',
-    data: {
-      achievement: args.achievementId,
-      ...(args.achievementSlug ? { achievementSlug: args.achievementSlug } : {}),
-    },
+    data: transitionLogData({
+      from: { id: args.achievementId, slug: args.achievementSlug },
+      to: null,
+    }),
   })
 
   if (args.cascading) return

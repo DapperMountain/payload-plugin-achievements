@@ -4,6 +4,7 @@ import { collectionOf } from '../../collections/helpers'
 import {
   syncCompositeProgression,
 } from './grantSideEffects'
+import { transitionLogData, transitionToId } from './logData'
 import { recordLog, syncTierChangedLog } from './recordEvent'
 import { relationId } from './relationId'
 import { resolveCatalogId } from './resolveCatalog'
@@ -72,7 +73,7 @@ async function backfillGrantedLogs(args: {
 
   const logged = new Set(
     logs.docs
-      .map((log) => relationId((log as { data?: { achievement?: unknown } }).data?.achievement))
+      .map((log) => transitionToId((log as { data?: unknown }).data))
       .filter((id): id is string => Boolean(id)),
   )
 
@@ -105,10 +106,12 @@ async function backfillGrantedLogs(args: {
       scopeId: args.scopeId,
       type: 'achievement.granted',
       data: {
-        achievement: achievementId,
-        ...(slug ? { achievementSlug: slug } : {}),
-        backfilled: true,
+        ...transitionLogData({
+          from: null,
+          to: { id: achievementId, slug },
+        }),
         ...(completedAt ? { completedAt } : {}),
+        backfilled: true,
       },
     })
     logged.add(achievementId)

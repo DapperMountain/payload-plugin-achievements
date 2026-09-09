@@ -104,7 +104,9 @@ export function buildLogsCollection() {
                     {
                         name: 'data',
                         type: 'json',
-                        admin: { description: 'Any extra structured details.' },
+                        admin: {
+                            description: 'Engine transition envelope: `{ from, to }` each `{ id, slug? }` or null (tier.changed, achievement.granted/revoked). Hosts may add extra keys.',
+                        },
                     },
                 ],
             },
