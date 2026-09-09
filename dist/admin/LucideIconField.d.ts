@@ -1,6 +1,6 @@
 import type { TextFieldClientComponent } from 'payload';
 /**
- * Searchable Lucide icon picker. Stores the kebab-case Lucide name (e.g. `sparkles`).
+ * Emoji-picker style Lucide field: searchable icon grid, stores kebab-case names.
  */
 export declare const LucideIconField: TextFieldClientComponent;
 //# sourceMappingURL=LucideIconField.d.ts.map
