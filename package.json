@@ -1,6 +1,6 @@
 {
   "name": "@dappermountain/payload-plugin-achievements",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "A robust, Admin-configured achievements engine for Payload: composable unlock rules, derived rank progress, request/review grants, metrics, and scoped multi-tenant support.",
   "license": "MIT",
   "type": "module",
