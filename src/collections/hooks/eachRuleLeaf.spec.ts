@@ -24,4 +24,30 @@ describe('eachRuleLeaf', () => {
     )
     expect(types).toEqual(['tier-at-least', 'event-count', 'metric-minimum'])
   })
+
+  test('visits leaves that carry empty rules arrays and default combinator', () => {
+    const types: string[] = []
+    eachRuleLeaf(
+      {
+        combinator: 'and',
+        rules: [
+          {
+            type: 'tier-at-least',
+            tier: 't1',
+            combinator: 'and',
+            rules: [],
+          },
+          {
+            type: 'metric-minimum',
+            metric: 'm1',
+            minimum: 365,
+            combinator: 'and',
+            rules: [],
+          },
+        ],
+      },
+      (rule: Record<string, unknown>) => types.push(String(rule.type)),
+    )
+    expect(types).toEqual(['tier-at-least', 'metric-minimum'])
+  })
 })

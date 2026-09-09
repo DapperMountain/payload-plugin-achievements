@@ -1,8 +1,6 @@
 import type { AchievementRuleEvalArgs, AchievementRuleType } from '../../types.js'
 import { collectionOf } from '../../collections/helpers.js'
-import { durationMs } from './duration.js'
 import { relationId } from './relationId.js'
-import { resolveElapsedAnchor } from './resolveElapsedAnchor.js'
 import { resolveMetricValue } from './resolveMetricValue.js'
 import { userScopeIncludingUnscopedWhere, userScopeWhere } from './where.js'
 import type { Where } from 'payload'
@@ -304,40 +302,6 @@ export const builtInRuleTypes: AchievementRuleType[] = [
         },
       })
       return clamp01(result.totalDocs / needed)
-    },
-  },
-  {
-    type: 'elapsed-since',
-    async evaluate({ payload, req, rule, userId, scopeId }) {
-      const needed = durationMs(Number(rule.amount ?? NaN), rule.unit)
-      if (needed == null) return false
-      const anchor = await resolveElapsedAnchor({
-        payload,
-        req,
-        since: rule.since,
-        eventType: rule.eventType,
-        eventTypeSlug: rule.eventTypeSlug,
-        userId,
-        scopeId,
-      })
-      if (!anchor) return false
-      return Date.now() - anchor.getTime() >= needed
-    },
-    async progress({ payload, req, rule, userId, scopeId }) {
-      const needed = durationMs(Number(rule.amount ?? NaN), rule.unit)
-      if (needed == null) return 0
-      if (!(needed > 0)) return 1
-      const anchor = await resolveElapsedAnchor({
-        payload,
-        req,
-        since: rule.since,
-        eventType: rule.eventType,
-        eventTypeSlug: rule.eventTypeSlug,
-        userId,
-        scopeId,
-      })
-      if (!anchor) return 0
-      return clamp01((Date.now() - anchor.getTime()) / needed)
     },
   },
 ]

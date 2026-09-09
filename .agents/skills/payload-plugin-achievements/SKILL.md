@@ -54,7 +54,7 @@ System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.
 
 ## Rules engine
 
-Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`, `elapsed-since`; custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed + `elapsed-since`).
+Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`; custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed metrics).
 
 Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveTierProgress`) — no separate progress table.
 

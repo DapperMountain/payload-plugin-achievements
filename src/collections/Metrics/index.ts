@@ -58,13 +58,16 @@ export function buildMetricsCollection(): CollectionConfig {
         defaultValue: 'days',
         enumName: 'ach_metric_unit',
         options: [
-          { label: 'Days', value: 'days' },
-          { label: 'Hours', value: 'hours' },
+          { label: 'Seconds', value: 'seconds' },
           { label: 'Minutes', value: 'minutes' },
+          { label: 'Hours', value: 'hours' },
+          { label: 'Days', value: 'days' },
+          { label: 'Years', value: 'years' },
         ],
         admin: {
           condition: (_, sibling) => sibling?.kind === 'computed' && sibling?.compute === 'elapsed',
-          description: 'Unit of the exposed number (e.g. whole days since the anchor).',
+          description:
+            'Unit of the exposed number (whole units since the anchor). Years use a fixed 365-day length.',
         },
       },
       {

@@ -1,7 +1,5 @@
 import { APIError } from 'payload'
 
-import { isBuiltinElapsedSince } from '../../extensions/elapsedSinceOptions.js'
-import { getMetricAnchorResolver } from '../../extensions/metricAnchors.js'
 import { relationId } from './relationId.js'
 import { normalizeRuleGroup, type RuleGroup } from './evaluateRules.js'
 
@@ -54,26 +52,6 @@ export function validateRuleNode(rule: Record<string, unknown>): string | null {
     }
     if (typeof rule.count !== 'number' || Number.isNaN(rule.count)) {
       return 'Event count needs a numeric count.'
-    }
-    return null
-  }
-
-  if (type === 'elapsed-since') {
-    const since = String(rule.since ?? 'user-created-at')
-    if (since === 'first-event') {
-      if (!relationId(rule.eventType) && typeof rule.eventTypeSlug !== 'string') {
-        return 'Elapsed since (first event) needs an event type.'
-      }
-    } else if (!isBuiltinElapsedSince(since) && !getMetricAnchorResolver(since)) {
-      // Host anchors (e.g. membership-granted) are registered via extensions.metricAnchors.
-      return 'Elapsed since needs a valid since source.'
-    }
-    if (typeof rule.amount !== 'number' || Number.isNaN(rule.amount) || rule.amount < 0) {
-      return 'Elapsed since needs a non-negative amount.'
-    }
-    const unit = rule.unit ?? 'days'
-    if (unit !== 'days' && unit !== 'hours' && unit !== 'minutes') {
-      return 'Elapsed since unit must be days, hours, or minutes.'
     }
     return null
   }

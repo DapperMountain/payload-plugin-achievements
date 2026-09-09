@@ -17,46 +17,6 @@ describe('validateRuleNode', () => {
 
     expect(validateRuleNode({ type: 'achievement-complete' })).toMatch(/achievement/i)
     expect(validateRuleNode({ type: 'achievement-complete', achievement: 'a1' })).toBeNull()
-
-    expect(validateRuleNode({ type: 'elapsed-since', amount: 30 })).toBeNull()
-    expect(validateRuleNode({ type: 'elapsed-since', since: 'first-event', amount: 7 })).toMatch(
-      /event type/i,
-    )
-    expect(
-      validateRuleNode({
-        type: 'elapsed-since',
-        since: 'first-event',
-        eventType: 'e1',
-        amount: 7,
-        unit: 'days',
-      }),
-    ).toBeNull()
-
-    expect(
-      validateRuleNode({
-        type: 'elapsed-since',
-        since: 'not-a-real-anchor',
-        amount: 30,
-        unit: 'days',
-      }),
-    ).toMatch(/valid since/i)
-
-    setAchievementOptions({
-      extensions: {
-        metricAnchors: {
-          'membership-granted': async () => new Date(),
-        },
-      },
-    })
-    expect(
-      validateRuleNode({
-        type: 'elapsed-since',
-        since: 'membership-granted',
-        amount: 365,
-        unit: 'days',
-      }),
-    ).toBeNull()
-    setAchievementOptions({})
   })
 
   test('rejects empty groups and validates nested leaves', () => {
@@ -94,3 +54,6 @@ describe('validateRuleGroup', () => {
     ).toThrow(APIError)
   })
 })
+
+// Keep options-store import used so other specs that share process state stay isolated.
+setAchievementOptions({})

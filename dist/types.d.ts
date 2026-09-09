@@ -1,5 +1,5 @@
 import type { CollectionConfig, OptionLabel, Payload, PayloadRequest, TypedUser } from 'payload';
-/** Host-registered date anchors for computed elapsed metrics / `elapsed-since` rules. */
+/** Host-registered date anchors for computed elapsed metrics. */
 export type AchievementMetricAnchor = (args: {
     payload: Payload;
     req?: PayloadRequest;
@@ -125,8 +125,8 @@ export type AchievementPluginOptions = {
         /** Custom rule evaluators merged with built-ins. */
         ruleTypes?: AchievementRuleType[];
         /**
-         * Named date anchors for computed `elapsed` metrics and `elapsed-since` rules.
-         * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
+             * Named date anchors for computed `elapsed` metrics.
+             * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
          */
         metricAnchors?: Record<string, AchievementMetricAnchorEntry>;
     };
@@ -150,7 +150,7 @@ export type AchievementPluginOptions = {
     users?: AchievementUsersOptions;
     usersCollectionSlug?: string;
 };
-export type BuiltInRuleType = 'achievement-complete' | 'elapsed-since' | 'event-count' | 'metric-minimum' | 'tier-at-least';
+export type BuiltInRuleType = 'achievement-complete' | 'event-count' | 'metric-minimum' | 'tier-at-least';
 /** Engine log-type catalog slugs (seeded as system catalog rows). */
 export type BuiltInEventType = 'achievement.granted' | 'achievement.revoked' | 'metric.delta' | 'tier.changed';
 //# sourceMappingURL=types.d.ts.map

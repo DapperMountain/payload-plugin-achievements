@@ -107,7 +107,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 
 - Top-level empty list → everyone passes
 - Nested groups → AND (“all of these”) or OR (“any of these”)
-- Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`, `elapsed-since`
+- Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`
 - Custom leaves → register via `extensions.ruleTypes`
 
 **Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. Turning **`requiresReview` off** approves pending tier requests and writes missing `tier.changed` logs for members who already meet unlock rules (including those who never had a pending request). **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
@@ -117,12 +117,12 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 | AND | Equal average of *requirement* children |
 | OR | Best child (max) |
 | `tier-at-least` | Gate — skipped in AND averages |
-| `event-count` / `metric-minimum` / `elapsed-since` | Fraction of the target |
+| `event-count` / `metric-minimum` | Fraction of the target |
 | `achievement-complete` | `1` if granted; otherwise rolls up that achievement’s completion (or eligibility) rules |
 
-**`elapsed-since`** — time since an anchor ≥ amount (unit: `days` | `hours` | `minutes`). Built-in anchors: user `createdAt`, or earliest log of an event type (`since: 'first-event'`). Hosts register more anchors via `extensions.metricAnchors` (same keys work on computed metrics).
+**Computed elapsed metrics** — `kind: computed` + `compute: elapsed` + `unit` (`seconds` | `minutes` | `hours` | `days` | `years`) + `since` (built-in `user-created-at` / `first-event`, or a host `metricAnchors` key). Gate tenure with `metric-minimum` against that metric. Years use a fixed 365-day length (not calendar years). System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
 
-**Stored vs computed metrics** — `kind: stored` (default) totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances. `kind: computed` + `compute: elapsed` exposes a live number (e.g. days since an anchor); use `metric-minimum` against it. System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
+**Stored metrics** — totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances.
 
 **Leaderboards** — `getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points` ranks stored balances (authenticated). Disable with `endpoints.leaderboard: false`.
 
@@ -186,7 +186,7 @@ achievementPlugin({
 | `canReview` | _(denied)_ | **Important.** Without this, users cannot manage catalogs or approve requests. Receives `(user, scopeId)` where `scopeId` may be `null`. |
 | `scope` | _(none)_ | Multi-tenant hook-up. `collection` is the relation target (e.g. `'tenants'`). `relationField` defaults to `'scope'`. Adds an optional scope field across plugin collections. |
 | `mediaCollection` | _(none)_ | When set (e.g. `'media'`), tiers get an optional upload field for ladder badge images. Icon string keys still work without this. |
-| `extensions.metricAnchors` | _(none)_ | Named date resolvers for computed elapsed / `elapsed-since`. Prefer `{ label, resolve }` where `label` is a Payload Admin {@link OptionLabel} (string, `{ en, es }`, or `({ t }) => t('custom:…')`). Not CMS localization. |
+| `extensions.metricAnchors` | _(none)_ | Named date resolvers for computed elapsed metrics. Prefer `{ label, resolve }` where `label` is a Payload Admin {@link OptionLabel} (string, `{ en, es }`, or `({ t }) => t('custom:…')`). Not CMS localization. |
 
 ### `collections`
 
