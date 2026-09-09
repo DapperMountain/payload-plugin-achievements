@@ -22,7 +22,8 @@ export function usersAchievementsGroup(options: ResolvedAchievementOptions): Fie
         collection: slugs.grants,
         on: 'user',
         admin: {
-          allowCreate: false,
+          // Create from the user doc — Payload pre-fills `user` on the grant drawer.
+          allowCreate: true,
           defaultColumns: ['achievement', 'completedAt', 'scope'],
         },
       },
