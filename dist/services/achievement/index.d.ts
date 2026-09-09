@@ -17,4 +17,6 @@ export { reconcileProgression, reconcileUserProgression } from './reconcile';
 export type { ReconcileProgressionArgs, ReconcileProgressionResult } from './reconcile';
 export { didDisableRequiresReview, releasePendingAchievementReviews, releasePendingTierReviews, } from './releaseReviewGate';
 export type { ReleaseReviewGateResult } from './releaseReviewGate';
+export { catalogRef, transitionLogData, transitionToId, } from './logData';
+export type { CatalogRef, TransitionLogData } from './logData';
 //# sourceMappingURL=index.d.ts.map

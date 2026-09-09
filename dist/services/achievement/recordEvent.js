@@ -2,8 +2,8 @@ import { APIError } from 'payload';
 import { DEFAULT_ACHIEVEMENT_METRIC_SLUG } from '../../catalog';
 import { collectionOf } from '../../collections/helpers';
 import { eventTypeRequiresActor } from './eventTypeRequiresActor';
+import { transitionLogData, transitionToId } from './logData';
 import { resolveCatalogId } from './resolveCatalog';
-import { relationId } from './relationId';
 import { resolveCurrentTier } from './resolveCurrentTier';
 import { userScopeWhere } from './where';
 async function catalogId(args) {
@@ -113,22 +113,35 @@ export async function syncTierChangedLog(args) {
             and: [userScopeWhere(args.userId, scopeId), { type: { equals: typeId } }],
         },
     });
-    const lastTierId = relationId(latest.docs[0]?.data?.tier);
+    const latestData = latest.docs[0]?.data;
+    const lastTierId = transitionToId(latestData);
     const currentId = current?.id ?? null;
     if (lastTierId === currentId)
         return null;
     if (!currentId)
         return null;
+    let fromSlug;
+    if (latestData && typeof latestData === 'object' && !Array.isArray(latestData)) {
+        const record = latestData;
+        const to = record.to;
+        if (to && typeof to === 'object' && !Array.isArray(to)) {
+            const slug = to.slug;
+            if (typeof slug === 'string')
+                fromSlug = slug;
+        }
+        else if (typeof record.tierSlug === 'string') {
+            fromSlug = record.tierSlug;
+        }
+    }
     return recordLog({
         payload: args.payload,
         req: args.req,
         userId: args.userId,
         scopeId,
         type: 'tier.changed',
-        data: {
-            tier: currentId,
-            ...(current?.slug ? { tierSlug: current.slug } : {}),
-            ...(lastTierId ? { previousTier: lastTierId } : {}),
-        },
+        data: transitionLogData({
+            from: lastTierId ? { id: lastTierId, slug: fromSlug } : null,
+            to: { id: currentId, slug: current?.slug },
+        }),
     });
 }

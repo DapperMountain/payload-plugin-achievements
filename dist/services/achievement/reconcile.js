@@ -1,5 +1,6 @@
 import { collectionOf } from '../../collections/helpers';
 import { syncCompositeProgression, } from './grantSideEffects';
+import { transitionLogData, transitionToId } from './logData';
 import { recordLog, syncTierChangedLog } from './recordEvent';
 import { relationId } from './relationId';
 import { resolveCatalogId } from './resolveCatalog';
@@ -33,7 +34,7 @@ async function backfillGrantedLogs(args) {
         },
     });
     const logged = new Set(logs.docs
-        .map((log) => relationId(log.data?.achievement))
+        .map((log) => transitionToId(log.data))
         .filter((id) => Boolean(id)));
     let written = 0;
     for (const grant of grants.docs) {
@@ -63,10 +64,12 @@ async function backfillGrantedLogs(args) {
             scopeId: args.scopeId,
             type: 'achievement.granted',
             data: {
-                achievement: achievementId,
-                ...(slug ? { achievementSlug: slug } : {}),
-                backfilled: true,
+                ...transitionLogData({
+                    from: null,
+                    to: { id: achievementId, slug },
+                }),
                 ...(completedAt ? { completedAt } : {}),
+                backfilled: true,
             },
         });
         logged.add(achievementId);

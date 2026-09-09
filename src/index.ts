@@ -35,6 +35,9 @@ export {
   syncTierChangedLog,
   syncTierProgression,
   syncCompositeProgression,
+  catalogRef,
+  transitionLogData,
+  transitionToId,
   validateRuleGroup,
   validateRuleNode,
 } from './services/achievement/index'
@@ -44,6 +47,8 @@ export type {
   TierLadderProgress,
   CatalogProgressGroup,
   CatalogProgressItem,
+  CatalogRef,
+  TransitionLogData,
   ReconcileProgressionArgs,
   ReconcileProgressionResult,
   ReleaseReviewGateResult,

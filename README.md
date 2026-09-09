@@ -279,6 +279,18 @@ await runReconcileCli({ config })
 
 Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the sum of `change` on matching logs. Creating or deleting **grants** (Admin or API) writes `achievement.granted` / `achievement.revoked`, syncs composed achievements, and may open tier requests / write `tier.changed`.
 
+Engine log `data` for those system events uses a shared transition envelope:
+
+```ts
+{ from: { id, slug? } | null, to: { id, slug? } | null }
+```
+
+| type | `from` | `to` |
+| --- | --- | --- |
+| `tier.changed` | previous tier (null on first climb) | current tier |
+| `achievement.granted` | `null` | achievement |
+| `achievement.revoked` | achievement | `null` |
+
 Turning **Requires review** off on a definition or tier **approves pending requests** for that row only (each waiting user goes through the existing request hooks).
 
 **Admin:** Grants list includes **Repair progression**, which `POST`s the reconcile endpoint (requires `canReview`).
