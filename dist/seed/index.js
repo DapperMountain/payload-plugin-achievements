@@ -112,7 +112,12 @@ async function upsertCatalog(payload, key, row) {
 async function resolveRuleNode(payload, rule) {
     const next = { ...rule };
     if (next.type === 'group' && Array.isArray(next.rules)) {
-        next.rules = await Promise.all(next.rules.map((child) => resolveRuleNode(payload, child)));
+        const children = [];
+        for (const child of next.rules) {
+            // Sequential: Payload/pg clients warn (and will error in pg@9) if queries overlap.
+            children.push(await resolveRuleNode(payload, child));
+        }
+        next.rules = children;
         return next;
     }
     if (next.type === 'tier-at-least' && !next.tier && typeof next.tierSlug === 'string') {
@@ -159,9 +164,13 @@ async function resolveRuleNode(payload, rule) {
 }
 async function resolveRuleGroup(payload, input) {
     const group = normalizeRuleGroup(input);
+    const rules = [];
+    for (const rule of group.rules) {
+        rules.push(await resolveRuleNode(payload, rule));
+    }
     return {
         combinator: group.combinator,
-        rules: await Promise.all(group.rules.map((rule) => resolveRuleNode(payload, rule))),
+        rules,
     };
 }
 /** Upsert engine event types + metrics (`system: true`). English (default locale) only. */
