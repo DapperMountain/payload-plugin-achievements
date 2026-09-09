@@ -1,4 +1,4 @@
-import type { CollectionConfig, Payload, PayloadRequest, TypedUser } from 'payload'
+import type { CollectionConfig, OptionLabel, Payload, PayloadRequest, TypedUser } from 'payload'
 
 /** Host-registered date anchors for computed elapsed metrics / `elapsed-since` rules. */
 export type AchievementMetricAnchor = (args: {
@@ -7,6 +7,18 @@ export type AchievementMetricAnchor = (args: {
   userId: string
   scopeId: string | null
 }) => Date | null | Promise<Date | null>
+
+/**
+ * Anchor with an Admin label.
+ * `label` is a Payload Admin UI string ({@link OptionLabel}): plain string, `{ en, es, … }`,
+ * or `({ t }) => t('custom:…')` — not CMS `localization`.
+ */
+export type AchievementMetricAnchorConfig = {
+  label: OptionLabel
+  resolve: AchievementMetricAnchor
+}
+
+export type AchievementMetricAnchorEntry = AchievementMetricAnchor | AchievementMetricAnchorConfig
 
 export type AchievementScopeConfig = {
   collection: string
@@ -137,7 +149,7 @@ export type AchievementPluginOptions = {
      * Named date anchors for computed `elapsed` metrics and `elapsed-since` rules.
      * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
      */
-    metricAnchors?: Record<string, AchievementMetricAnchor>
+    metricAnchors?: Record<string, AchievementMetricAnchorEntry>
   }
   /**
    * When true (default), ensure system metrics + event types exist on Payload `onInit`

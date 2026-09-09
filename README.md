@@ -186,7 +186,7 @@ achievementPlugin({
 | `canReview` | _(denied)_ | **Important.** Without this, users cannot manage catalogs or approve requests. Receives `(user, scopeId)` where `scopeId` may be `null`. |
 | `scope` | _(none)_ | Multi-tenant hook-up. `collection` is the relation target (e.g. `'tenants'`). `relationField` defaults to `'scope'`. Adds an optional scope field across plugin collections. |
 | `mediaCollection` | _(none)_ | When set (e.g. `'media'`), tiers get an optional upload field for ladder badge images. Icon string keys still work without this. |
-| `extensions.metricAnchors` | _(none)_ | Named `(ctx) => Date | null` resolvers for computed elapsed metrics / `elapsed-since`. Keys appear in Admin `since` selects. |
+| `extensions.metricAnchors` | _(none)_ | Named date resolvers for computed elapsed / `elapsed-since`. Prefer `{ label, resolve }` where `label` is a Payload Admin {@link OptionLabel} (string, `{ en, es }`, or `({ t }) => t('custom:…')`). Not CMS localization. |
 
 ### `collections`
 
@@ -245,9 +245,13 @@ achievementPlugin({
   canReview,
   extensions: {
     metricAnchors: {
-      'membership-granted': async ({ payload, userId, scopeId }) => {
-        // return a Date from host data, or null
-        return null
+      'membership-granted': {
+        // Admin UI i18n (Payload label), not a CMS localized field
+        label: ({ t }) => t('custom:achievements:anchors:membershipGranted'),
+        resolve: async ({ payload, userId, scopeId }) => {
+          // return a Date from host data, or null
+          return null
+        },
       },
     },
     ruleTypes: [
