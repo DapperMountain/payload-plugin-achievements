@@ -1,3 +1,4 @@
+import { collectionOf } from '../../../collections/helpers.js';
 import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor.js';
 import { relationId } from '../../../services/achievement/relationId.js';
 export const validateActor = async (value, { data, req }) => {
@@ -23,8 +24,20 @@ export const validateMetric = async (value, { data, req }) => {
     if (!(await eventTypeRequiresMetric({ payload: req.payload, req, typeIdOrDoc: typeId }))) {
         return true;
     }
-    if (!relationId(value)) {
+    const metricId = relationId(value);
+    if (!metricId) {
         return 'This log type needs a metric.';
+    }
+    const metric = (await req.payload.findByID({
+        collection: collectionOf('metrics'),
+        id: metricId,
+        depth: 0,
+        overrideAccess: true,
+        req,
+        select: { kind: true, name: true, slug: true },
+    }));
+    if (metric && (metric.kind ?? 'stored') === 'computed') {
+        return 'Computed metrics (for example Days) cannot be changed with a metric delta. Use a stored metric such as Points.';
     }
     return true;
 };

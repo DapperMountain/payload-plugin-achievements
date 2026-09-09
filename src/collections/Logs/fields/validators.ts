@@ -1,5 +1,6 @@
 import type { Validate } from 'payload'
 
+import { collectionOf } from '../../../collections/helpers.js'
 import {
   eventTypeRequiresActor,
   eventTypeRequiresMetric,
@@ -26,9 +27,24 @@ export const validateMetric: Validate = async (value, { data, req }) => {
   if (!(await eventTypeRequiresMetric({ payload: req.payload, req, typeIdOrDoc: typeId }))) {
     return true
   }
-  if (!relationId(value)) {
+  const metricId = relationId(value)
+  if (!metricId) {
     return 'This log type needs a metric.'
   }
+
+  const metric = (await req.payload.findByID({
+    collection: collectionOf('metrics'),
+    id: metricId,
+    depth: 0,
+    overrideAccess: true,
+    req,
+    select: { kind: true, name: true, slug: true },
+  })) as { kind?: string | null; name?: string; slug?: string } | null
+
+  if (metric && (metric.kind ?? 'stored') === 'computed') {
+    return 'Computed metrics (for example Days) cannot be changed with a metric delta. Use a stored metric such as Points.'
+  }
+
   return true
 }
 

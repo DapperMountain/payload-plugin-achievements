@@ -1,1 +1,1 @@
-{"version":3,"file":"ensureTypeRequirements.d.ts","sourceRoot":"","sources":["../../../../src/collections/Logs/hooks/ensureTypeRequirements.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,SAAS,CAAA;AAS3D,eAAO,MAAM,sBAAsB,EAAE,4BAkCpC,CAAA"}
+{"version":3,"file":"ensureTypeRequirements.d.ts","sourceRoot":"","sources":["../../../../src/collections/Logs/hooks/ensureTypeRequirements.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,4BAA4B,EAAE,MAAM,SAAS,CAAA;AAU3D,eAAO,MAAM,sBAAsB,EAAE,4BAmDpC,CAAA"}
