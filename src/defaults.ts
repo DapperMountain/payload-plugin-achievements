@@ -6,17 +6,19 @@ import {
 
 export const DEFAULT_USERS_COLLECTION = 'users'
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me'
+export const DEFAULT_LEADERBOARD_ENDPOINT_PATH = '/achievements/leaderboard'
 export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile'
 
 export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' | 'endpoints'> & {
   enabled: boolean
+  seedSystemCatalog: boolean
   usersCollectionSlug: string
   users: { includeJoins: boolean }
   /** Resolved collection slug map (after prefix + overrides). */
   collectionSlugs: ReturnType<typeof resolveCollectionSlugs>
   /** Admin nav group for plugin collections (`false` = ungrouped). */
   adminGroup: string | false
-  endpoints: { me: string | false; reconcile: string | false }
+  endpoints: { me: string | false; leaderboard: string | false; reconcile: string | false }
 }
 
 function normalizeEndpointPath(path: string, fallback: string): string {
@@ -31,6 +33,12 @@ export function resolveMeEndpointPath(me?: string | false): string | false {
   return normalizeEndpointPath(me, DEFAULT_ME_ENDPOINT_PATH)
 }
 
+export function resolveLeaderboardEndpointPath(path?: string | false): string | false {
+  if (path === false) return false
+  if (path == null) return DEFAULT_LEADERBOARD_ENDPOINT_PATH
+  return normalizeEndpointPath(path, DEFAULT_LEADERBOARD_ENDPOINT_PATH)
+}
+
 export function resolveReconcileEndpointPath(path?: string | false): string | false {
   if (path === false) return false
   if (path == null) return DEFAULT_RECONCILE_ENDPOINT_PATH
@@ -41,6 +49,7 @@ export function resolveOptions(options: AchievementPluginOptions = {}): Resolved
   return {
     ...options,
     enabled: options.enabled !== false,
+    seedSystemCatalog: options.seedSystemCatalog !== false,
     usersCollectionSlug: options.usersCollectionSlug ?? DEFAULT_USERS_COLLECTION,
     users: {
       includeJoins: options.users?.includeJoins !== false,
@@ -49,6 +58,7 @@ export function resolveOptions(options: AchievementPluginOptions = {}): Resolved
     adminGroup: resolveAdminGroup(options),
     endpoints: {
       me: resolveMeEndpointPath(options.endpoints?.me),
+      leaderboard: resolveLeaderboardEndpointPath(options.endpoints?.leaderboard),
       reconcile: resolveReconcileEndpointPath(options.endpoints?.reconcile),
     },
   }

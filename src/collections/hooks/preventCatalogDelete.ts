@@ -75,7 +75,9 @@ export function preventCatalogDelete(args: {
 
       const rules = await countMatchingLeaves({
         req,
-        match: (rule) => rule.type === 'event-count' && relationId(rule.eventType) === id,
+        match: (rule) =>
+          (rule.type === 'event-count' || rule.type === 'elapsed-since') &&
+          relationId(rule.eventType) === id,
       })
       if (rules > 0) parts.push(`${rules} rule(s)`)
     } else {
@@ -86,6 +88,14 @@ export function preventCatalogDelete(args: {
         where: { metric: { equals: id } },
       })
       if (logs.totalDocs > 0) parts.push(`${logs.totalDocs} log row(s)`)
+
+      const balances = await req.payload.count({
+        collection: collectionOf('metricBalances'),
+        overrideAccess: true,
+        req,
+        where: { metric: { equals: id } },
+      })
+      if (balances.totalDocs > 0) parts.push(`${balances.totalDocs} balance row(s)`)
 
       const rules = await countMatchingLeaves({
         req,

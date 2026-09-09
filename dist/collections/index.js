@@ -5,11 +5,13 @@ import { buildAchievementsCollection } from './Achievements/index.js';
 import { buildEventTypesCollection } from './EventTypes/index.js';
 import { buildGrantsCollection } from './Grants/index.js';
 import { buildLogsCollection } from './Logs/index.js';
+import { buildMetricBalancesCollection } from './MetricBalances/index.js';
 import { buildMetricsCollection } from './Metrics/index.js';
 import { buildTierRequestsCollection } from './TierRequests/index.js';
 import { buildTiersCollection } from './Tiers/index.js';
 const builders = {
     metrics: buildMetricsCollection,
+    metricBalances: buildMetricBalancesCollection,
     eventTypes: buildEventTypesCollection,
     tiers: buildTiersCollection,
     achievements: buildAchievementsCollection,

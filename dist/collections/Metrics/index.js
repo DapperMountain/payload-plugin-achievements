@@ -1,5 +1,7 @@
-import { collectionAdmin, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js';
+import { collectionAdmin, collectionOf, columnsWithOptionalScope, optionalFields, slugOf } from '../helpers.js';
 import { localizedNameField, scopeField } from '../fields/index.js';
+import { catalogFilterOptions } from '../fields/catalogFilter.js';
+import { elapsedSinceSelectOptions } from '../../extensions/elapsedSinceOptions.js';
 import { access } from './access/index.js';
 import { hooks } from './hooks/index.js';
 export function buildMetricsCollection() {
@@ -9,8 +11,8 @@ export function buildMetricsCollection() {
         hooks,
         admin: collectionAdmin({
             useAsTitle: 'name',
-            defaultColumns: columnsWithOptionalScope(['name', 'slug', 'system', 'scope']),
-            description: 'Scores and totals you track for someone — like points or a streak.',
+            defaultColumns: columnsWithOptionalScope(['name', 'slug', 'kind', 'system', 'scope']),
+            description: 'Named numbers. Stored metrics are score totals from log deltas; computed metrics are derived at evaluation time.',
         }),
         fields: [
             ...optionalFields(scopeField()),
@@ -20,6 +22,65 @@ export function buildMetricsCollection() {
                     localizedNameField({ width: '50%' }),
                     { name: 'slug', type: 'text', required: true, unique: true, index: true, admin: { width: '50%' } },
                 ],
+            },
+            {
+                name: 'kind',
+                type: 'select',
+                required: true,
+                defaultValue: 'stored',
+                options: [
+                    { label: 'Stored (log deltas)', value: 'stored' },
+                    { label: 'Computed', value: 'computed' },
+                ],
+                admin: {
+                    description: 'Stored = sum of metric.delta logs (via balances). Computed = derived value.',
+                },
+            },
+            {
+                name: 'compute',
+                type: 'select',
+                defaultValue: 'elapsed',
+                options: [{ label: 'Elapsed time', value: 'elapsed' }],
+                admin: {
+                    condition: (_, sibling) => sibling?.kind === 'computed',
+                    description: 'How this number is derived.',
+                },
+            },
+            {
+                name: 'unit',
+                type: 'select',
+                defaultValue: 'days',
+                options: [
+                    { label: 'Days', value: 'days' },
+                    { label: 'Hours', value: 'hours' },
+                    { label: 'Minutes', value: 'minutes' },
+                ],
+                admin: {
+                    condition: (_, sibling) => sibling?.kind === 'computed' && sibling?.compute === 'elapsed',
+                    description: 'Unit of the exposed number (e.g. whole days since the anchor).',
+                },
+            },
+            {
+                name: 'since',
+                type: 'select',
+                defaultValue: 'user-created-at',
+                options: elapsedSinceSelectOptions(),
+                admin: {
+                    condition: (_, sibling) => sibling?.kind === 'computed' && sibling?.compute === 'elapsed',
+                    description: 'Which timestamp starts the clock.',
+                },
+            },
+            {
+                name: 'eventType',
+                type: 'relationship',
+                relationTo: collectionOf('eventTypes'),
+                filterOptions: catalogFilterOptions,
+                admin: {
+                    condition: (_, sibling) => sibling?.kind === 'computed' &&
+                        sibling?.compute === 'elapsed' &&
+                        sibling?.since === 'first-event',
+                    description: 'Event type whose first log starts the clock.',
+                },
             },
             {
                 name: 'system',

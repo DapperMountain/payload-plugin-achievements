@@ -70,6 +70,7 @@ export async function runReconcileCli(args) {
             achievementRequestsEnsured: 0,
             tierRequestsEnsured: 0,
             tierLogsWritten: 0,
+            metricBalancesRebuilt: 0,
         };
     }
     const filters = args.filters ?? parseReconcileCliArgs(argv);

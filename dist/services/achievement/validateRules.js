@@ -49,6 +49,25 @@ export function validateRuleNode(rule) {
         }
         return null;
     }
+    if (type === 'elapsed-since') {
+        const since = String(rule.since ?? 'user-created-at');
+        if (since === 'first-event') {
+            if (!relationId(rule.eventType) && typeof rule.eventTypeSlug !== 'string') {
+                return 'Elapsed since (first event) needs an event type.';
+            }
+        }
+        else if (since !== 'user-created-at') {
+            return 'Elapsed since needs a valid since source.';
+        }
+        if (typeof rule.amount !== 'number' || Number.isNaN(rule.amount) || rule.amount < 0) {
+            return 'Elapsed since needs a non-negative amount.';
+        }
+        const unit = rule.unit ?? 'days';
+        if (unit !== 'days' && unit !== 'hours' && unit !== 'minutes') {
+            return 'Elapsed since unit must be days, hours, or minutes.';
+        }
+        return null;
+    }
     if (!type) {
         return 'Each rule needs a type.';
     }

@@ -33,9 +33,18 @@ export const achievementPlugin =
       }
     })
 
+    const incomingOnInit = config.onInit
+
     return {
       ...config,
       collections: [...collections, ...achievementCollections],
       endpoints: [...(config.endpoints ?? []), ...buildAchievementEndpoints(resolved)],
+      onInit: async (payload) => {
+        if (incomingOnInit) await incomingOnInit(payload)
+        if (resolved.seedSystemCatalog) {
+          const { seedAchievementCatalog } = await import('./seed/index.js')
+          await seedAchievementCatalog(payload)
+        }
+      },
     }
   }

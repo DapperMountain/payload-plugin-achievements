@@ -2,7 +2,9 @@ import { APIError } from 'payload';
 import { DEFAULT_ACHIEVEMENT_METRIC_SLUG } from '../../catalog.js';
 import { collectionOf } from '../../collections/helpers.js';
 import { eventTypeRequiresActor } from './eventTypeRequiresActor.js';
+import { applyMetricBalanceDelta } from './metricBalances.js';
 import { transitionLogData, transitionToId } from './logData.js';
+import { loadMetricDoc } from './resolveMetricValue.js';
 import { resolveCatalogId } from './resolveCatalog.js';
 import { resolveCurrentTier } from './resolveCurrentTier.js';
 import { userScopeWhere } from './where.js';
@@ -60,6 +62,17 @@ export const recordEvent = recordLog;
 export async function recordMetricChange(args) {
     const metricSlug = args.metric ?? DEFAULT_ACHIEVEMENT_METRIC_SLUG;
     const scopeId = args.scopeId ?? null;
+    const metricDoc = await loadMetricDoc({
+        payload: args.payload,
+        req: args.req,
+        metric: metricSlug,
+    });
+    if (!metricDoc) {
+        throw new APIError(`Unknown metric "${metricSlug}".`, 400);
+    }
+    if ((metricDoc.kind ?? 'stored') === 'computed') {
+        throw new APIError('Computed metrics cannot be changed with recordMetricChange.', 400);
+    }
     const log = await recordLog({
         payload: args.payload,
         req: args.req,
@@ -67,9 +80,17 @@ export async function recordMetricChange(args) {
         scopeId,
         type: 'metric.delta',
         actorId: args.actorId,
-        metric: metricSlug,
+        metric: metricDoc.id,
         change: args.change,
         reason: args.reason,
+    });
+    await applyMetricBalanceDelta({
+        payload: args.payload,
+        req: args.req,
+        userId: args.userId,
+        scopeId,
+        metricId: metricDoc.id,
+        change: args.change,
     });
     if (args.req) {
         const { syncTierProgression } = await import('./tierProgression.js');

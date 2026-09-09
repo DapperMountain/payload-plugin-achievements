@@ -1,6 +1,10 @@
 export { evaluateRules, evaluateRuleProgress, normalizeRuleGroup, collectAchievementCompleteRefs } from './evaluateRules.js';
 export { buildCatalogProgressGroups } from './buildCatalogProgressGroups.js';
 export { getUserProgress } from './getUserProgress.js';
+export { getMetricLeaderboard } from './getMetricLeaderboard.js';
+export { applyMetricBalanceDelta, findMetricBalance, metricBalanceKey, rebuildMetricBalance, rebuildMetricBalancesForUser, } from './metricBalances.js';
+export { resolveMetricValue, loadMetricDoc } from './resolveMetricValue.js';
+export { resolveElapsedAnchor } from './resolveElapsedAnchor.js';
 export { recordEvent, recordLog, recordMetricChange, syncTierChangedLog } from './recordEvent.js';
 export { resolveCurrentTier } from './resolveCurrentTier.js';
 export { resolveTierProgress } from './resolveTierProgress.js';

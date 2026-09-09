@@ -20,15 +20,21 @@ export {
   collectAchievementCompleteRefs,
   buildCatalogProgressGroups,
   getUserProgress,
+  getMetricLeaderboard,
   grantAchievement,
+  loadMetricDoc,
   recordEvent,
   recordLog,
   recordMetricChange,
+  rebuildMetricBalance,
+  rebuildMetricBalancesForUser,
   reconcileProgression,
   reconcileUserProgression,
   releasePendingAchievementReviews,
   releasePendingTierReviews,
   resolveCurrentTier,
+  resolveElapsedAnchor,
+  resolveMetricValue,
   resolveTierProgress,
   reviewAchievementRequest,
   submitAchievementRequest,
@@ -49,6 +55,8 @@ export type {
   CatalogProgressItem,
   CatalogRef,
   TransitionLogData,
+  MetricLeaderboardResult,
+  MetricLeaderboardRow,
   ReconcileProgressionArgs,
   ReconcileProgressionResult,
   ReleaseReviewGateResult,
@@ -60,13 +68,18 @@ export type {
   AchievementCollectionOverride,
   AchievementCollectionsOptions,
   AchievementEndpointsOptions,
+  AchievementMetricAnchor,
   AchievementPluginOptions,
   AchievementRuleType,
   AchievementScopeConfig,
   AchievementUsersOptions,
 } from './types.js'
 export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN_GROUP } from './collections/slugs.js'
-export { DEFAULT_ME_ENDPOINT_PATH, DEFAULT_RECONCILE_ENDPOINT_PATH } from './defaults.js'
+export {
+  DEFAULT_ME_ENDPOINT_PATH,
+  DEFAULT_LEADERBOARD_ENDPOINT_PATH,
+  DEFAULT_RECONCILE_ENDPOINT_PATH,
+} from './defaults.js'
 export { collectionOf, slugOf } from './collections/helpers.js'
 export { isAchievementPluginEnabled } from './enabled.js'
 export { descriptionToPlaintext } from './fields/descriptionPlaintext.js'

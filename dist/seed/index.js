@@ -53,6 +53,18 @@ async function findIdBySlug(payload, key, slug) {
 async function upsertCatalog(payload, key, row) {
     const existing = await findIdBySlug(payload, key, row.slug);
     const nameParts = localizedParts(row.name);
+    let metricComputed = {};
+    if (key === 'metrics') {
+        metricComputed = { kind: row.kind ?? 'stored' };
+        if (row.kind === 'computed') {
+            metricComputed.compute = row.compute ?? 'elapsed';
+            metricComputed.unit = row.unit ?? 'days';
+            metricComputed.since = row.since ?? 'user-created-at';
+            if (row.eventTypeSlug) {
+                metricComputed.eventType = await findIdBySlug(payload, 'eventTypes', row.eventTypeSlug);
+            }
+        }
+    }
     const data = {
         name: nameParts.en ?? row.slug,
         slug: row.slug,
@@ -63,7 +75,7 @@ async function upsertCatalog(payload, key, row) {
                 requiresActor: row.requiresActor ?? false,
                 requiresMetric: row.requiresMetric ?? false,
             }
-            : {}),
+            : metricComputed),
     };
     let id = existing;
     if (existing) {
@@ -119,7 +131,7 @@ async function resolveRuleNode(payload, rule) {
             delete next.achievementSlug;
         }
     }
-    if (next.type === 'event-count') {
+    if (next.type === 'event-count' || next.type === 'elapsed-since') {
         const slug = typeof next.eventTypeSlug === 'string'
             ? next.eventTypeSlug
             : typeof next.eventType === 'string'

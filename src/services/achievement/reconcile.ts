@@ -6,6 +6,7 @@ import {
 } from './grantSideEffects.js'
 import { transitionLogData, transitionToId } from './logData.js'
 import { recordLog, syncTierChangedLog } from './recordEvent.js'
+import { rebuildMetricBalancesForUser } from './metricBalances.js'
 import { relationId } from './relationId.js'
 import { resolveCatalogId } from './resolveCatalog.js'
 import { syncTierProgression } from './tierProgression.js'
@@ -18,6 +19,7 @@ export type ReconcileProgressionResult = {
   achievementRequestsEnsured: number
   tierRequestsEnsured: number
   tierLogsWritten: number
+  metricBalancesRebuilt: number
 }
 
 export type ReconcileProgressionArgs = {
@@ -139,6 +141,12 @@ export async function reconcileUserProgression(args: {
   if (!req.context) (req as { context: Record<string, unknown> }).context = {}
 
   const grantedLogsBackfilled = await backfillGrantedLogs({ req, userId: args.userId, scopeId })
+  const metricBalancesRebuilt = await rebuildMetricBalancesForUser({
+    payload: args.payload,
+    req,
+    userId: args.userId,
+    scopeId,
+  })
   const composites = await syncCompositeProgression({
     req,
     userId: args.userId,
@@ -158,6 +166,7 @@ export async function reconcileUserProgression(args: {
 
   return {
     grantedLogsBackfilled,
+    metricBalancesRebuilt,
     compositesGranted: composites.granted,
     achievementRequestsEnsured: composites.requested,
     tierRequestsEnsured: tiers.requested,
@@ -384,6 +393,7 @@ export async function reconcileProgression(
     achievementRequestsEnsured: 0,
     tierRequestsEnsured: 0,
     tierLogsWritten: 0,
+    metricBalancesRebuilt: 0,
   }
 
   for (const pair of pairs) {
@@ -399,6 +409,7 @@ export async function reconcileProgression(
     totals.achievementRequestsEnsured += result.achievementRequestsEnsured
     totals.tierRequestsEnsured += result.tierRequestsEnsured
     totals.tierLogsWritten += result.tierLogsWritten
+    totals.metricBalancesRebuilt += result.metricBalancesRebuilt
   }
 
   return totals

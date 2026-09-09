@@ -43,6 +43,16 @@ export type AchievementSeedCatalogRow = {
     slug: string;
     scope?: string;
     system?: boolean;
+    /** Metrics — `stored` (default) or `computed`. */
+    kind?: 'stored' | 'computed';
+    /** Computed metrics — v1 only `elapsed`. */
+    compute?: 'elapsed';
+    /** Computed elapsed — unit of the exposed number. */
+    unit?: 'days' | 'hours' | 'minutes';
+    /** Computed elapsed — built-in or host `metricAnchors` key. */
+    since?: string;
+    /** Computed elapsed with `since: first-event` — event type slug. */
+    eventTypeSlug?: string;
     /** Event types only — when true, logging the event requires an actor. */
     requiresActor?: boolean;
     /** Event types only — when true, logging the event requires metric + change. */

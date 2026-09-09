@@ -2,9 +2,11 @@ import type { AchievementPluginOptions } from './types.js';
 import { resolveCollectionSlugs } from './collections/slugs.js';
 export declare const DEFAULT_USERS_COLLECTION = "users";
 export declare const DEFAULT_ME_ENDPOINT_PATH = "/achievements/me";
+export declare const DEFAULT_LEADERBOARD_ENDPOINT_PATH = "/achievements/leaderboard";
 export declare const DEFAULT_RECONCILE_ENDPOINT_PATH = "/achievements/reconcile";
 export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' | 'endpoints'> & {
     enabled: boolean;
+    seedSystemCatalog: boolean;
     usersCollectionSlug: string;
     users: {
         includeJoins: boolean;
@@ -15,10 +17,12 @@ export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' 
     adminGroup: string | false;
     endpoints: {
         me: string | false;
+        leaderboard: string | false;
         reconcile: string | false;
     };
 };
 export declare function resolveMeEndpointPath(me?: string | false): string | false;
+export declare function resolveLeaderboardEndpointPath(path?: string | false): string | false;
 export declare function resolveReconcileEndpointPath(path?: string | false): string | false;
 export declare function resolveOptions(options?: AchievementPluginOptions): ResolvedAchievementOptions;
 //# sourceMappingURL=defaults.d.ts.map
