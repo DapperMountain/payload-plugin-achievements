@@ -1,6 +1,7 @@
 import type { CollectionBeforeValidateHook } from 'payload'
 import { APIError } from 'payload'
 
+import { collectionOf } from '../../../collections/helpers.js'
 import {
   eventTypeRequiresActor,
   eventTypeRequiresMetric,
@@ -31,12 +32,29 @@ export const ensureTypeRequirements: CollectionBeforeValidateHook = async ({ dat
   }
 
   if (flags.requiresMetric) {
-    if (!relationId((data as { metric?: unknown }).metric)) {
+    const metricId = relationId((data as { metric?: unknown }).metric)
+    if (!metricId) {
       throw new APIError('This log type needs a metric.', 400)
     }
     const change = (data as { change?: unknown }).change
     if (typeof change !== 'number' || Number.isNaN(change)) {
       throw new APIError('This log type needs a change amount.', 400)
+    }
+
+    const metric = (await req.payload.findByID({
+      collection: collectionOf('metrics'),
+      id: metricId,
+      depth: 0,
+      overrideAccess: true,
+      req,
+      select: { kind: true },
+    })) as { kind?: string | null } | null
+
+    if (metric && (metric.kind ?? 'stored') === 'computed') {
+      throw new APIError(
+        'Computed metrics cannot be changed with a metric delta. Use a stored metric such as Points.',
+        400,
+      )
     }
   }
 

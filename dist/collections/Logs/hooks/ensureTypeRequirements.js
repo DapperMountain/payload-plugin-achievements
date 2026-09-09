@@ -1,4 +1,5 @@
 import { APIError } from 'payload';
+import { collectionOf } from '../../../collections/helpers.js';
 import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor.js';
 import { relationId } from '../../../services/achievement/relationId.js';
 export const ensureTypeRequirements = async ({ data, req }) => {
@@ -23,12 +24,24 @@ export const ensureTypeRequirements = async ({ data, req }) => {
         throw new APIError('This log type needs an actor (who caused it).', 400);
     }
     if (flags.requiresMetric) {
-        if (!relationId(data.metric)) {
+        const metricId = relationId(data.metric);
+        if (!metricId) {
             throw new APIError('This log type needs a metric.', 400);
         }
         const change = data.change;
         if (typeof change !== 'number' || Number.isNaN(change)) {
             throw new APIError('This log type needs a change amount.', 400);
+        }
+        const metric = (await req.payload.findByID({
+            collection: collectionOf('metrics'),
+            id: metricId,
+            depth: 0,
+            overrideAccess: true,
+            req,
+            select: { kind: true },
+        }));
+        if (metric && (metric.kind ?? 'stored') === 'computed') {
+            throw new APIError('Computed metrics cannot be changed with a metric delta. Use a stored metric such as Points.', 400);
         }
     }
     return data;

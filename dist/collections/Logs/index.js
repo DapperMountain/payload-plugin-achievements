@@ -1,4 +1,4 @@
-import { catalogFilterOptions } from '../fields/catalogFilter.js';
+import { catalogFilterOptions, metricLogFilterOptions } from '../fields/catalogFilter.js';
 import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helpers.js';
 import { getAchievementOptions } from '../../options-store.js';
 import { scopeField, userField } from '../fields/index.js';
@@ -58,11 +58,11 @@ export function buildLogsCollection() {
                         name: 'metric',
                         type: 'relationship',
                         relationTo: collectionOf('metrics'),
-                        filterOptions: catalogFilterOptions,
+                        filterOptions: metricLogFilterOptions,
                         validate: validateMetric,
                         admin: {
                             width: '50%',
-                            description: 'Which score moved.',
+                            description: 'Which stored score moved (computed metrics like Days cannot be chosen here).',
                             components: {
                                 Field: {
                                     path: '@dappermountain/payload-plugin-achievements/client#MetricField',
