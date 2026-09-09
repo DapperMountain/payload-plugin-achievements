@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { APIError } from 'payload'
 
+import { setAchievementOptions } from '../../options-store.js'
 import { assertRuleGroupValid, validateRuleGroup, validateRuleNode } from './validateRules.js'
 
 describe('validateRuleNode', () => {
@@ -30,6 +31,32 @@ describe('validateRuleNode', () => {
         unit: 'days',
       }),
     ).toBeNull()
+
+    expect(
+      validateRuleNode({
+        type: 'elapsed-since',
+        since: 'not-a-real-anchor',
+        amount: 30,
+        unit: 'days',
+      }),
+    ).toMatch(/valid since/i)
+
+    setAchievementOptions({
+      extensions: {
+        metricAnchors: {
+          'membership-granted': async () => new Date(),
+        },
+      },
+    })
+    expect(
+      validateRuleNode({
+        type: 'elapsed-since',
+        since: 'membership-granted',
+        amount: 365,
+        unit: 'days',
+      }),
+    ).toBeNull()
+    setAchievementOptions({})
   })
 
   test('rejects empty groups and validates nested leaves', () => {

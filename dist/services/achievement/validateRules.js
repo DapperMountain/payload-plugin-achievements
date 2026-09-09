@@ -1,4 +1,6 @@
 import { APIError } from 'payload';
+import { isBuiltinElapsedSince } from '../../extensions/elapsedSinceOptions.js';
+import { getMetricAnchorResolver } from '../../extensions/metricAnchors.js';
 import { relationId } from './relationId.js';
 import { normalizeRuleGroup } from './evaluateRules.js';
 /**
@@ -56,7 +58,8 @@ export function validateRuleNode(rule) {
                 return 'Elapsed since (first event) needs an event type.';
             }
         }
-        else if (since !== 'user-created-at') {
+        else if (!isBuiltinElapsedSince(since) && !getMetricAnchorResolver(since)) {
+            // Host anchors (e.g. membership-granted) are registered via extensions.metricAnchors.
             return 'Elapsed since needs a valid since source.';
         }
         if (typeof rule.amount !== 'number' || Number.isNaN(rule.amount) || rule.amount < 0) {
