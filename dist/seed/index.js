@@ -136,7 +136,7 @@ async function resolveRuleNode(payload, rule) {
             delete next.achievementSlug;
         }
     }
-    if (next.type === 'event-count' || next.type === 'elapsed-since') {
+    if (next.type === 'event-count') {
         const slug = typeof next.eventTypeSlug === 'string'
             ? next.eventTypeSlug
             : typeof next.eventType === 'string'

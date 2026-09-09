@@ -20,7 +20,7 @@ Do not delete or rename system slugs in seed/migrations casually — plugin prot
 | --- | --- |
 | `kind` | `stored` (default) or `computed` |
 | `compute` | When computed: `elapsed` (v1) |
-| `unit` / `since` / `eventType` | Elapsed config; `since` options = built-ins + host anchor keys |
+| `unit` / `since` / `eventType` | Elapsed config; `unit`: seconds \| minutes \| hours \| days \| years (365-day years); `since` options = built-ins + host anchor keys |
 
 Stored totals: `achievement-metric-balances` (`user`, `scope`, `metric`, `value`, unique `key`). Updated by `recordMetricChange`; rebuilt by reconcile.
 

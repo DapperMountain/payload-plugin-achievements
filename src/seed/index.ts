@@ -45,7 +45,7 @@ export type AchievementSeedCatalogRow = {
   /** Computed metrics — v1 only `elapsed`. */
   compute?: 'elapsed'
   /** Computed elapsed — unit of the exposed number. */
-  unit?: 'days' | 'hours' | 'minutes'
+  unit?: 'seconds' | 'minutes' | 'hours' | 'days' | 'years'
   /** Computed elapsed — built-in or host `metricAnchors` key. */
   since?: string
   /** Computed elapsed with `since: first-event` — event type slug. */
@@ -233,7 +233,7 @@ async function resolveRuleNode(
     }
   }
 
-  if (next.type === 'event-count' || next.type === 'elapsed-since') {
+  if (next.type === 'event-count') {
     const slug =
       typeof next.eventTypeSlug === 'string'
         ? next.eventTypeSlug

@@ -2,7 +2,7 @@
 
 1. Add plugin to `buildConfig({ plugins })` with `usersCollectionSlug` and `canReview`.
 2. Optional: `scope` for multi-tenant, `mediaCollection` for tier badge uploads, `collections.overrides` for host hooks.
-3. Optional: `extensions.metricAnchors` for host-specific dates used by computed elapsed metrics / `elapsed-since` (e.g. product `grantedAt`). System seed does not depend on these keys. Prefer `{ label, resolve }` where `label` is a Payload Admin UI string (`OptionLabel`: locale map or `({ t }) => t('custom:…')`) — not CMS `localization`.
+3. Optional: `extensions.metricAnchors` for host-specific dates used by computed elapsed metrics (e.g. product `grantedAt`). System seed does not depend on these keys. Prefer `{ label, resolve }` where `label` is a Payload Admin UI string (`OptionLabel`: locale map or `({ t }) => t('custom:…')`) — not CMS `localization`.
 4. `payload generate:importmap` after install / Admin component changes (Lexical description + Lucide icon field).
 5. Host migrations for new collections / field type changes (plugin does not own migrate runner) — includes `achievement-metric-balances` and metric `kind` fields.
 6. System catalog: seeded automatically on plugin `onInit` (opt out with `seedSystemCatalog: false`). Hosts still call `seedAchievements` for product rows / extra locales (including computed metrics after anchors are registered).

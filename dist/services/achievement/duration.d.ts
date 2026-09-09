@@ -1,3 +1,4 @@
+export type ElapsedUnit = 'seconds' | 'minutes' | 'hours' | 'days' | 'years';
 export declare function durationMs(amount: number, unit: unknown): number | null;
 export declare function unitMs(unit: unknown): number | null;
 export declare function parseDate(value: unknown): Date | null;

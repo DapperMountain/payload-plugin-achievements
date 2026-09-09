@@ -1,6 +1,5 @@
 import { catalogFilterOptions } from './catalogFilter.js';
 import { collectionOf } from '../helpers.js';
-import { elapsedSinceSelectOptions } from '../../extensions/elapsedSinceOptions.js';
 function combinatorField(visibleWhenGroup) {
     return {
         name: 'combinator',
@@ -26,7 +25,6 @@ function ruleTypeSelect(includeGroup) {
             { label: 'Achievement complete', value: 'achievement-complete' },
             { label: 'Metric minimum', value: 'metric-minimum' },
             { label: 'Event count', value: 'event-count' },
-            { label: 'Elapsed since', value: 'elapsed-since' },
             ...(includeGroup ? [{ label: 'Group', value: 'group' }] : []),
         ],
     };
@@ -77,9 +75,8 @@ function ruleParamFields() {
             relationTo: collectionOf('eventTypes'),
             filterOptions: catalogFilterOptions,
             admin: {
-                condition: (_, sibling) => sibling?.type === 'event-count' ||
-                    (sibling?.type === 'elapsed-since' && sibling?.since === 'first-event'),
-                description: 'Event type to count, or (for elapsed since) the type whose first log starts the clock.',
+                condition: (_, sibling) => sibling?.type === 'event-count',
+                description: 'Event type to count.',
             },
         },
         {
@@ -89,49 +86,6 @@ function ruleParamFields() {
                 condition: (_, sibling) => sibling?.type === 'event-count',
                 description: 'How many times it needs to have happened.',
             },
-        },
-        {
-            name: 'since',
-            type: 'select',
-            // Nested under eligibility/completion/unlock → rules → rules; keep PG enum ≤63 chars.
-            enumName: 'ach_elapsed_since',
-            defaultValue: 'user-created-at',
-            options: elapsedSinceSelectOptions(),
-            admin: {
-                condition: (_, sibling) => sibling?.type === 'elapsed-since',
-                description: 'Which timestamp starts the clock.',
-            },
-        },
-        {
-            type: 'row',
-            admin: {
-                condition: (_, sibling) => sibling?.type === 'elapsed-since',
-            },
-            fields: [
-                {
-                    name: 'amount',
-                    type: 'number',
-                    admin: {
-                        width: '50%',
-                        description: 'How much time must pass.',
-                    },
-                },
-                {
-                    name: 'unit',
-                    type: 'select',
-                    enumName: 'ach_elapsed_unit',
-                    defaultValue: 'days',
-                    options: [
-                        { label: 'Days', value: 'days' },
-                        { label: 'Hours', value: 'hours' },
-                        { label: 'Minutes', value: 'minutes' },
-                    ],
-                    admin: {
-                        width: '50%',
-                        description: 'Unit for the amount.',
-                    },
-                },
-            ],
         },
     ];
 }
