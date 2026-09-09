@@ -2,7 +2,8 @@ export type CatalogProgressItem = {
     id: string;
     name?: string;
     slug?: string;
-    description?: string;
+    /** Same as the achievement collection field (Lexical JSON, or legacy string). */
+    description?: unknown;
     completedAt?: string | null;
     earned: boolean;
 };
@@ -10,14 +11,15 @@ export type CatalogProgressGroup = {
     id: string;
     title: string;
     slug?: string;
-    description?: string;
+    /** Same as the achievement collection field (Lexical JSON, or legacy string). */
+    description?: unknown;
     items: CatalogProgressItem[];
 };
 type CatalogDoc = {
     id: string;
     name?: string;
     slug?: string;
-    description?: string | null;
+    description?: unknown;
     completionRules?: unknown;
 };
 type GrantDoc = {

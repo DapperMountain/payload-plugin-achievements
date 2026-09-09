@@ -7,6 +7,13 @@ function grantKey(achievement) {
         : '';
     return { id, slug };
 }
+function passDescription(value) {
+    if (typeof value === 'string' && value.trim().length > 0)
+        return value;
+    if (value != null && typeof value === 'object')
+        return value;
+    return undefined;
+}
 /**
  * Groups catalog achievements by composite parents (`completionRules`).
  * Children follow completion-rule order. Unearned children stay in the list with `earned: false`.
@@ -27,14 +34,13 @@ export function buildCatalogProgressGroups(args) {
         .map((doc) => [String(doc.slug), doc]));
     const toItem = (doc) => {
         const grant = grantsById.get(doc.id) ?? (doc.slug ? grantsBySlug.get(doc.slug) : undefined);
+        const description = passDescription(doc.description);
         return {
             id: doc.id,
             earned: Boolean(grant),
             ...(typeof doc.name === 'string' && doc.name ? { name: doc.name } : {}),
             ...(typeof doc.slug === 'string' && doc.slug ? { slug: doc.slug } : {}),
-            ...(typeof doc.description === 'string' && doc.description
-                ? { description: doc.description }
-                : {}),
+            ...(description !== undefined ? { description } : {}),
             completedAt: grant?.completedAt ?? null,
         };
     };
@@ -56,13 +62,12 @@ export function buildCatalogProgressGroups(args) {
             seen.add(child.id);
             items.push(toItem(child));
         }
+        const description = passDescription(parent.description);
         return {
             id: parent.id,
             title: parent.name || parent.slug || parent.id,
             ...(parent.slug ? { slug: parent.slug } : {}),
-            ...(typeof parent.description === 'string' && parent.description
-                ? { description: parent.description }
-                : {}),
+            ...(description !== undefined ? { description } : {}),
             items,
         };
     });

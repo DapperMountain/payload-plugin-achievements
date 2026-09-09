@@ -14,7 +14,7 @@ Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) 
 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
 - Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`; CLI from `./cli` (`runReconcileCli`)
-- Peer: `payload` ^3.88, `@payloadcms/ui` ^3.88, `react` ^19
+- Peer: `payload` ^3.88, `@payloadcms/ui` ^3.88, `@payloadcms/richtext-lexical` ^3.88, `lucide-react` ^0.543, `react` ^19
 - Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps). TypeScript `NodeNext`: relative imports in source use `.js` specifiers so emitted ESM is Node-resolvable.
 
 ## Host wiring
@@ -70,7 +70,7 @@ Turning **Requires review** off on a definition/tier approves that row’s pendi
 
 ## Localization
 
-Catalog `name` / `description` (and metric/event `name`) are `localized: true` when the host enables localization. Plugin does not ship host UI i18n dictionaries.
+Catalog `name` is localized text; achievement/tier `description` is **Lexical** rich text (`localized: true` when the host enables localization). Metric/event `name` stay text. `/me` and progress helpers pass `description` through as Lexical (collection-shaped); convert in the UI. Plugin does not ship host UI i18n dictionaries. Hosts need `@payloadcms/richtext-lexical` + `lucide-react` peers; regenerate import map after install (Lucide icon field).
 
 ## More detail
 

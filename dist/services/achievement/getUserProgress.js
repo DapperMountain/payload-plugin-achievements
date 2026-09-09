@@ -9,13 +9,14 @@ function leanCatalog(value) {
     if (!value || typeof value !== 'object')
         return { id };
     const row = value;
+    const description = row.description;
+    const hasDescription = (typeof description === 'string' && description.trim().length > 0) ||
+        (description != null && typeof description === 'object');
     return {
         id,
         ...(typeof row.name === 'string' && row.name ? { name: row.name } : {}),
         ...(typeof row.slug === 'string' && row.slug ? { slug: row.slug } : {}),
-        ...(typeof row.description === 'string' && row.description
-            ? { description: row.description }
-            : {}),
+        ...(hasDescription ? { description } : {}),
     };
 }
 function leanGrant(doc) {

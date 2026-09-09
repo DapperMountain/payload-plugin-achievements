@@ -5,7 +5,8 @@ import { relationId } from './relationId.js'
 import { resolveCurrentTier } from './resolveCurrentTier.js'
 import { userScopeWhere } from './where.js'
 
-type LeanCatalog = { id: string; name?: string; slug?: string; description?: string }
+/** Catalog slice — `description` matches the collection (Lexical JSON, or legacy string). */
+type LeanCatalog = { id: string; name?: string; slug?: string; description?: unknown }
 type LeanTier = LeanCatalog & { rank?: number; scopeId?: string | null }
 
 export type GetUserProgressPaging = {
@@ -19,13 +20,15 @@ function leanCatalog(value: unknown): LeanCatalog | null {
   if (!id) return null
   if (!value || typeof value !== 'object') return { id }
   const row = value as { name?: unknown; slug?: unknown; description?: unknown }
+  const description = row.description
+  const hasDescription =
+    (typeof description === 'string' && description.trim().length > 0) ||
+    (description != null && typeof description === 'object')
   return {
     id,
     ...(typeof row.name === 'string' && row.name ? { name: row.name } : {}),
     ...(typeof row.slug === 'string' && row.slug ? { slug: row.slug } : {}),
-    ...(typeof row.description === 'string' && row.description
-      ? { description: row.description }
-      : {}),
+    ...(hasDescription ? { description } : {}),
   }
 }
 

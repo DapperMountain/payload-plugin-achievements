@@ -5,7 +5,8 @@ export type CatalogProgressItem = {
   id: string
   name?: string
   slug?: string
-  description?: string
+  /** Same as the achievement collection field (Lexical JSON, or legacy string). */
+  description?: unknown
   completedAt?: string | null
   earned: boolean
 }
@@ -14,7 +15,8 @@ export type CatalogProgressGroup = {
   id: string
   title: string
   slug?: string
-  description?: string
+  /** Same as the achievement collection field (Lexical JSON, or legacy string). */
+  description?: unknown
   items: CatalogProgressItem[]
 }
 
@@ -22,7 +24,7 @@ type CatalogDoc = {
   id: string
   name?: string
   slug?: string
-  description?: string | null
+  description?: unknown
   completionRules?: unknown
 }
 
@@ -39,6 +41,12 @@ function grantKey(achievement: unknown): { id: string | null; slug: string } {
       ? String((achievement as { slug?: unknown }).slug ?? '')
       : ''
   return { id, slug }
+}
+
+function passDescription(value: unknown): unknown | undefined {
+  if (typeof value === 'string' && value.trim().length > 0) return value
+  if (value != null && typeof value === 'object') return value
+  return undefined
 }
 
 /**
@@ -66,14 +74,13 @@ export function buildCatalogProgressGroups(args: {
 
   const toItem = (doc: CatalogDoc): CatalogProgressItem => {
     const grant = grantsById.get(doc.id) ?? (doc.slug ? grantsBySlug.get(doc.slug) : undefined)
+    const description = passDescription(doc.description)
     return {
       id: doc.id,
       earned: Boolean(grant),
       ...(typeof doc.name === 'string' && doc.name ? { name: doc.name } : {}),
       ...(typeof doc.slug === 'string' && doc.slug ? { slug: doc.slug } : {}),
-      ...(typeof doc.description === 'string' && doc.description
-        ? { description: doc.description }
-        : {}),
+      ...(description !== undefined ? { description } : {}),
       completedAt: grant?.completedAt ?? null,
     }
   }
@@ -95,13 +102,12 @@ export function buildCatalogProgressGroups(args: {
       seen.add(child.id)
       items.push(toItem(child))
     }
+    const description = passDescription(parent.description)
     return {
       id: parent.id,
       title: parent.name || parent.slug || parent.id,
       ...(parent.slug ? { slug: parent.slug } : {}),
-      ...(typeof parent.description === 'string' && parent.description
-        ? { description: parent.description }
-        : {}),
+      ...(description !== undefined ? { description } : {}),
       items,
     }
   })

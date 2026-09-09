@@ -49,7 +49,10 @@ export function buildTiersCollection() {
                         type: 'text',
                         admin: {
                             width: mediaCollection ? '50%' : '100%',
-                            description: 'Optional icon key your app maps (e.g. Lucide names: sparkles, shield, crown, gem). Used on the rank ladder when no image is set.',
+                            description: 'Optional Lucide icon for the rank ladder when no image is set (searchable by name).',
+                            components: {
+                                Field: '@dappermountain/payload-plugin-achievements/client#LucideIconField',
+                            },
                         },
                     },
                     ...(mediaCollection

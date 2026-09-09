@@ -1,9 +1,10 @@
 import type { PaginatedDocs, Payload, PayloadRequest } from 'payload';
+/** Catalog slice — `description` matches the collection (Lexical JSON, or legacy string). */
 type LeanCatalog = {
     id: string;
     name?: string;
     slug?: string;
-    description?: string;
+    description?: unknown;
 };
 type LeanTier = LeanCatalog & {
     rank?: number;

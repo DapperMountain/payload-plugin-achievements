@@ -133,8 +133,12 @@ When your Payload config enables **`localization`**, catalog display fields are 
 
 | Collection | Localized | Not localized |
 | --- | --- | --- |
-| Achievements / tiers | `name`, `description` | `slug`, rules, flags |
+| Achievements / tiers | `name` (text), `description` (**Lexical** rich text) | `slug`, rules, flags |
 | Metrics / event types | `name` | `slug`, system flags |
+
+Tier `icon` is a searchable Lucide picker in Admin (stores the kebab-case name, e.g. `sparkles`). Hosts must peer-depend on `@payloadcms/richtext-lexical` and `lucide-react` (same major as Payload). After upgrading, run `payload generate:importmap` and push/migrate schema so `description` columns accept JSON.
+
+Progress / `GET /api/achievements/me` pass through catalog `description` as **Lexical** (same as the collection document). Convert to HTML/plaintext in the UI with `@payloadcms/richtext-lexical` helpers (`convertLexicalToHTML`, `convertLexicalToPlaintext`) — the plugin also exports `descriptionToPlaintext` / `plainTextToLexical` for hosts.
 
 UI chrome and validation messages ship in English. Application UI copy stays in your app’s i18n layer — the plugin does not inject host translation dictionaries. Seed extra locales yourself after the English system catalog is in place.
 

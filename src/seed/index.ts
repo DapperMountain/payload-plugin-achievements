@@ -2,6 +2,7 @@ import type { Payload } from 'payload'
 
 import { ENGINE_EVENT_TYPES, ENGINE_METRICS } from '../catalog.js'
 import { collectionOf } from '../collections/helpers.js'
+import { plainTextToLexical } from '../fields/plainTextToLexical.js'
 import { normalizeRuleGroup } from '../services/achievement/evaluateRules.js'
 
 /** Default-locale string, or per-locale map for fields marked `localized: true` (host locales). */
@@ -95,7 +96,7 @@ async function writeLocalizedFields(
       data: {
         ...(locale === 'en' ? base : {}),
         ...(name != null ? { name } : {}),
-        ...(description != null ? { description } : {}),
+        ...(description != null ? { description: plainTextToLexical(description) } : {}),
       },
       locale: locale as never,
       overrideAccess: true,
@@ -346,7 +347,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
           ...baseData,
           name: nameParts.en ?? tier.slug,
           ...(localizedParts(tier.description).en != null
-            ? { description: localizedParts(tier.description).en }
+            ? { description: plainTextToLexical(localizedParts(tier.description).en!) }
             : {}),
         },
         locale: 'en',
@@ -396,7 +397,9 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
         data: {
           ...baseData,
           name: nameParts.en ?? achievement.slug,
-          ...(descriptionParts.en != null ? { description: descriptionParts.en } : {}),
+          ...(descriptionParts.en != null
+            ? { description: plainTextToLexical(descriptionParts.en) }
+            : {}),
         },
         locale: 'en',
         overrideAccess: true,
