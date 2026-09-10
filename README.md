@@ -124,7 +124,11 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 
 **Stored metrics** — totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances.
 
-**Leaderboards** — `getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points` ranks stored balances (authenticated). Disable with `endpoints.leaderboard: false`.
+**Leaderboards** — `getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points` ranks **stored** metric balances (authenticated, optional `scope`). Computed/elapsed metrics (e.g. tenure days) have no balance rows and are rejected — resolve a single user with `resolveMetricValue`, or materialize snapshots if you need a ranked computed board. Disable with `endpoints.leaderboard: false`. Hosts compose member directories (names, current tier, earned counts, who may appear) themselves; the plugin returns `{ user, value, rank }` only.
+
+**Unlock checklist** — `buildUnlockRequirementLeaves` walks a rule tree (including Payload leaves that carry empty `rules: []`), evaluates met/progress per leaf, and returns catalog subjects (`relations`, `target`, `unit`, `since`). It does **not** build UI copy — hosts format labels. `achievement-complete` is omitted by default so those stay on catalog groups. `eachRuleLeaf` is also exported if you need the walker alone.
+
+**Review snapshot** — `getUserProgress({ include: { reviews: true } })` or `loadUserProgressReviews` adds pending achievement keys and open/rejected tier requests so hosts do not re-query the engine for badge state.
 
 **System catalog** — by default the plugin runs `seedAchievementCatalog` on Payload `onInit` (opt out with `seedSystemCatalog: false`). Hosts still seed product catalog + locales via `seedAchievements`.
 
@@ -230,11 +234,11 @@ achievementPlugin({
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `me` | `'/achievements/me'` | Registers `GET /api/achievements/me` for the signed-in user’s grants snapshot (+ derived tiers and lean requests). Pass `false` to skip. Having review access does **not** widen this endpoint to other users. |
-| `leaderboard` | `'/achievements/leaderboard'` | Registers `GET /api/achievements/leaderboard?metric=<slug>` for authenticated users (stored metrics only). Pass `false` to skip. |
+| `me` | `'/achievements/me'` | Registers `GET /api/achievements/me` for the signed-in user’s grants snapshot (+ derived tiers and lean requests). Pass `false` to skip. Having review access does **not** widen this endpoint to other users. Optional `?reviews=1` adds `reviews`. |
+| `leaderboard` | `'/achievements/leaderboard'` | Registers `GET /api/achievements/leaderboard?metric=<slug>` for authenticated users (**stored** metrics only). Pass `false` to skip. |
 | `reconcile` | `'/achievements/reconcile'` | Registers `POST /api/achievements/reconcile` for reviewers. Pass `false` to skip. |
 
-Query params (`me`): `scope`, `limit`, `page`, `requestsLimit`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
+Query params (`me`): `scope`, `limit`, `page`, `requestsLimit`, `reviews`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
 
 ### `extensions.ruleTypes` / `metricAnchors`
 
@@ -285,14 +289,25 @@ import {
   resolveCurrentTier,
   resolveTierProgress,
   getUserProgress,
+  loadUserProgressReviews,
+  buildUnlockRequirementLeaves,
   submitAchievementRequest,
   reviewAchievementRequest,
 } from '@dappermountain/payload-plugin-achievements'
 
 await recordLog({ payload, userId, scopeId, type: 'host.custom-kind', actorId })
 await recordMetricChange({ payload, userId, scopeId, metric: 'points', change: 10 })
+const points = await resolveMetricValue({ payload, userId, scopeId, metric: 'points' })
 const board = await getMetricLeaderboard({ payload, metric: 'points', scopeId, limit: 20 })
 const tier = await resolveCurrentTier({ payload, userId, scopeId })
+const progress = await getUserProgress({ payload, userId, scopeId, include: { reviews: true } })
+const unlockLeaves = await buildUnlockRequirementLeaves({
+  payload,
+  userId,
+  scopeId,
+  rules: nextTier.unlockRules,
+  ladderRank: tier?.rank ?? null,
+})
 
 // Repair users whose grants predate side-effect hooks (idempotent)
 await reconcileProgression({ payload })
@@ -334,7 +349,7 @@ Turning **Requires review** off on a definition or tier **approves pending reque
 
 | Goal | Request |
 | --- | --- |
-| Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` |
+| Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` (`&reviews=1` for pending/rejected review keys) |
 | Stored metric leaderboard | `GET /api/achievements/leaderboard?metric=points&scope=<scopeId>&limit=20&page=1` |
 | Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, achievementId\|achievementSlug, tierId\|tierSlug, limit }`) |
 | List grants | `GET /api/achievement-grants?where[user][equals]=<userId>` |
