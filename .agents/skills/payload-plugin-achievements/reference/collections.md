@@ -29,4 +29,4 @@ Stored totals: `achievement-metric-balances` (`user`, `scope`, `metric`, `value`
 - Catalog / grants / logs / request approval: gated by host `canReview(user, scopeId)`.
 - Metric balances: reviewers can read/delete; creates/updates only via trusted helpers.
 - User-facing requests: normal collection access + eligibility hooks.
-- Leaderboard endpoint: authenticated users; returns `user` id + `value` + `rank` only.
+- Leaderboard endpoint: authenticated users; returns `user` id + `value` + `rank` only. Stored metrics only — computed/elapsed metrics have no balance rows.

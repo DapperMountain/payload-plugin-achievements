@@ -19,7 +19,9 @@ export {
   evaluateRuleProgress,
   collectAchievementCompleteRefs,
   buildCatalogProgressGroups,
+  buildUnlockRequirementLeaves,
   getUserProgress,
+  loadUserProgressReviews,
   getMetricLeaderboard,
   grantAchievement,
   loadMetricDoc,
@@ -53,6 +55,12 @@ export type {
   TierLadderProgress,
   CatalogProgressGroup,
   CatalogProgressItem,
+  UnlockRequirementLeaf,
+  UnlockRequirementRelation,
+  GetUserProgressInclude,
+  UserProgressMeResponse,
+  UserProgressReviews,
+  UserProgressTierRequest,
   CatalogRef,
   TransitionLogData,
   MetricLeaderboardResult,
@@ -83,6 +91,7 @@ export {
   DEFAULT_RECONCILE_ENDPOINT_PATH,
 } from './defaults.js'
 export { collectionOf, slugOf } from './collections/helpers.js'
+export { eachRuleLeaf } from './collections/hooks/eachRuleLeaf.js'
 export { isAchievementPluginEnabled } from './enabled.js'
 export { descriptionToPlaintext } from './fields/descriptionPlaintext.js'
 export { plainTextToLexical } from './fields/plainTextToLexical.js'

@@ -60,7 +60,11 @@ Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveT
 
 ## Server helpers (trusted only)
 
-`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+
+`getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user — they are not ranked by the leaderboard API.
+
+`buildUnlockRequirementLeaves` returns structured unlock leaves (met/progress/catalog relations). Hosts format labels. `getUserProgress({ include: { reviews: true } })` adds pending achievement keys + open/rejected tier requests.
 
 `recordMetricChange` dual-writes `metric.delta` + balance; rejects computed metrics. Reconcile rebuilds balances from logs.
 

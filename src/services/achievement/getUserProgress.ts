@@ -1,6 +1,7 @@
 import type { PaginatedDocs, Payload, PayloadRequest } from 'payload'
 
 import { collectionOf } from '../../collections/helpers.js'
+import { loadUserProgressReviews, type UserProgressReviews } from './loadUserProgressReviews.js'
 import { relationId } from './relationId.js'
 import { resolveCurrentTier } from './resolveCurrentTier.js'
 import { userScopeWhere } from './where.js'
@@ -73,10 +74,16 @@ function mapPaginatedDocs<TDoc, TOut>(
   }
 }
 
+export type GetUserProgressInclude = {
+  /** Pending achievement keys + open/rejected tier requests. */
+  reviews?: boolean
+}
+
 export type UserProgressMeResponse = PaginatedDocs<ReturnType<typeof leanGrant>> & {
   /** Ladder-derived current tier(s). */
   tiers: LeanTier[]
   requests: ReturnType<typeof leanRequest>[]
+  reviews?: UserProgressReviews
 }
 
 async function resolveTiersForMe(args: {
@@ -155,6 +162,7 @@ export async function getUserProgress(args: {
   paging?: GetUserProgressPaging
   /** Content locale for localized achievement / tier names (falls back to `req.locale`). */
   locale?: string
+  include?: GetUserProgressInclude
 }): Promise<UserProgressMeResponse> {
   if (!args.userId) {
     throw new Error('getUserProgress requires userId')
@@ -167,7 +175,7 @@ export async function getUserProgress(args: {
   const requestsLimit = args.paging?.requestsLimit ?? 20
   const locale = args.locale ?? (args.req?.locale || undefined)
 
-  const [grants, requests, tiers] = await Promise.all([
+  const [grants, requests, tiers, reviews] = await Promise.all([
     args.payload.find({
       collection: collectionOf('grants'),
       depth: 1,
@@ -197,11 +205,20 @@ export async function getUserProgress(args: {
       scopeId,
       locale,
     }),
+    args.include?.reviews
+      ? loadUserProgressReviews({
+          payload: args.payload,
+          req: args.req,
+          userId: args.userId,
+          scopeId,
+        })
+      : Promise.resolve(undefined),
   ])
 
   return {
     ...mapPaginatedDocs(grants, (doc) => leanGrant(doc as unknown as Record<string, unknown>)),
     tiers,
     requests: requests.docs.map((doc) => leanRequest(doc as unknown as Record<string, unknown>)),
+    ...(reviews ? { reviews } : {}),
   }
 }

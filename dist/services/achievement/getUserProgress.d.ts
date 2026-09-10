@@ -1,4 +1,5 @@
 import type { PaginatedDocs, Payload, PayloadRequest } from 'payload';
+import { type UserProgressReviews } from './loadUserProgressReviews.js';
 /** Catalog slice — `description` matches the collection (Lexical JSON, or legacy string). */
 type LeanCatalog = {
     id: string;
@@ -32,10 +33,15 @@ declare function leanRequest(doc: Record<string, unknown>): {
     updatedAt: {} | null;
     createdAt: {} | null;
 };
+export type GetUserProgressInclude = {
+    /** Pending achievement keys + open/rejected tier requests. */
+    reviews?: boolean;
+};
 export type UserProgressMeResponse = PaginatedDocs<ReturnType<typeof leanGrant>> & {
     /** Ladder-derived current tier(s). */
     tiers: LeanTier[];
     requests: ReturnType<typeof leanRequest>[];
+    reviews?: UserProgressReviews;
 };
 /**
  * Current-user snapshot. Top-level Payload `find` shape for **grants**;
@@ -49,6 +55,7 @@ export declare function getUserProgress(args: {
     paging?: GetUserProgressPaging;
     /** Content locale for localized achievement / tier names (falls back to `req.locale`). */
     locale?: string;
+    include?: GetUserProgressInclude;
 }): Promise<UserProgressMeResponse>;
 export {};
 //# sourceMappingURL=getUserProgress.d.ts.map

@@ -2,7 +2,12 @@ export { evaluateRules, evaluateRuleProgress, normalizeRuleGroup, collectAchieve
 export type { RuleGroup, AchievementCompleteRef } from './evaluateRules.js';
 export { buildCatalogProgressGroups } from './buildCatalogProgressGroups.js';
 export type { CatalogProgressGroup, CatalogProgressItem } from './buildCatalogProgressGroups.js';
+export { buildUnlockRequirementLeaves } from './buildUnlockRequirementLeaves.js';
+export type { UnlockRequirementCollectionKey, UnlockRequirementLeaf, UnlockRequirementRelation, } from './buildUnlockRequirementLeaves.js';
 export { getUserProgress } from './getUserProgress.js';
+export type { GetUserProgressInclude, GetUserProgressPaging, UserProgressMeResponse } from './getUserProgress.js';
+export { loadUserProgressReviews } from './loadUserProgressReviews.js';
+export type { UserProgressReviews, UserProgressTierRequest } from './loadUserProgressReviews.js';
 export { getMetricLeaderboard } from './getMetricLeaderboard.js';
 export type { MetricLeaderboardResult, MetricLeaderboardRow } from './getMetricLeaderboard.js';
 export { applyMetricBalanceDelta, findMetricBalance, metricBalanceKey, rebuildMetricBalance, rebuildMetricBalancesForUser, } from './metricBalances.js';

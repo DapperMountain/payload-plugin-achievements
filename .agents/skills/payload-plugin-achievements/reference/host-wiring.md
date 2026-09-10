@@ -7,8 +7,9 @@
 5. Host migrations for new collections / field type changes (plugin does not own migrate runner) — includes `achievement-metric-balances` and metric `kind` fields.
 6. System catalog: seeded automatically on plugin `onInit` (opt out with `seedSystemCatalog: false`). Hosts still call `seedAchievements` for product rows / extra locales (including computed metrics after anchors are registered).
 7. Record gameplay via server helpers (`recordMetricChange`, `recordLog`, …) from trusted code only — do not create raw `metric.delta` logs if you need balances/leaderboards to stay correct (reconcile can rebuild).
-8. Optional REST: `GET /api/achievements/me`, `GET /api/achievements/leaderboard?metric=points` (authenticated; disable with `endpoints.me` / `endpoints.leaderboard: false`); repair via `POST /api/achievements/reconcile` or `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
+8. Optional REST: `GET /api/achievements/me` (`?reviews=1` for review snapshot), `GET /api/achievements/leaderboard?metric=points` (authenticated, **stored** metrics only; disable with `endpoints.me` / `endpoints.leaderboard: false`); repair via `POST /api/achievements/reconcile` or `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
 9. Turning **Requires review** off auto-approves pending requests for that definition/tier (plugin hooks).
+10. Member UI: read points with `resolveMetricValue` (not by summing `metric.delta` logs). Next-tier checklists: `buildUnlockRequirementLeaves` then format copy in the host. Review badges: `getUserProgress({ include: { reviews: true } })` or `loadUserProgressReviews`. Leaderboards: plugin ranks stored balances in a scope; who appears and how rows are decorated stays in the host. Computed metrics (tenure) are not leaderboardable without a host/job snapshot.
 
 ### Example: membership tenure anchor
 

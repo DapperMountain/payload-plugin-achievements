@@ -29,9 +29,15 @@ function pagingFromRequest(req: PayloadRequest) {
   }
 }
 
+function reviewsFromRequest(req: PayloadRequest): boolean {
+  const raw = requestUrl(req)?.searchParams.get('reviews')
+  return raw === '1' || raw === 'true'
+}
+
 /**
  * `GET` current user’s snapshot. Body is Payload `find`-shaped for **grants**,
- * plus ladder-derived `tiers` and lean `requests`. Optional `?scope=` / `limit` / `page`.
+ * plus ladder-derived `tiers` and lean `requests`. Optional `?scope=` / `limit` / `page`
+ * / `reviews=1` (pending achievement keys + open/rejected tier requests).
  */
 export function buildMeEndpoint(path: string): Endpoint {
   return {
@@ -49,6 +55,7 @@ export function buildMeEndpoint(path: string): Endpoint {
         userId,
         scopeId: scopeFromRequest(req),
         paging: pagingFromRequest(req),
+        include: reviewsFromRequest(req) ? { reviews: true } : undefined,
       })
 
       return Response.json(body)
