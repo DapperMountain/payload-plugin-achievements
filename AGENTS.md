@@ -7,7 +7,7 @@ Single-package Payload plugin. Agent context lives under [`.agents/`](.agents/);
 1. **This plugin** — [`.agents/skills/payload-plugin-achievements/`](.agents/skills/payload-plugin-achievements/) (API, collections, seed, host wiring).
 2. **Host overlay** — [`.agents/skills/payload-overrides/`](.agents/skills/payload-overrides/) (synced from `@dappermountain/agent-payload`).
 3. **Vendored Payload skill** — [`.agents/skills/payload/`](.agents/skills/payload/) (from [payloadcms/skills](https://github.com/payloadcms/skills)).
-4. **Synced rules** — [`.agents/rules/`](.agents/rules/) (`bun`, `commits`, `clean`, `typescript`, `agent-workflow`, `security-critical`, Payload `i18n`). No `monorepo.mdc` (this is not a workspace monorepo).
+4. **Synced rules** — [`.agents/rules/`](.agents/rules/) (`bun`, `commits`, `clean`, `typescript`, `agent-workflow`, `security-critical`, Payload `i18n`). No `monorepo.mdc` (single-package repo).
 
 ## Setup after clone / dependency bump
 

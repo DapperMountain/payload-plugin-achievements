@@ -29,18 +29,18 @@ Make changes file by file and give the user a chance to spot mistakes.
 - Do not remove unrelated code or functionality; preserve existing structures.
 - Do not suggest whitespace-only changes.
 - Do not suggest updates when no actual modifications are needed.
-- Provide all edits in a single chunk per file instead of multi-step instructions for the same file.
+- Provide all edits in a single chunk per file.
 
 ## References
 
-- Provide links to real files, not placeholder names like `x.md`.
+- Provide links to real files (for example `docs/FOO.md`).
 - Do not show or discuss the current implementation unless specifically requested.
 
 ## Documentation sync (required before task complete)
 
 When your changes affect paths, env vars, scripts, config library swaps, layout, Docker/test workflow, documented dependencies, or other agent/developer-facing docs:
 
-1. Search hand-maintained docs for stale names/paths (`AGENTS.md`, `.agents/`, and any app/package docs the consumer maintains — not vendored skill trees).
+1. Search hand-maintained docs for stale names/paths (`AGENTS.md`, `.agents/`, and any app/package docs the consumer maintains; skip vendored skill trees).
 2. Update every affected file in the same session; follow the consumer’s doc checklist when one exists (often pointed from `AGENTS.md` or `.agents/README.md`).
 3. Keep env example files aligned with docs and parsers when both exist.
 4. Do not treat the task as done while overlay or conventions docs still describe the old state.

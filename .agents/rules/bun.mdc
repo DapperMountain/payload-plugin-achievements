@@ -139,7 +139,7 @@ All generated instructions must:
 
 - Mixing package managers
 - Generating multiple lockfiles
-- Using npx instead of bunx
+- Using npx
 - Installing dependencies with anything other than Bun
 
 ---

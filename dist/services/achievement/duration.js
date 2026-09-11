@@ -2,7 +2,7 @@ const MS_PER_SECOND = 1_000;
 const MS_PER_MINUTE = 60 * MS_PER_SECOND;
 const MS_PER_HOUR = 60 * MS_PER_MINUTE;
 const MS_PER_DAY = 24 * MS_PER_HOUR;
-/** Fixed-length year for elapsed floors (not calendar years). */
+/** Fixed-length year for elapsed floors (365-day year). */
 const MS_PER_YEAR = 365 * MS_PER_DAY;
 export function durationMs(amount, unit) {
     if (!(typeof amount === 'number') || !Number.isFinite(amount) || amount < 0)

@@ -1,6 +1,6 @@
 # `@dappermountain/payload-plugin-achievements`
 
-A Payload CMS plugin for a **rule-based achievements and ranking system** — tiers, badges, points, grants, review workflows, and an append-only activity log — configured in Admin, not hard-coded in your app.
+A Payload CMS plugin for a **rule-based achievements and ranking system** — tiers, badges, points, grants, review workflows, and an append-only activity log — configured in Admin.
 
 Most gamification features end up as one-off collections and scattered hooks. This plugin gives you a reusable engine: define *what* can be earned and *how* it unlocks in Payload Admin, then record events from your application code. Current tier and progress are **derived** from rules and history, so you don’t maintain a separate progress table that drifts out of sync.
 
@@ -16,8 +16,9 @@ Most gamification features end up as one-off collections and scattered hooks. Th
 
 ## Requirements
 
-- Payload `^3.88`
-- `@payloadcms/ui` `^3.88`
+- Payload `^3.89`
+- `@payloadcms/ui` `^3.89`
+- `@payloadcms/richtext-lexical` `^3.89`
 - React `^19`
 
 ## Install
@@ -120,7 +121,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 | `event-count` / `metric-minimum` | Fraction of the target |
 | `achievement-complete` | `1` if granted; otherwise rolls up that achievement’s completion (or eligibility) rules |
 
-**Computed elapsed metrics** — `kind: computed` + `compute: elapsed` + `unit` (`seconds` | `minutes` | `hours` | `days` | `years`) + `since` (built-in `user-created-at` / `first-event`, or a host `metricAnchors` key). Gate tenure with `metric-minimum` against that metric. Years use a fixed 365-day length (not calendar years). System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
+**Computed elapsed metrics** — `kind: computed` + `compute: elapsed` + `unit` (`seconds` | `minutes` | `hours` | `days` | `years`) + `since` (built-in `user-created-at` / `first-event`, or a host `metricAnchors` key). Gate tenure with `metric-minimum` against that metric. Years use a fixed 365-day length. System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
 
 **Stored metrics** — totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances.
 
@@ -250,7 +251,7 @@ achievementPlugin({
   extensions: {
     metricAnchors: {
       'membership-granted': {
-        // Admin UI i18n (Payload label), not a CMS localized field
+        // Admin UI i18n (Payload label / OptionLabel)
         label: ({ t }) => t('custom:achievements:anchors:membershipGranted'),
         resolve: async ({ payload, userId, scopeId }) => {
           // return a Date from host data, or null
@@ -275,7 +276,7 @@ achievementPlugin({
 
 ## Server helpers
 
-Use these from hooks, jobs, and trusted endpoints — not from the public client:
+Use these from hooks, jobs, and trusted endpoints:
 
 ```ts
 import {
