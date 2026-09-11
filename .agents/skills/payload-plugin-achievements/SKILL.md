@@ -14,7 +14,7 @@ Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) 
 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
 - Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`; CLI from `./cli` (`runReconcileCli`)
-- Peer: `payload` ^3.88, `@payloadcms/ui` ^3.88, `@payloadcms/richtext-lexical` ^3.88, `lucide-react` ^0.543, `react` ^19
+- Peer: `payload` ^3.89, `@payloadcms/ui` ^3.89, `@payloadcms/richtext-lexical` ^3.89, `lucide-react` ^0.543, `react` ^19
 - Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps). TypeScript `NodeNext`: relative imports in source use `.js` specifiers so emitted ESM is Node-resolvable.
 
 ## Host wiring
@@ -62,7 +62,7 @@ Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveT
 
 `recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
 
-`getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user — they are not ranked by the leaderboard API.
+`getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user; the leaderboard API ranks stored balances.
 
 `buildUnlockRequirementLeaves` returns structured unlock leaves (met/progress/catalog relations). Hosts format labels. `getUserProgress({ include: { reviews: true } })` adds pending achievement keys + open/rejected tier requests.
 

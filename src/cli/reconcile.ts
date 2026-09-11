@@ -70,7 +70,7 @@ export async function runReconcileCli(args: {
   config: SanitizedConfig | Promise<SanitizedConfig>
   argv?: string[]
   filters?: ReconcileCliFilters
-  /** When false, return the result instead of exiting the process. Default true. */
+  /** When false, return the result and leave the process running. Default true. */
   exit?: boolean
 }): Promise<ReconcileProgressionResult> {
   const argv = args.argv ?? process.argv.slice(2)

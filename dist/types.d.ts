@@ -9,7 +9,7 @@ export type AchievementMetricAnchor = (args: {
 /**
  * Anchor with an Admin label.
  * `label` is a Payload Admin UI string ({@link OptionLabel}): plain string, `{ en, es, … }`,
- * or `({ t }) => t('custom:…')` — not CMS `localization`.
+ * or `({ t }) => t('custom:…')` (Admin UI / OptionLabel).
  */
 export type AchievementMetricAnchorConfig = {
     label: OptionLabel;
@@ -40,11 +40,11 @@ export type AchievementRuleType = {
     /**
      * Optional fractional progress toward this leaf (0..1).
      * When omitted, progress falls back to `evaluate` → 0 or 1.
-     * Used for next-tier ladder fill and host UIs — not for unlock boolean.
+     * Used for next-tier ladder fill and host UIs (progress display).
      */
     progress?: (args: AchievementRuleEvalArgs) => Promise<number> | number;
     /**
-     * `gate` rules (e.g. `tier-at-least`) are prerequisites, not progress.
+     * `gate` rules (e.g. `tier-at-least`) are prerequisites that must already hold.
      * They are omitted from AND averages. Default: `requirement`.
      */
     progressRole?: 'requirement' | 'gate';
