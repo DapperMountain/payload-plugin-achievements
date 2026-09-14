@@ -441,7 +441,7 @@ await seedAchievements(payload, {
   tiers: [
     {
       name: 'Novice',
-      slug: 'prospect',
+      slug: 'novice',
       rank: 0,
       unlockRules: [], // open
     },
