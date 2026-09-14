@@ -57,6 +57,13 @@ export type AchievementSeedCatalogRow = {
     requiresActor?: boolean;
     /** Event types only — when true, logging the event requires metric + change. */
     requiresMetric?: boolean;
+    /** Event types only — when true, logging the event requires a polymorphic `subject`. */
+    requiresSubject?: boolean;
+    /**
+     * Event types only — allowed host collections for `subject.relationTo`.
+     * Empty / omit = any collection from plugin `subjects.collections`.
+     */
+    subjectRelationTo?: string[];
 };
 export type AchievementSeedInput = {
     eventTypes?: AchievementSeedCatalogRow[];

@@ -15,19 +15,35 @@ function relationId(value) {
     }
     return null;
 }
+function readSubjectRelationTo(value) {
+    if (!Array.isArray(value))
+        return [];
+    return value.filter((entry) => typeof entry === 'string' && entry.trim().length > 0);
+}
 function flagsFromValue(typeValue) {
     if (!typeValue || typeof typeValue !== 'object')
         return null;
-    if (!('requiresActor' in typeValue || 'requiresMetric' in typeValue || 'slug' in typeValue)) {
+    if (!('requiresActor' in typeValue ||
+        'requiresMetric' in typeValue ||
+        'requiresSubject' in typeValue ||
+        'subjectRelationTo' in typeValue ||
+        'slug' in typeValue)) {
         return null;
     }
     const row = typeValue;
     return {
         requiresActor: Boolean(row.requiresActor),
         requiresMetric: Boolean(row.requiresMetric) || row.slug === 'metric.delta',
+        requiresSubject: Boolean(row.requiresSubject),
+        subjectRelationTo: readSubjectRelationTo(row.subjectRelationTo),
     };
 }
-const empty = { requiresActor: false, requiresMetric: false };
+const empty = {
+    requiresActor: false,
+    requiresMetric: false,
+    requiresSubject: false,
+    subjectRelationTo: [],
+};
 /** Resolve event-type flags for the selected `type` field (fetch when only an id is present). */
 export function useEventTypeFlags(eventTypesSlug) {
     const { config } = useConfig();
@@ -47,7 +63,9 @@ export function useEventTypeFlags(eventTypesSlug) {
         const controller = new AbortController();
         const api = config.routes?.api ?? '/api';
         const serverURL = config.serverURL ?? '';
-        const url = `${serverURL}${api}/${eventTypesSlug}/${typeId}?depth=0&select[requiresActor]=true&select[requiresMetric]=true&select[slug]=true`;
+        const url = `${serverURL}${api}/${eventTypesSlug}/${typeId}` +
+            `?depth=0&select[requiresActor]=true&select[requiresMetric]=true` +
+            `&select[requiresSubject]=true&select[subjectRelationTo]=true&select[slug]=true`;
         void fetch(url, { credentials: 'include', signal: controller.signal })
             .then(async (res) => {
             if (!res.ok) {

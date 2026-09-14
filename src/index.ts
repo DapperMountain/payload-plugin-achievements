@@ -46,6 +46,8 @@ export {
   catalogRef,
   transitionLogData,
   transitionToId,
+  logSubject,
+  readLogSubject,
   validateRuleGroup,
   validateRuleNode,
 } from './services/achievement/index.js'
@@ -63,6 +65,7 @@ export type {
   UserProgressTierRequest,
   CatalogRef,
   TransitionLogData,
+  LogSubjectRef,
   MetricLeaderboardResult,
   MetricLeaderboardRow,
   ReconcileProgressionArgs,
@@ -82,6 +85,7 @@ export type {
   AchievementPluginOptions,
   AchievementRuleType,
   AchievementScopeConfig,
+  AchievementSubjectsOptions,
   AchievementUsersOptions,
 } from './types.js'
 export { DEFAULT_COLLECTION_BASE_SLUGS, DEFAULT_COLLECTION_PREFIX, DEFAULT_ADMIN_GROUP } from './collections/slugs.js'
@@ -89,6 +93,7 @@ export {
   DEFAULT_ME_ENDPOINT_PATH,
   DEFAULT_LEADERBOARD_ENDPOINT_PATH,
   DEFAULT_RECONCILE_ENDPOINT_PATH,
+  resolveSubjectCollections,
 } from './defaults.js'
 export { collectionOf, slugOf } from './collections/helpers.js'
 export { eachRuleLeaf } from './collections/hooks/eachRuleLeaf.js'

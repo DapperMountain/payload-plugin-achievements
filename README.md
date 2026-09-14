@@ -231,6 +231,50 @@ achievementPlugin({
 | --- | --- | --- |
 | `includeJoins` | `true` | Injects an `achievements` group on the users collection with joins to grants and requests. Set `false` if you own that UI yourself. |
 
+### `subjects`
+
+Host documents that logs may point at via a polymorphic `subject` field (same idea as `requiresActor` / `requiresMetric`).
+
+| Option | Default | Notes |
+| --- | --- | --- |
+| `collections` | `[]` | Allowlist of collection slugs (e.g. `posts`, `comments`). Empty / omit → subject feature is off (no log field, no event-type subject flags). |
+
+When configured:
+
+- Event types gain **Requires a subject** + optional **Subject collections** (`subjectRelationTo`).
+- Logs gain a polymorphic **Subject** relationship (Admin links to the host doc).
+- `recordLog({ subject: { relationTo, value } })` (or `logSubject(relationTo, value)`) writes the ref.
+- Prefer `subject` over stuffing ids into `data` JSON.
+
+```ts
+achievementPlugin({
+  canReview,
+  subjects: {
+    collections: ['posts', 'comments', 'endorsements'],
+  },
+})
+
+await seedAchievements(payload, {
+  eventTypes: [
+    {
+      name: 'Comment created',
+      slug: 'comment.created',
+      requiresSubject: true,
+      subjectRelationTo: ['comments'],
+    },
+  ],
+})
+
+await recordLog({
+  payload,
+  userId,
+  scopeId,
+  type: 'comment.created',
+  actorId: userId,
+  subject: logSubject('comments', commentId),
+})
+```
+
 ### `endpoints`
 
 | Option | Default | Notes |
@@ -294,9 +338,18 @@ import {
   buildUnlockRequirementLeaves,
   submitAchievementRequest,
   reviewAchievementRequest,
+  logSubject,
 } from '@dappermountain/payload-plugin-achievements'
 
 await recordLog({ payload, userId, scopeId, type: 'host.custom-kind', actorId })
+await recordLog({
+  payload,
+  userId,
+  scopeId,
+  type: 'comment.created',
+  actorId: userId,
+  subject: logSubject('comments', commentId),
+})
 await recordMetricChange({ payload, userId, scopeId, metric: 'points', change: 10 })
 const points = await resolveMetricValue({ payload, userId, scopeId, metric: 'points' })
 const board = await getMetricLeaderboard({ payload, metric: 'points', scopeId, limit: 20 })
@@ -342,6 +395,8 @@ Engine log `data` for those system events uses a shared transition envelope:
 | `achievement.granted` | `null` | achievement |
 | `achievement.revoked` | achievement | `null` |
 
+Host document links belong on polymorphic **`subject`** (when `subjects.collections` is set), not inside `data`.
+
 Turning **Requires review** off on a definition or tier **approves pending requests** for that row only (each waiting user goes through the existing request hooks).
 
 **Admin:** Grants list includes **Repair progression**, which `POST`s the reconcile endpoint (requires `canReview`).
@@ -373,7 +428,15 @@ import {
 await seedAchievementCatalog(payload) // system metrics + event types (English)
 
 await seedAchievements(payload, {
-  eventTypes: [{ name: 'Custom kind', slug: 'host.custom-kind', requiresActor: true }],
+  eventTypes: [
+    { name: 'Custom kind', slug: 'host.custom-kind', requiresActor: true },
+    {
+      name: 'Comment created',
+      slug: 'comment.created',
+      requiresSubject: true,
+      subjectRelationTo: ['comments'],
+    },
+  ],
   metrics: [{ name: 'Streak days', slug: 'streak-days' }],
   tiers: [
     {

@@ -1,4 +1,5 @@
 import type { Payload, PayloadRequest } from 'payload';
+import { type LogSubjectRef } from './logSubject.js';
 export type RecordLogInput = {
     payload: Payload;
     req?: PayloadRequest;
@@ -12,6 +13,11 @@ export type RecordLogInput = {
     /** Signed amount the metric moved (for metric.delta logs). */
     change?: number;
     reason?: string;
+    /**
+     * Host document this entry is about (polymorphic).
+     * Preferred over stuffing ids into `data` when the host configured `subjects.collections`.
+     */
+    subject?: LogSubjectRef | null;
     data?: Record<string, unknown> | null;
 };
 /** Append a catalogued occurrence to the achievement log. */

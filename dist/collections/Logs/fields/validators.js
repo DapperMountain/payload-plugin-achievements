@@ -1,5 +1,7 @@
+import { getAchievementOptions } from '../../../options-store.js';
 import { collectionOf } from '../../../collections/helpers.js';
-import { eventTypeRequiresActor, eventTypeRequiresMetric, } from '../../../services/achievement/eventTypeRequiresActor.js';
+import { eventTypeRequiresActor, eventTypeRequiresMetric, eventTypeSubjectRelationTo, getEventTypeFlags, } from '../../../services/achievement/eventTypeRequiresActor.js';
+import { readLogSubject } from '../../../services/achievement/logSubject.js';
 import { relationId } from '../../../services/achievement/relationId.js';
 export const validateActor = async (value, { data, req }) => {
     if (!req?.payload)
@@ -52,6 +54,40 @@ export const validateChange = async (value, { data, req }) => {
     }
     if (typeof value !== 'number' || Number.isNaN(value)) {
         return 'This log type needs a change amount.';
+    }
+    return true;
+};
+export const validateSubject = async (value, { data, req }) => {
+    if (!req?.payload)
+        return true;
+    const allowlist = getAchievementOptions().subjectCollections;
+    if (allowlist.length === 0)
+        return true;
+    const typeId = relationId(data?.type);
+    if (!typeId)
+        return true;
+    const flags = await getEventTypeFlags({
+        payload: req.payload,
+        req,
+        typeIdOrDoc: typeId,
+    });
+    const subject = readLogSubject(value);
+    if (!flags.requiresSubject) {
+        return true;
+    }
+    if (!subject) {
+        return 'This log type needs a subject (the host document it is about).';
+    }
+    if (!allowlist.includes(subject.relationTo)) {
+        return `Subject collection "${subject.relationTo}" is not in the plugin subjects allowlist.`;
+    }
+    const allowed = await eventTypeSubjectRelationTo({
+        payload: req.payload,
+        req,
+        typeIdOrDoc: typeId,
+    });
+    if (allowed.length > 0 && !allowed.includes(subject.relationTo)) {
+        return `This log type only allows subjects from: ${allowed.join(', ')}.`;
     }
     return true;
 };

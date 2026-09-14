@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react'
 export type EventTypeFlags = {
   requiresActor: boolean
   requiresMetric: boolean
+  requiresSubject: boolean
+  subjectRelationTo: string[]
 }
 
 function relationId(value: unknown): string | null {
@@ -19,19 +21,45 @@ function relationId(value: unknown): string | null {
   return null
 }
 
+function readSubjectRelationTo(value: unknown): string[] {
+  if (!Array.isArray(value)) return []
+  return value.filter((entry): entry is string => typeof entry === 'string' && entry.trim().length > 0)
+}
+
 function flagsFromValue(typeValue: unknown): EventTypeFlags | null {
   if (!typeValue || typeof typeValue !== 'object') return null
-  if (!('requiresActor' in typeValue || 'requiresMetric' in typeValue || 'slug' in typeValue)) {
+  if (
+    !(
+      'requiresActor' in typeValue ||
+      'requiresMetric' in typeValue ||
+      'requiresSubject' in typeValue ||
+      'subjectRelationTo' in typeValue ||
+      'slug' in typeValue
+    )
+  ) {
     return null
   }
-  const row = typeValue as { requiresActor?: boolean; requiresMetric?: boolean; slug?: string }
+  const row = typeValue as {
+    requiresActor?: boolean
+    requiresMetric?: boolean
+    requiresSubject?: boolean
+    subjectRelationTo?: unknown
+    slug?: string
+  }
   return {
     requiresActor: Boolean(row.requiresActor),
     requiresMetric: Boolean(row.requiresMetric) || row.slug === 'metric.delta',
+    requiresSubject: Boolean(row.requiresSubject),
+    subjectRelationTo: readSubjectRelationTo(row.subjectRelationTo),
   }
 }
 
-const empty: EventTypeFlags = { requiresActor: false, requiresMetric: false }
+const empty: EventTypeFlags = {
+  requiresActor: false,
+  requiresMetric: false,
+  requiresSubject: false,
+  subjectRelationTo: [],
+}
 
 /** Resolve event-type flags for the selected `type` field (fetch when only an id is present). */
 export function useEventTypeFlags(eventTypesSlug: string): EventTypeFlags {
@@ -55,7 +83,10 @@ export function useEventTypeFlags(eventTypesSlug: string): EventTypeFlags {
     const controller = new AbortController()
     const api = config.routes?.api ?? '/api'
     const serverURL = config.serverURL ?? ''
-    const url = `${serverURL}${api}/${eventTypesSlug}/${typeId}?depth=0&select[requiresActor]=true&select[requiresMetric]=true&select[slug]=true`
+    const url =
+      `${serverURL}${api}/${eventTypesSlug}/${typeId}` +
+      `?depth=0&select[requiresActor]=true&select[requiresMetric]=true` +
+      `&select[requiresSubject]=true&select[subjectRelationTo]=true&select[slug]=true`
 
     void fetch(url, { credentials: 'include', signal: controller.signal })
       .then(async (res) => {

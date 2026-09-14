@@ -9,16 +9,32 @@ export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me'
 export const DEFAULT_LEADERBOARD_ENDPOINT_PATH = '/achievements/leaderboard'
 export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile'
 
-export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' | 'endpoints'> & {
+export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' | 'endpoints' | 'subjects'> & {
   enabled: boolean
   seedSystemCatalog: boolean
   usersCollectionSlug: string
   users: { includeJoins: boolean }
+  /** Host collections allowed as polymorphic log subjects (empty = feature off). */
+  subjectCollections: string[]
   /** Resolved collection slug map (after prefix + overrides). */
   collectionSlugs: ReturnType<typeof resolveCollectionSlugs>
   /** Admin nav group for plugin collections (`false` = ungrouped). */
   adminGroup: string | false
   endpoints: { me: string | false; leaderboard: string | false; reconcile: string | false }
+}
+
+/** Unique, non-empty collection slugs from plugin `subjects.collections`. */
+export function resolveSubjectCollections(options?: AchievementPluginOptions): string[] {
+  const raw = options?.subjects?.collections ?? []
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const slug of raw) {
+    const trimmed = typeof slug === 'string' ? slug.trim() : ''
+    if (!trimmed || seen.has(trimmed)) continue
+    seen.add(trimmed)
+    out.push(trimmed)
+  }
+  return out
 }
 
 function normalizeEndpointPath(path: string, fallback: string): string {
@@ -46,14 +62,16 @@ export function resolveReconcileEndpointPath(path?: string | false): string | fa
 }
 
 export function resolveOptions(options: AchievementPluginOptions = {}): ResolvedAchievementOptions {
+  const { subjects: _subjects, ...rest } = options
   return {
-    ...options,
+    ...rest,
     enabled: options.enabled !== false,
     seedSystemCatalog: options.seedSystemCatalog !== false,
     usersCollectionSlug: options.usersCollectionSlug ?? DEFAULT_USERS_COLLECTION,
     users: {
       includeJoins: options.users?.includeJoins !== false,
     },
+    subjectCollections: resolveSubjectCollections(options),
     collectionSlugs: resolveCollectionSlugs(options),
     adminGroup: resolveAdminGroup(options),
     endpoints: {

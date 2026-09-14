@@ -1,11 +1,15 @@
 import type { CollectionBeforeValidateHook } from 'payload'
 import { APIError } from 'payload'
 
+import { getAchievementOptions } from '../../../options-store.js'
 import { collectionOf } from '../../../collections/helpers.js'
 import {
   eventTypeRequiresActor,
   eventTypeRequiresMetric,
+  eventTypeSubjectRelationTo,
+  getEventTypeFlags,
 } from '../../../services/achievement/eventTypeRequiresActor.js'
+import { readLogSubject } from '../../../services/achievement/logSubject.js'
 import { relationId } from '../../../services/achievement/relationId.js'
 
 export const ensureTypeRequirements: CollectionBeforeValidateHook = async ({ data, req }) => {
@@ -14,18 +18,11 @@ export const ensureTypeRequirements: CollectionBeforeValidateHook = async ({ dat
   const typeId = relationId((data as { type?: unknown }).type)
   if (!typeId) return data
 
-  const flags = {
-    requiresActor: await eventTypeRequiresActor({
-      payload: req.payload,
-      req,
-      typeIdOrDoc: typeId,
-    }),
-    requiresMetric: await eventTypeRequiresMetric({
-      payload: req.payload,
-      req,
-      typeIdOrDoc: typeId,
-    }),
-  }
+  const flags = await getEventTypeFlags({
+    payload: req.payload,
+    req,
+    typeIdOrDoc: typeId,
+  })
 
   if (flags.requiresActor && !relationId((data as { actor?: unknown }).actor)) {
     throw new APIError('This log type needs an actor (who caused it).', 400)
@@ -53,6 +50,25 @@ export const ensureTypeRequirements: CollectionBeforeValidateHook = async ({ dat
     if (metric && (metric.kind ?? 'stored') === 'computed') {
       throw new APIError(
         'Computed metrics cannot be changed with a metric delta. Use a stored metric such as Points.',
+        400,
+      )
+    }
+  }
+
+  if (flags.requiresSubject && getAchievementOptions().subjectCollections.length > 0) {
+    const subject = readLogSubject((data as { subject?: unknown }).subject)
+    if (!subject) {
+      throw new APIError('This log type needs a subject (the host document it is about).', 400)
+    }
+
+    const allowed = await eventTypeSubjectRelationTo({
+      payload: req.payload,
+      req,
+      typeIdOrDoc: typeId,
+    })
+    if (allowed.length > 0 && !allowed.includes(subject.relationTo)) {
+      throw new APIError(
+        `This log type only allows subjects from: ${allowed.join(', ')}.`,
         400,
       )
     }

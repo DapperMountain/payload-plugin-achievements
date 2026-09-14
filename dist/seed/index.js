@@ -74,6 +74,10 @@ async function upsertCatalog(payload, key, row) {
             ? {
                 requiresActor: row.requiresActor ?? false,
                 requiresMetric: row.requiresMetric ?? false,
+                requiresSubject: row.requiresSubject ?? false,
+                ...(row.subjectRelationTo && row.subjectRelationTo.length > 0
+                    ? { subjectRelationTo: row.subjectRelationTo }
+                    : { subjectRelationTo: [] }),
             }
             : metricComputed),
     };

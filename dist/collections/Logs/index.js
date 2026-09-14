@@ -3,12 +3,34 @@ import { collectionAdmin, collectionOf, optionalFields, slugOf } from '../helper
 import { getAchievementOptions } from '../../options-store.js';
 import { scopeField, userField } from '../fields/index.js';
 import { access } from './access/index.js';
-import { validateActor, validateChange, validateMetric } from './fields/validators.js';
+import { validateActor, validateChange, validateMetric, validateSubject, } from './fields/validators.js';
 import { hooks } from './hooks/index.js';
+function subjectLogField(eventTypesSlug) {
+    const collections = getAchievementOptions().subjectCollections;
+    if (collections.length === 0)
+        return null;
+    return {
+        name: 'subject',
+        type: 'relationship',
+        relationTo: collections,
+        index: true,
+        validate: validateSubject,
+        admin: {
+            description: 'Host document this entry is about (post, comment, …).',
+            components: {
+                Field: {
+                    path: '@dappermountain/payload-plugin-achievements/client#SubjectField',
+                    clientProps: { eventTypesSlug, subjectCollections: collections },
+                },
+            },
+        },
+    };
+}
 /** Append-only occurrence log. `type` / `metric` are catalog relationships. */
 export function buildLogsCollection() {
     const users = getAchievementOptions().usersCollectionSlug ?? 'users';
     const eventTypesSlug = collectionOf('eventTypes');
+    const subjectField = subjectLogField(eventTypesSlug);
     return {
         slug: slugOf('logs'),
         labels: {
@@ -19,7 +41,15 @@ export function buildLogsCollection() {
         hooks,
         admin: collectionAdmin({
             useAsTitle: 'id',
-            defaultColumns: ['type', 'user', 'actor', 'metric', 'change', 'createdAt'],
+            defaultColumns: [
+                'type',
+                'user',
+                'actor',
+                ...(subjectField ? ['subject'] : []),
+                'metric',
+                'change',
+                'createdAt',
+            ],
             description: 'Member activity history — grants, revokes, score changes, tier moves, and host custom events. Not a second grant store.',
         }),
         fields: [
@@ -88,6 +118,7 @@ export function buildLogsCollection() {
                     },
                 ],
             },
+            ...(subjectField ? [subjectField] : []),
             {
                 type: 'collapsible',
                 label: 'Details',
@@ -105,7 +136,7 @@ export function buildLogsCollection() {
                         name: 'data',
                         type: 'json',
                         admin: {
-                            description: 'Engine transition envelope: `{ from, to }` each `{ id, slug? }` or null (tier.changed, achievement.granted/revoked). Hosts may add extra keys.',
+                            description: 'Engine transition envelope: `{ from, to }` each `{ id, slug? }` or null (tier.changed, achievement.granted/revoked). Prefer `subject` for host document links.',
                         },
                     },
                 ],

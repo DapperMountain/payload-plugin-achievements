@@ -8,6 +8,7 @@ export { applyMetricBalanceDelta, findMetricBalance, metricBalanceKey, rebuildMe
 export { resolveMetricValue, loadMetricDoc } from './resolveMetricValue.js';
 export { resolveElapsedAnchor } from './resolveElapsedAnchor.js';
 export { recordEvent, recordLog, recordMetricChange, syncTierChangedLog } from './recordEvent.js';
+export { logSubject, readLogSubject } from './logSubject.js';
 export { resolveCurrentTier } from './resolveCurrentTier.js';
 export { resolveTierProgress } from './resolveTierProgress.js';
 export { grantAchievement, submitAchievementRequest } from './submitAchievementRequest.js';

@@ -1,7 +1,9 @@
 import { APIError } from 'payload';
 import { DEFAULT_ACHIEVEMENT_METRIC_SLUG } from '../../catalog.js';
 import { collectionOf } from '../../collections/helpers.js';
-import { eventTypeRequiresActor } from './eventTypeRequiresActor.js';
+import { getAchievementOptions } from '../../options-store.js';
+import { eventTypeSubjectRelationTo, getEventTypeFlags, } from './eventTypeRequiresActor.js';
+import { readLogSubject } from './logSubject.js';
 import { applyMetricBalanceDelta } from './metricBalances.js';
 import { transitionLogData, transitionToId } from './logData.js';
 import { loadMetricDoc } from './resolveMetricValue.js';
@@ -33,9 +35,34 @@ export async function recordLog(args) {
             value: args.metric,
         })
         : undefined;
-    if (await eventTypeRequiresActor({ payload: args.payload, req: args.req, typeIdOrDoc: typeId })) {
-        if (!args.actorId) {
-            throw new APIError('This log type needs an actor (who caused it).', 400);
+    const flags = await getEventTypeFlags({
+        payload: args.payload,
+        req: args.req,
+        typeIdOrDoc: typeId,
+    });
+    if (flags.requiresActor && !args.actorId) {
+        throw new APIError('This log type needs an actor (who caused it).', 400);
+    }
+    const allowlist = getAchievementOptions().subjectCollections;
+    let subject;
+    if (args.subject) {
+        const parsed = readLogSubject(args.subject) ?? args.subject;
+        subject = parsed;
+    }
+    if (flags.requiresSubject && allowlist.length > 0) {
+        if (!subject) {
+            throw new APIError('This log type needs a subject (the host document it is about).', 400);
+        }
+        if (!allowlist.includes(subject.relationTo)) {
+            throw new APIError(`Subject collection "${subject.relationTo}" is not in the plugin subjects allowlist.`, 400);
+        }
+        const allowed = await eventTypeSubjectRelationTo({
+            payload: args.payload,
+            req: args.req,
+            typeIdOrDoc: typeId,
+        });
+        if (allowed.length > 0 && !allowed.includes(subject.relationTo)) {
+            throw new APIError(`This log type only allows subjects from: ${allowed.join(', ')}.`, 400);
         }
     }
     return args.payload.create({
@@ -48,6 +75,7 @@ export async function recordLog(args) {
             metric: metricId,
             change: args.change,
             reason: args.reason,
+            ...(subject ? { subject } : {}),
             data: args.data ?? undefined,
         },
         overrideAccess: true,

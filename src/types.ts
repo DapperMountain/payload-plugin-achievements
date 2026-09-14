@@ -131,6 +131,18 @@ export type AchievementEndpointsOptions = {
   reconcile?: string | false
 }
 
+/**
+ * Host documents that achievement logs may point at (polymorphic `subject`).
+ * Empty / omitted → subject field is not registered (engine stays host-agnostic).
+ */
+export type AchievementSubjectsOptions = {
+  /**
+   * Collection slugs allowed on log `subject.relationTo` (e.g. `posts`, `comments`).
+   * Event types pick a subset via `subjectRelationTo`; validation rejects anything outside this list.
+   */
+  collections?: string[]
+}
+
 export type AchievementPluginOptions = {
   /**
    * Whether the user may review requests and manage achievement catalogs for a scope.
@@ -142,6 +154,11 @@ export type AchievementPluginOptions = {
   enabled?: boolean
   /** Custom root API routes registered by the plugin. */
   endpoints?: AchievementEndpointsOptions
+  /**
+   * Polymorphic log subjects — host allowlist of collections.
+   * When set, event types gain `requiresSubject` / `subjectRelationTo` and logs gain `subject`.
+   */
+  subjects?: AchievementSubjectsOptions
   extensions?: {
     /** Custom rule evaluators merged with built-ins. */
     ruleTypes?: AchievementRuleType[]

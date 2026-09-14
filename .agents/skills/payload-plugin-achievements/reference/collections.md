@@ -30,3 +30,7 @@ Stored totals: `achievement-metric-balances` (`user`, `scope`, `metric`, `value`
 - Metric balances: reviewers can read/delete; creates/updates only via trusted helpers.
 - User-facing requests: normal collection access + eligibility hooks.
 - Leaderboard endpoint: authenticated users; returns `user` id + `value` + `rank` only. Stored metrics only — computed/elapsed metrics have no balance rows.
+
+## Log subjects (optional)
+
+When the host sets `subjects.collections`, logs gain polymorphic `subject` and event types gain `requiresSubject` / `subjectRelationTo`. System event types do not require subjects. Host accrual types (e.g. `comment.created`) seed `requiresSubject: true` and point `subjectRelationTo` at the matching host collection.

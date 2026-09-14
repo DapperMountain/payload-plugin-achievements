@@ -27,11 +27,14 @@ plugins: [
     usersCollectionSlug: 'users',
     canReview: (user, scopeId) => Boolean(user?.roles?.includes('admin')),
     // scope?: { collection: 'tenants', relationField: 'scope' },
+    // subjects?: { collections: ['posts', 'comments'] }, // polymorphic log → host docs
   }),
 ]
 ```
 
 Required: implement **`canReview`** or privileged catalog/request writes are denied.
+
+Optional **`subjects.collections`**: allowlist of host collection slugs for polymorphic log `subject`. When set, event types gain `requiresSubject` / `subjectRelationTo`, logs gain `subject`, and `recordLog({ subject })` / `logSubject()` write first-class Admin links. Prefer `subject` over ids in `data` JSON.
 
 System catalog (`points`, `metric.delta`, …) seeds automatically on Payload **`onInit`** (`seedSystemCatalog`, default `true`). Hosts still call `seedAchievements` for product rows and extra locales; `seedAchievementCatalog` remains available for explicit runs.
 
@@ -60,7 +63,9 @@ Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveT
 
 ## Server helpers (trusted only)
 
-`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `logSubject`, `readLogSubject` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+
+`recordLog({ subject })` attaches a polymorphic host document when the host configured `subjects.collections` and the event type has `requiresSubject`. Use `logSubject('comments', id)` instead of stuffing ids into `data`.
 
 `getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user; the leaderboard API ranks stored balances.
 
