@@ -63,6 +63,10 @@ export function resolveReconcileEndpointPath(path?: string | false): string | fa
 
 export function resolveOptions(options: AchievementPluginOptions = {}): ResolvedAchievementOptions {
   const { subjects: _subjects, ...rest } = options
+  // Idempotent: `setAchievementOptions(resolveOptions(opts))` strips `subjects` and would
+  // otherwise wipe `subjectCollections` on the second pass.
+  const fromConfig = resolveSubjectCollections(options)
+  const alreadyResolved = (options as Partial<ResolvedAchievementOptions>).subjectCollections
   return {
     ...rest,
     enabled: options.enabled !== false,
@@ -71,7 +75,8 @@ export function resolveOptions(options: AchievementPluginOptions = {}): Resolved
     users: {
       includeJoins: options.users?.includeJoins !== false,
     },
-    subjectCollections: resolveSubjectCollections(options),
+    subjectCollections:
+      options.subjects != null ? fromConfig : (alreadyResolved ?? fromConfig),
     collectionSlugs: resolveCollectionSlugs(options),
     adminGroup: resolveAdminGroup(options),
     endpoints: {

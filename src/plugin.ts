@@ -2,9 +2,8 @@ import type { Config, Plugin } from 'payload'
 
 import { buildAchievementCollections } from './collections/index.js'
 import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup.js'
-import { resolveOptions } from './defaults.js'
 import { buildAchievementEndpoints } from './endpoints/index.js'
-import { setAchievementOptions } from './options-store.js'
+import { getAchievementOptions, setAchievementOptions } from './options-store.js'
 import type { AchievementPluginOptions } from './types.js'
 
 /**
@@ -14,8 +13,10 @@ import type { AchievementPluginOptions } from './types.js'
 export const achievementPlugin =
   (options: AchievementPluginOptions = {}): Plugin =>
   (config: Config): Config => {
-    const resolved = resolveOptions(options)
-    setAchievementOptions(resolved)
+    // Store the host options (not a pre-resolved object) so `subjects.collections`
+    // survives `setAchievementOptions` → `resolveOptions`.
+    setAchievementOptions(options)
+    const resolved = getAchievementOptions()
 
     if (!resolved.enabled) return config
 
