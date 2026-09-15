@@ -131,6 +131,31 @@ export function buildLogsCollection(): CollectionConfig {
       } as Field,
       ...(subjectField ? [subjectField] : []),
       {
+        name: 'actorTiers',
+        type: 'array',
+        admin: {
+          readOnly: true,
+          description:
+            'Derived ladder rank of the actor when this entry was written. Filled only when the event type snapshots actor tiers.',
+        },
+        fields: [
+          ...optionalFields(scopeField()),
+          {
+            name: 'tier',
+            type: 'relationship',
+            relationTo: collectionOf('tiers'),
+            required: true,
+            admin: { description: 'Which ladder step they held.' },
+          },
+          {
+            name: 'rank',
+            type: 'number',
+            required: true,
+            admin: { description: 'Ladder rank at write time (higher is further along).' },
+          },
+        ],
+      },
+      {
         type: 'collapsible',
         label: 'Details',
         admin: {

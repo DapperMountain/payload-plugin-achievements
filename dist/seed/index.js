@@ -75,6 +75,7 @@ async function upsertCatalog(payload, key, row) {
                 requiresActor: row.requiresActor ?? false,
                 requiresMetric: row.requiresMetric ?? false,
                 requiresSubject: row.requiresSubject ?? false,
+                snapshotActorTiers: row.snapshotActorTiers ?? false,
                 ...(row.subjectRelationTo && row.subjectRelationTo.length > 0
                     ? { subjectRelationTo: row.subjectRelationTo }
                     : { subjectRelationTo: [] }),
@@ -151,6 +152,14 @@ async function resolveRuleNode(payload, rule) {
             if (id) {
                 next.eventType = id;
                 delete next.eventTypeSlug;
+            }
+        }
+        // Optional at-least floor against the log’s actor-tier snapshot.
+        if (!next.actorTier && typeof next.actorTierSlug === 'string') {
+            const id = await findIdBySlug(payload, 'tiers', next.actorTierSlug);
+            if (id) {
+                next.actorTier = id;
+                delete next.actorTierSlug;
             }
         }
     }

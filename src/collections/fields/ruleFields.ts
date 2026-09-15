@@ -92,6 +92,17 @@ function ruleParamFields(): Field[] {
         description: 'How many times it needs to have happened.',
       },
     },
+    {
+      name: 'actorTier',
+      type: 'relationship',
+      relationTo: collectionOf('tiers'),
+      filterOptions: catalogFilterOptions,
+      admin: {
+        condition: (_, sibling) => sibling?.type === 'event-count',
+        description:
+          'Only count events whose actor held at least this tier in this scope when the event was written. Requires the event type to snapshot actor tiers. Leave empty to count every matching event.',
+      },
+    },
   ]
 }
 

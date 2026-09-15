@@ -330,3 +330,48 @@ describe('evaluateRuleProgress', () => {
     expect(progress).toBe(0.5)
   })
 })
+
+describe('event-count actorTier', () => {
+  test('counts only logs whose snapshot meets the floor in this scope', async () => {
+    setAchievementOptions({})
+
+    const findByID = mock(async ({ collection }: { collection: string }) => {
+      if (String(collection).includes('tier')) return { rank: 1 }
+      return { id: 'et1', slug: 'endorsement' }
+    })
+    const find = mock(async ({ collection }: { collection: string }) => {
+      if (String(collection).includes('log')) {
+        return {
+          docs: [
+            { actorTiers: [{ scope: 's1', rank: 1 }] },
+            { actorTiers: [{ scope: 's1', rank: 0 }] },
+            { actorTiers: [] },
+          ],
+        }
+      }
+      return { docs: [{ id: 'et1', slug: 'endorsement' }] }
+    })
+    const count = mock(async () => ({ totalDocs: 99 }))
+
+    const payload = { find, findByID, count }
+
+    const oneNeeded = await evaluateRules({
+      payload: payload as never,
+      req: {} as never,
+      rules: [{ type: 'event-count', eventType: 'et1', count: 1, actorTier: 'veteran' }],
+      userId: 'u1',
+      scopeId: 's1',
+    })
+    const twoNeeded = await evaluateRules({
+      payload: payload as never,
+      req: {} as never,
+      rules: [{ type: 'event-count', eventType: 'et1', count: 2, actorTier: 'veteran' }],
+      userId: 'u1',
+      scopeId: 's1',
+    })
+
+    expect(oneNeeded).toBe(true)
+    expect(twoNeeded).toBe(false)
+    expect(count).not.toHaveBeenCalled()
+  })
+})

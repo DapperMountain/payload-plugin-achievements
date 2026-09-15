@@ -100,7 +100,7 @@ Slugs are prefixed with `achievement-` by default so they don’t collide with y
 | `achievement.revoked` | Written when a grant is deleted |
 | `tier.changed` | Written when derived tier moves (including demotions when a tier request leaves `approved`) |
 
-Event types can require an **actor** and/or a **metric + change**. Admin only prompts for those fields when the type needs them.
+Event types can require an **actor** and/or a **metric + change**. Admin only prompts for those fields when the type needs them. Optional **Snapshot actor tiers** stores the actor’s derived ladder rank on the log at write time (`resolveCurrentTier` only — no grants or tier requests). Unscoped logs stamp every ladder scope; scoped logs stamp that tenant plus any unscoped ranks. Use that with Event count → **Actor tier** to count only events whose actor held at least that step in the rule’s scope when the event was written. Leave Actor tier empty to count every matching event. Logs without a snapshot (legacy rows, or types that do not stamp) do not match an Actor tier filter.
 
 ### Rules engine
 
@@ -118,7 +118,7 @@ Unlock (tiers), eligibility, and completion (achievements) share the same rule t
 | AND | Equal average of *requirement* children |
 | OR | Best child (max) |
 | `tier-at-least` | Gate — skipped in AND averages |
-| `event-count` / `metric-minimum` | Fraction of the target |
+| `event-count` / `metric-minimum` | Fraction of the target. `event-count` may set **Actor tier** (at-least, this scope) against the log’s actor-tier snapshot |
 | `achievement-complete` | `1` if granted; otherwise rolls up that achievement’s completion (or eligibility) rules |
 
 **Computed elapsed metrics** — `kind: computed` + `compute: elapsed` + `unit` (`seconds` | `minutes` | `hours` | `days` | `years`) + `since` (built-in `user-created-at` / `first-event`, or a host `metricAnchors` key). Gate tenure with `metric-minimum` against that metric. Years use a fixed 365-day length. System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.

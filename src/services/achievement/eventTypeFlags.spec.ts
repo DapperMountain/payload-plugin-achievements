@@ -15,6 +15,7 @@ describe('readEventTypeFlags', () => {
       requiresActor: true,
       requiresMetric: false,
       requiresSubject: true,
+      snapshotActorTiers: false,
       subjectRelationTo: ['comments'],
     })
   })
@@ -24,6 +25,7 @@ describe('readEventTypeFlags', () => {
       requiresActor: false,
       requiresMetric: true,
       requiresSubject: false,
+      snapshotActorTiers: false,
       subjectRelationTo: [],
     })
   })
@@ -33,6 +35,17 @@ describe('readEventTypeFlags', () => {
       requiresActor: false,
       requiresMetric: false,
       requiresSubject: false,
+      snapshotActorTiers: false,
+      subjectRelationTo: [],
+    })
+  })
+
+  test('reads snapshotActorTiers', () => {
+    expect(readEventTypeFlags({ requiresActor: true, snapshotActorTiers: true })).toEqual({
+      requiresActor: true,
+      requiresMetric: false,
+      requiresSubject: false,
+      snapshotActorTiers: true,
       subjectRelationTo: [],
     })
   })

@@ -7,6 +7,7 @@ import { relationId } from './relationId.js'
 
 export const UNLOCK_REQUIREMENT_RELATION_FIELDS = {
   tier: 'tiers',
+  actorTier: 'tiers',
   achievement: 'achievements',
   metric: 'metrics',
   eventType: 'eventTypes',

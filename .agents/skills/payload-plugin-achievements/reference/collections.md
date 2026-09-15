@@ -22,6 +22,8 @@ Do not delete or rename system slugs in seed/migrations casually — plugin prot
 | `compute` | When computed: `elapsed` (v1) |
 | `unit` / `since` / `eventType` | Elapsed config; `unit`: seconds \| minutes \| hours \| days \| years (365-day years); `since` options = built-ins + host anchor keys |
 
+Event types: `requiresActor`, `requiresMetric`, `requiresSubject`, optional `snapshotActorTiers` (stamp derived actor ranks on the log at write). `event-count` leaves may set `actorTier` (at-least in the rule’s scope) against that snapshot.
+
 Stored totals: `achievement-metric-balances` (`user`, `scope`, `metric`, `value`, unique `key`). Updated by `recordMetricChange`; rebuilt by reconcile.
 
 ## Access

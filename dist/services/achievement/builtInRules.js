@@ -1,4 +1,5 @@
 import { collectionOf } from '../../collections/helpers.js';
+import { actorSnapshotMeetsTier } from './actorTierSnapshot.js';
 import { relationId } from './relationId.js';
 import { resolveMetricValue } from './resolveMetricValue.js';
 import { userScopeIncludingUnscopedWhere } from './where.js';
@@ -51,6 +52,78 @@ async function resolveEventTypeId(args) {
         where: { slug: { equals: slugCandidate } },
     });
     return relationId(found.docs[0]);
+}
+async function resolveActorTierMinimumRank(args) {
+    const fromRelation = relationId(args.rule.actorTier);
+    const slug = typeof args.rule.actorTierSlug === 'string' && args.rule.actorTierSlug
+        ? args.rule.actorTierSlug
+        : '';
+    if (!fromRelation && !slug)
+        return null;
+    if (fromRelation) {
+        try {
+            const doc = (await args.payload.findByID({
+                collection: collectionOf('tiers'),
+                id: fromRelation,
+                depth: 0,
+                overrideAccess: true,
+                select: { rank: true },
+            }));
+            if (doc && typeof doc.rank === 'number' && Number.isFinite(doc.rank))
+                return doc.rank;
+        }
+        catch {
+            /* fall through to slug */
+        }
+    }
+    if (!slug)
+        return null;
+    const found = await args.payload.find({
+        collection: collectionOf('tiers'),
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+        where: { slug: { equals: slug } },
+        select: { rank: true },
+    });
+    const rank = found.docs[0]?.rank;
+    return typeof rank === 'number' && Number.isFinite(rank) ? rank : null;
+}
+async function countMatchingEventLogs(args) {
+    const eventTypeId = await resolveEventTypeId({ payload: args.payload, rule: args.rule });
+    if (!eventTypeId)
+        return 0;
+    const where = {
+        and: [
+            userScopeIncludingUnscopedWhere(args.userId, args.scopeId),
+            { type: { equals: eventTypeId } },
+        ],
+    };
+    const minimumRank = await resolveActorTierMinimumRank({
+        payload: args.payload,
+        rule: args.rule,
+    });
+    if (minimumRank == null) {
+        const result = await args.payload.count({
+            collection: collectionOf('logs'),
+            overrideAccess: true,
+            where,
+        });
+        return result.totalDocs;
+    }
+    const { docs } = await args.payload.find({
+        collection: collectionOf('logs'),
+        depth: 0,
+        overrideAccess: true,
+        pagination: false,
+        select: { actorTiers: true },
+        where,
+    });
+    return docs.filter((doc) => actorSnapshotMeetsTier({
+        rows: doc.actorTiers,
+        scopeId: args.scopeId,
+        minimumRank,
+    })).length;
 }
 async function resolveAchievementRef(args) {
     let requiredId = relationId(args.rule.achievement);
@@ -244,34 +317,16 @@ export const builtInRuleTypes = [
     {
         type: 'event-count',
         async evaluate({ payload, rule, userId, scopeId }) {
-            const eventTypeId = await resolveEventTypeId({ payload, rule });
-            if (!eventTypeId)
-                return false;
             const needed = Number(rule.count ?? 1);
-            const result = await payload.count({
-                collection: collectionOf('logs'),
-                overrideAccess: true,
-                where: {
-                    and: [userScopeIncludingUnscopedWhere(userId, scopeId), { type: { equals: eventTypeId } }],
-                },
-            });
-            return result.totalDocs >= needed;
+            const total = await countMatchingEventLogs({ payload, rule, userId, scopeId });
+            return total >= needed;
         },
         async progress({ payload, rule, userId, scopeId }) {
-            const eventTypeId = await resolveEventTypeId({ payload, rule });
-            if (!eventTypeId)
-                return 0;
             const needed = Number(rule.count ?? 1);
             if (!(needed > 0))
                 return 1;
-            const result = await payload.count({
-                collection: collectionOf('logs'),
-                overrideAccess: true,
-                where: {
-                    and: [userScopeIncludingUnscopedWhere(userId, scopeId), { type: { equals: eventTypeId } }],
-                },
-            });
-            return clamp01(result.totalDocs / needed);
+            const total = await countMatchingEventLogs({ payload, rule, userId, scopeId });
+            return clamp01(total / needed);
         },
     },
 ];

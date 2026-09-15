@@ -3,6 +3,8 @@ export type EventTypeFlags = {
     requiresActor: boolean;
     requiresMetric: boolean;
     requiresSubject: boolean;
+    /** Stamp the actor's derived ladder ranks on the log at write time. */
+    snapshotActorTiers: boolean;
     /** Allowed host collections for `subject.relationTo` (empty = any plugin allowlist entry). */
     subjectRelationTo: string[];
 };

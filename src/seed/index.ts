@@ -56,6 +56,8 @@ export type AchievementSeedCatalogRow = {
   requiresMetric?: boolean
   /** Event types only — when true, logging the event requires a polymorphic `subject`. */
   requiresSubject?: boolean
+  /** Event types only — stamp the actor’s derived ladder ranks on the log at write time. */
+  snapshotActorTiers?: boolean
   /**
    * Event types only — allowed host collections for `subject.relationTo`.
    * Empty / omit = any collection from plugin `subjects.collections`.
@@ -168,6 +170,7 @@ async function upsertCatalog(
           requiresActor: row.requiresActor ?? false,
           requiresMetric: row.requiresMetric ?? false,
           requiresSubject: row.requiresSubject ?? false,
+          snapshotActorTiers: row.snapshotActorTiers ?? false,
           ...(row.subjectRelationTo && row.subjectRelationTo.length > 0
             ? { subjectRelationTo: row.subjectRelationTo }
             : { subjectRelationTo: [] }),
@@ -256,6 +259,14 @@ async function resolveRuleNode(
       if (id) {
         next.eventType = id
         delete next.eventTypeSlug
+      }
+    }
+    // Optional at-least floor against the log’s actor-tier snapshot.
+    if (!next.actorTier && typeof next.actorTierSlug === 'string') {
+      const id = await findIdBySlug(payload, 'tiers', next.actorTierSlug)
+      if (id) {
+        next.actorTier = id
+        delete next.actorTierSlug
       }
     }
   }

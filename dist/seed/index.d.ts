@@ -59,6 +59,8 @@ export type AchievementSeedCatalogRow = {
     requiresMetric?: boolean;
     /** Event types only — when true, logging the event requires a polymorphic `subject`. */
     requiresSubject?: boolean;
+    /** Event types only — stamp the actor’s derived ladder ranks on the log at write time. */
+    snapshotActorTiers?: boolean;
     /**
      * Event types only — allowed host collections for `subject.relationTo`.
      * Empty / omit = any collection from plugin `subjects.collections`.

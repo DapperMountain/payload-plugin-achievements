@@ -48,6 +48,7 @@ export function buildEventTypesCollection(): CollectionConfig {
         'name',
         'slug',
         'requiresActor',
+        'snapshotActorTiers',
         'requiresMetric',
         ...(subjectFields.length > 0 ? (['requiresSubject'] as const) : []),
         'system',
@@ -72,6 +73,16 @@ export function buildEventTypesCollection(): CollectionConfig {
         admin: {
           description:
             'Turn this on when someone else caused the entry (for example a peer nomination). We’ll ask for that person when it’s logged.',
+        },
+      },
+      {
+        name: 'snapshotActorTiers',
+        type: 'checkbox',
+        defaultValue: false,
+        label: 'Snapshot actor tiers',
+        admin: {
+          description:
+            'When this entry is logged, store the actor’s derived ladder rank at write time. Unscoped logs stamp every ladder; scoped logs stamp that tenant plus unscoped ranks. Event count can then require “actor was at least this tier” in the rule’s scope. Does not grant or open requests.',
         },
       },
       {

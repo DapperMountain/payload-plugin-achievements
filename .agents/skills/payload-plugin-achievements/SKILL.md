@@ -57,7 +57,7 @@ System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.
 
 ## Rules engine
 
-Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`; custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed metrics).
+Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot filter); custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed metrics).
 
 Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveTierProgress`) — no separate progress table.
 
@@ -65,7 +65,7 @@ Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveT
 
 `recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `logSubject`, `readLogSubject` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
 
-`recordLog({ subject })` attaches a polymorphic host document when the host configured `subjects.collections` and the event type has `requiresSubject`. Use `logSubject('comments', id)` instead of stuffing ids into `data`.
+`recordLog({ subject })` attaches a polymorphic host document when the host configured `subjects.collections` and the event type has `requiresSubject`. Use `logSubject('comments', id)` instead of stuffing ids into `data`. Event types may **Snapshot actor tiers** so `event-count` can require the actor was at least a catalog tier in this scope at write time.
 
 `getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user; the leaderboard API ranks stored balances.
 

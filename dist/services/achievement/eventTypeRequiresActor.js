@@ -5,6 +5,7 @@ const emptyFlags = {
     requiresActor: false,
     requiresMetric: false,
     requiresSubject: false,
+    snapshotActorTiers: false,
     subjectRelationTo: [],
 };
 function readSubjectRelationTo(value) {
@@ -25,6 +26,7 @@ export function readEventTypeFlags(doc) {
     const hasFlagKeys = 'requiresActor' in row ||
         'requiresMetric' in row ||
         'requiresSubject' in row ||
+        'snapshotActorTiers' in row ||
         'subjectRelationTo' in row ||
         typeof row.slug === 'string';
     if (!hasFlagKeys)
@@ -33,6 +35,7 @@ export function readEventTypeFlags(doc) {
         requiresActor: Boolean(row.requiresActor),
         requiresMetric: Boolean(row.requiresMetric) || row.slug === 'metric.delta',
         requiresSubject: Boolean(row.requiresSubject),
+        snapshotActorTiers: Boolean(row.snapshotActorTiers),
         subjectRelationTo: readSubjectRelationTo(row.subjectRelationTo),
     };
 }
@@ -47,6 +50,7 @@ export async function getEventTypeFlags(args) {
         if ('requiresActor' in row ||
             'requiresMetric' in row ||
             'requiresSubject' in row ||
+            'snapshotActorTiers' in row ||
             'subjectRelationTo' in row ||
             'slug' in row) {
             return embedded;
@@ -65,6 +69,7 @@ export async function getEventTypeFlags(args) {
             requiresActor: true,
             requiresMetric: true,
             requiresSubject: true,
+            snapshotActorTiers: true,
             subjectRelationTo: true,
             slug: true,
         },

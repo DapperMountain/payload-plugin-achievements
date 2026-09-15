@@ -1,6 +1,7 @@
 import type { Payload, PayloadRequest } from 'payload';
 export declare const UNLOCK_REQUIREMENT_RELATION_FIELDS: {
     readonly tier: "tiers";
+    readonly actorTier: "tiers";
     readonly achievement: "achievements";
     readonly metric: "metrics";
     readonly eventType: "eventTypes";

@@ -8,6 +8,7 @@ import { applyMetricBalanceDelta } from './metricBalances.js';
 import { transitionLogData, transitionToId } from './logData.js';
 import { loadMetricDoc } from './resolveMetricValue.js';
 import { resolveCatalogId } from './resolveCatalog.js';
+import { snapshotActorDerivedTiers } from './actorTierSnapshot.js';
 import { resolveCurrentTier } from './resolveCurrentTier.js';
 import { userScopeWhere } from './where.js';
 async function catalogId(args) {
@@ -65,6 +66,14 @@ export async function recordLog(args) {
             throw new APIError(`This log type only allows subjects from: ${allowed.join(', ')}.`, 400);
         }
     }
+    const actorTiers = flags.snapshotActorTiers && args.actorId
+        ? await snapshotActorDerivedTiers({
+            payload: args.payload,
+            req: args.req,
+            userId: args.actorId,
+            logScopeId: scopeId,
+        })
+        : undefined;
     return args.payload.create({
         collection: collectionOf('logs'),
         data: {
@@ -76,6 +85,7 @@ export async function recordLog(args) {
             change: args.change,
             reason: args.reason,
             ...(subject ? { subject } : {}),
+            ...(actorTiers && actorTiers.length > 0 ? { actorTiers } : {}),
             data: args.data ?? undefined,
         },
         overrideAccess: true,
