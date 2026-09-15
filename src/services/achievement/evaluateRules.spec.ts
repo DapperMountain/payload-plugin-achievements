@@ -175,6 +175,33 @@ describe('evaluateRules', () => {
     })
     expect(ok).toBe(true)
   })
+
+  test('achievement-complete grant lookup shares req with the calling transaction', async () => {
+    setAchievementOptions({})
+    const req = { transactionID: 'tx-1' }
+    const findByID = mock(async () => ({
+      id: 'child',
+      slug: 'child',
+      eligibilityRules: { combinator: 'and', rules: [] },
+      completionRules: { combinator: 'and', rules: [] },
+    }))
+    const find = mock(async (args: { collection: string; req?: unknown }) => {
+      expect(args.req).toBe(req)
+      if (String(args.collection).includes('grants')) return { docs: [{ id: 'g1' }] }
+      return { docs: [] }
+    })
+
+    const ok = await evaluateRules({
+      payload: { find, findByID } as never,
+      req: req as never,
+      rules: [{ type: 'achievement-complete', achievement: 'child' }],
+      userId: 'u1',
+      scopeId: 's1',
+    })
+
+    expect(ok).toBe(true)
+    expect(find).toHaveBeenCalled()
+  })
 })
 
 describe('evaluateRuleProgress', () => {

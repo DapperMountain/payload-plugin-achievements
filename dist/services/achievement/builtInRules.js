@@ -20,6 +20,7 @@ async function resolveMetricId(args) {
         depth: 0,
         limit: 1,
         overrideAccess: true,
+        req: args.req,
         where: { slug: { equals: metricSlug } },
     });
     return relationId(found.docs[0]);
@@ -34,6 +35,7 @@ async function resolveEventTypeId(args) {
             depth: 0,
             limit: 1,
             overrideAccess: true,
+            req: args.req,
             where: { id: { equals: eventTypeId } },
         });
         if (relationId(byId.docs[0]))
@@ -49,6 +51,7 @@ async function resolveEventTypeId(args) {
         depth: 0,
         limit: 1,
         overrideAccess: true,
+        req: args.req,
         where: { slug: { equals: slugCandidate } },
     });
     return relationId(found.docs[0]);
@@ -67,6 +70,7 @@ async function resolveActorTierMinimumRank(args) {
                 id: fromRelation,
                 depth: 0,
                 overrideAccess: true,
+                req: args.req,
                 select: { rank: true },
             }));
             if (doc && typeof doc.rank === 'number' && Number.isFinite(doc.rank))
@@ -83,6 +87,7 @@ async function resolveActorTierMinimumRank(args) {
         depth: 0,
         limit: 1,
         overrideAccess: true,
+        req: args.req,
         where: { slug: { equals: slug } },
         select: { rank: true },
     });
@@ -90,7 +95,11 @@ async function resolveActorTierMinimumRank(args) {
     return typeof rank === 'number' && Number.isFinite(rank) ? rank : null;
 }
 async function countMatchingEventLogs(args) {
-    const eventTypeId = await resolveEventTypeId({ payload: args.payload, rule: args.rule });
+    const eventTypeId = await resolveEventTypeId({
+        payload: args.payload,
+        req: args.req,
+        rule: args.rule,
+    });
     if (!eventTypeId)
         return 0;
     const where = {
@@ -101,12 +110,14 @@ async function countMatchingEventLogs(args) {
     };
     const minimumRank = await resolveActorTierMinimumRank({
         payload: args.payload,
+        req: args.req,
         rule: args.rule,
     });
     if (minimumRank == null) {
         const result = await args.payload.count({
             collection: collectionOf('logs'),
             overrideAccess: true,
+            req: args.req,
             where,
         });
         return result.totalDocs;
@@ -116,6 +127,7 @@ async function countMatchingEventLogs(args) {
         depth: 0,
         overrideAccess: true,
         pagination: false,
+        req: args.req,
         select: { actorTiers: true },
         where,
     });
@@ -136,6 +148,7 @@ async function resolveAchievementRef(args) {
             depth: 0,
             limit: 1,
             overrideAccess: true,
+            req: args.req,
             where: args.scopeId
                 ? {
                     and: [{ slug: { equals: requiredSlug } }, { scope: { equals: args.scopeId } }],
@@ -154,6 +167,7 @@ async function resolveAchievementRef(args) {
             id: requiredId,
             depth: 0,
             overrideAccess: true,
+            req: args.req,
         }));
         requiredSlug = requiredSlug || String(doc?.slug ?? '');
         eligibilityRules = eligibilityRules ?? doc?.eligibilityRules;
@@ -174,6 +188,7 @@ async function isAchievementGranted(args) {
         depth: args.requiredSlug && !args.requiredId ? 1 : 0,
         limit: args.requiredId ? 1 : 50,
         overrideAccess: true,
+        req: args.req,
         where: { and: grantClauses },
     });
     if (args.requiredId)
@@ -199,6 +214,7 @@ export const builtInRuleTypes = [
                     id: tierId,
                     depth: 0,
                     overrideAccess: true,
+                    req,
                 }));
                 requiredRank = tier?.rank;
             }
@@ -211,6 +227,7 @@ export const builtInRuleTypes = [
                     depth: 0,
                     limit: 1,
                     overrideAccess: true,
+                    req,
                     where: scopeId
                         ? { and: [{ slug: { equals: tierSlug } }, { scope: { equals: scopeId } }] }
                         : { slug: { equals: tierSlug } },
@@ -235,10 +252,11 @@ export const builtInRuleTypes = [
     },
     {
         type: 'achievement-complete',
-        async evaluate({ payload, rule, userId, scopeId }) {
-            const ref = await resolveAchievementRef({ payload, rule, scopeId });
+        async evaluate({ payload, req, rule, userId, scopeId }) {
+            const ref = await resolveAchievementRef({ payload, req, rule, scopeId });
             return isAchievementGranted({
                 payload,
+                req,
                 userId,
                 scopeId,
                 requiredId: ref.id,
@@ -247,11 +265,12 @@ export const builtInRuleTypes = [
         },
         async progress(args) {
             const { payload, req, rule, userId, scopeId, ladderRank, progressVisited } = args;
-            const ref = await resolveAchievementRef({ payload, rule, scopeId });
+            const ref = await resolveAchievementRef({ payload, req, rule, scopeId });
             if (!ref.id && !ref.slug)
                 return 0;
             const granted = await isAchievementGranted({
                 payload,
+                req,
                 userId,
                 scopeId,
                 requiredId: ref.id,
@@ -284,7 +303,7 @@ export const builtInRuleTypes = [
     {
         type: 'metric-minimum',
         async evaluate({ payload, req, rule, userId, scopeId }) {
-            const resolvedId = await resolveMetricId({ payload, rule });
+            const resolvedId = await resolveMetricId({ payload, req, rule });
             if (!resolvedId)
                 return false;
             const minimum = Number(rule.minimum ?? 0);
@@ -298,7 +317,7 @@ export const builtInRuleTypes = [
             return value >= minimum;
         },
         async progress({ payload, req, rule, userId, scopeId }) {
-            const resolvedId = await resolveMetricId({ payload, rule });
+            const resolvedId = await resolveMetricId({ payload, req, rule });
             if (!resolvedId)
                 return 0;
             const minimum = Number(rule.minimum ?? 0);
@@ -316,16 +335,16 @@ export const builtInRuleTypes = [
     },
     {
         type: 'event-count',
-        async evaluate({ payload, rule, userId, scopeId }) {
+        async evaluate({ payload, req, rule, userId, scopeId }) {
             const needed = Number(rule.count ?? 1);
-            const total = await countMatchingEventLogs({ payload, rule, userId, scopeId });
+            const total = await countMatchingEventLogs({ payload, req, rule, userId, scopeId });
             return total >= needed;
         },
-        async progress({ payload, rule, userId, scopeId }) {
+        async progress({ payload, req, rule, userId, scopeId }) {
             const needed = Number(rule.count ?? 1);
             if (!(needed > 0))
                 return 1;
-            const total = await countMatchingEventLogs({ payload, rule, userId, scopeId });
+            const total = await countMatchingEventLogs({ payload, req, rule, userId, scopeId });
             return clamp01(total / needed);
         },
     },

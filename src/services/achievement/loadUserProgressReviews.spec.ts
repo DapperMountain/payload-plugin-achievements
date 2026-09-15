@@ -17,8 +17,8 @@ describe('loadUserProgressReviews', () => {
         if (String(collection).includes('tier')) {
           return {
             docs: [
-              { id: 'tr1', status: 'pending', tier: 't-solid' },
-              { id: 'tr2', status: 'rejected', tier: { id: 't-solid' } },
+              { id: 'tr1', status: 'pending', tier: 't-veteran' },
+              { id: 'tr2', status: 'rejected', tier: { id: 't-veteran' } },
               { id: 'tr3', status: 'approved', tier: 't-ignore' },
             ],
           }
@@ -35,8 +35,8 @@ describe('loadUserProgressReviews', () => {
 
     expect(reviews.pendingAchievementKeys.sort()).toEqual(['a1', 'a2', 'path-complete'])
     expect(reviews.tierRequests).toEqual([
-      { id: 'tr1', status: 'pending', tierId: 't-solid' },
-      { id: 'tr2', status: 'rejected', tierId: 't-solid' },
+      { id: 'tr1', status: 'pending', tierId: 't-veteran' },
+      { id: 'tr2', status: 'rejected', tierId: 't-veteran' },
     ])
   })
 

@@ -4,17 +4,21 @@ import { actorSnapshotMeetsTier } from './actorTierSnapshot.js'
 import { relationId } from './relationId.js'
 import { resolveMetricValue } from './resolveMetricValue.js'
 import { userScopeIncludingUnscopedWhere } from './where.js'
-import type { Where } from 'payload'
+import type { PayloadRequest, Where } from 'payload'
 
 function clamp01(value: number): number {
   if (!Number.isFinite(value)) return 0
   return Math.max(0, Math.min(1, value))
 }
 
-async function resolveMetricId(args: {
+/** Local API calls inside grant afterChange must share `req` or they miss uncommitted rows. */
+type RuleLookup = {
   payload: AchievementRuleEvalArgs['payload']
+  req: PayloadRequest
   rule: Record<string, unknown>
-}): Promise<string | null> {
+}
+
+async function resolveMetricId(args: RuleLookup): Promise<string | null> {
   const metricId = relationId(args.rule.metric)
   if (metricId) return metricId
   const metricSlug = typeof args.rule.metricSlug === 'string' ? args.rule.metricSlug : ''
@@ -24,15 +28,13 @@ async function resolveMetricId(args: {
     depth: 0,
     limit: 1,
     overrideAccess: true,
+    req: args.req,
     where: { slug: { equals: metricSlug } },
   })
   return relationId(found.docs[0])
 }
 
-async function resolveEventTypeId(args: {
-  payload: AchievementRuleEvalArgs['payload']
-  rule: Record<string, unknown>
-}): Promise<string | null> {
+async function resolveEventTypeId(args: RuleLookup): Promise<string | null> {
   let eventTypeId = relationId(args.rule.eventType)
   if (eventTypeId) {
     // Seeded rules may store a slug string in `eventType` before resolve; only treat
@@ -42,6 +44,7 @@ async function resolveEventTypeId(args: {
       depth: 0,
       limit: 1,
       overrideAccess: true,
+      req: args.req,
       where: { id: { equals: eventTypeId } },
     })
     if (relationId(byId.docs[0])) return eventTypeId
@@ -58,15 +61,13 @@ async function resolveEventTypeId(args: {
     depth: 0,
     limit: 1,
     overrideAccess: true,
+    req: args.req,
     where: { slug: { equals: slugCandidate } },
   })
   return relationId(found.docs[0])
 }
 
-async function resolveActorTierMinimumRank(args: {
-  payload: AchievementRuleEvalArgs['payload']
-  rule: Record<string, unknown>
-}): Promise<number | null> {
+async function resolveActorTierMinimumRank(args: RuleLookup): Promise<number | null> {
   const fromRelation = relationId(args.rule.actorTier)
   const slug =
     typeof args.rule.actorTierSlug === 'string' && args.rule.actorTierSlug
@@ -81,6 +82,7 @@ async function resolveActorTierMinimumRank(args: {
         id: fromRelation,
         depth: 0,
         overrideAccess: true,
+        req: args.req,
         select: { rank: true },
       })) as { rank?: number } | null
       if (doc && typeof doc.rank === 'number' && Number.isFinite(doc.rank)) return doc.rank
@@ -95,6 +97,7 @@ async function resolveActorTierMinimumRank(args: {
     depth: 0,
     limit: 1,
     overrideAccess: true,
+    req: args.req,
     where: { slug: { equals: slug } },
     select: { rank: true },
   })
@@ -104,11 +107,16 @@ async function resolveActorTierMinimumRank(args: {
 
 async function countMatchingEventLogs(args: {
   payload: AchievementRuleEvalArgs['payload']
+  req: PayloadRequest
   rule: Record<string, unknown>
   userId: string
   scopeId: string | null
 }): Promise<number> {
-  const eventTypeId = await resolveEventTypeId({ payload: args.payload, rule: args.rule })
+  const eventTypeId = await resolveEventTypeId({
+    payload: args.payload,
+    req: args.req,
+    rule: args.rule,
+  })
   if (!eventTypeId) return 0
 
   const where = {
@@ -120,12 +128,14 @@ async function countMatchingEventLogs(args: {
 
   const minimumRank = await resolveActorTierMinimumRank({
     payload: args.payload,
+    req: args.req,
     rule: args.rule,
   })
   if (minimumRank == null) {
     const result = await args.payload.count({
       collection: collectionOf('logs'),
       overrideAccess: true,
+      req: args.req,
       where,
     })
     return result.totalDocs
@@ -136,6 +146,7 @@ async function countMatchingEventLogs(args: {
     depth: 0,
     overrideAccess: true,
     pagination: false,
+    req: args.req,
     select: { actorTiers: true },
     where,
   })
@@ -158,6 +169,7 @@ type AchievementRef = {
 
 async function resolveAchievementRef(args: {
   payload: AchievementRuleEvalArgs['payload']
+  req: PayloadRequest
   rule: Record<string, unknown>
   scopeId: string | null
 }): Promise<AchievementRef> {
@@ -172,6 +184,7 @@ async function resolveAchievementRef(args: {
       depth: 0,
       limit: 1,
       overrideAccess: true,
+      req: args.req,
       where: args.scopeId
         ? {
             and: [{ slug: { equals: requiredSlug } }, { scope: { equals: args.scopeId } }],
@@ -193,6 +206,7 @@ async function resolveAchievementRef(args: {
       id: requiredId,
       depth: 0,
       overrideAccess: true,
+      req: args.req,
     })) as { slug?: string; eligibilityRules?: unknown; completionRules?: unknown } | null
     requiredSlug = requiredSlug || String(doc?.slug ?? '')
     eligibilityRules = eligibilityRules ?? doc?.eligibilityRules
@@ -204,6 +218,7 @@ async function resolveAchievementRef(args: {
 
 async function isAchievementGranted(args: {
   payload: AchievementRuleEvalArgs['payload']
+  req: PayloadRequest
   userId: string
   scopeId: string | null
   requiredId: string | null
@@ -220,6 +235,7 @@ async function isAchievementGranted(args: {
     depth: args.requiredSlug && !args.requiredId ? 1 : 0,
     limit: args.requiredId ? 1 : 50,
     overrideAccess: true,
+    req: args.req,
     where: { and: grantClauses },
   })
 
@@ -248,6 +264,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
           id: tierId,
           depth: 0,
           overrideAccess: true,
+          req,
         })) as { rank?: number } | null
         requiredRank = tier?.rank
       } else {
@@ -259,6 +276,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
           depth: 0,
           limit: 1,
           overrideAccess: true,
+          req,
           where: scopeId
             ? { and: [{ slug: { equals: tierSlug } }, { scope: { equals: scopeId } }] }
             : { slug: { equals: tierSlug } },
@@ -285,10 +303,11 @@ export const builtInRuleTypes: AchievementRuleType[] = [
   },
   {
     type: 'achievement-complete',
-    async evaluate({ payload, rule, userId, scopeId }) {
-      const ref = await resolveAchievementRef({ payload, rule, scopeId })
+    async evaluate({ payload, req, rule, userId, scopeId }) {
+      const ref = await resolveAchievementRef({ payload, req, rule, scopeId })
       return isAchievementGranted({
         payload,
+        req,
         userId,
         scopeId,
         requiredId: ref.id,
@@ -297,11 +316,12 @@ export const builtInRuleTypes: AchievementRuleType[] = [
     },
     async progress(args) {
       const { payload, req, rule, userId, scopeId, ladderRank, progressVisited } = args
-      const ref = await resolveAchievementRef({ payload, rule, scopeId })
+      const ref = await resolveAchievementRef({ payload, req, rule, scopeId })
       if (!ref.id && !ref.slug) return 0
 
       const granted = await isAchievementGranted({
         payload,
+        req,
         userId,
         scopeId,
         requiredId: ref.id,
@@ -334,7 +354,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
   {
     type: 'metric-minimum',
     async evaluate({ payload, req, rule, userId, scopeId }) {
-      const resolvedId = await resolveMetricId({ payload, rule })
+      const resolvedId = await resolveMetricId({ payload, req, rule })
       if (!resolvedId) return false
       const minimum = Number(rule.minimum ?? 0)
       const value = await resolveMetricValue({
@@ -347,7 +367,7 @@ export const builtInRuleTypes: AchievementRuleType[] = [
       return value >= minimum
     },
     async progress({ payload, req, rule, userId, scopeId }) {
-      const resolvedId = await resolveMetricId({ payload, rule })
+      const resolvedId = await resolveMetricId({ payload, req, rule })
       if (!resolvedId) return 0
       const minimum = Number(rule.minimum ?? 0)
       if (!(minimum > 0)) return 1
@@ -363,15 +383,15 @@ export const builtInRuleTypes: AchievementRuleType[] = [
   },
   {
     type: 'event-count',
-    async evaluate({ payload, rule, userId, scopeId }) {
+    async evaluate({ payload, req, rule, userId, scopeId }) {
       const needed = Number(rule.count ?? 1)
-      const total = await countMatchingEventLogs({ payload, rule, userId, scopeId })
+      const total = await countMatchingEventLogs({ payload, req, rule, userId, scopeId })
       return total >= needed
     },
-    async progress({ payload, rule, userId, scopeId }) {
+    async progress({ payload, req, rule, userId, scopeId }) {
       const needed = Number(rule.count ?? 1)
       if (!(needed > 0)) return 1
-      const total = await countMatchingEventLogs({ payload, rule, userId, scopeId })
+      const total = await countMatchingEventLogs({ payload, req, rule, userId, scopeId })
       return clamp01(total / needed)
     },
   },
