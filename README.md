@@ -1,16 +1,16 @@
 # `@dappermountain/payload-plugin-achievements`
 
-Achievements, ranks, points, and an activity log for Payload CMS — all configured in Admin.
+Achievements, tiers, points, and an activity log for Payload CMS — all configured in Admin.
 
-You describe what people can earn and what has to happen first. Your app records those happenings. The plugin derives the current rank and progress from that history, so the ladder stays in step with real activity.
+You describe what people can earn and what has to happen first. Your app records those happenings. The plugin derives the current tier and progress from that history, so the ladder stays in step with real activity.
 
 ## What you get
 
 - **A catalog in Admin.** Achievements, tiers, metrics, event types, and reactions. Editors change rules there.
 - **Composable rules.** Nested all-of / any-of trees, plus your own leaf types.
-- **Derived ranks.** Current tier and next-tier fill come from the same unlock rules.
+- **Derived tiers.** Current tier and next-tier fill come from the same unlock rules.
 - **Request and review.** Members can ask for an achievement; reviewers approve or reject. Composed achievements can grant themselves when their completion rules pass.
-- **An activity log.** Grants, score changes, rank moves, and your own event kinds.
+- **An activity log.** Grants, score changes, tier moves, and your own event kinds.
 - **Optional multi-tenant scope.** Point `scope` at your tenants / workspaces / orgs collection.
 - **Host hooks.** Prefixable slugs, collection overrides, a review policy you inject, and server helpers for trusted code.
 
@@ -63,7 +63,7 @@ Think of four layers:
 
 1. **Catalog** — named things in Admin (event types, metrics, tiers, achievements, reactions).
 2. **Log** — what happened. Your hooks call `recordLog` / `recordMetricChange`. Grant and revoke write their own rows.
-3. **Grants** — what someone has earned. One row per user (+ scope). Creating or deleting a grant updates the log and re-checks composed achievements and ranks.
+3. **Grants** — what someone has earned. One row per user (+ scope). Creating or deleting a grant updates the log and re-checks composed achievements and tiers.
 4. **Reactions** — set-based side effects when a host event is logged or an achievement is granted/revoked.
 
 Writing a host or metric log also re-checks composed achievements and derived tiers. Grant and revoke logs skip that path because the Grants hooks already ran it.
@@ -81,7 +81,7 @@ Slugs use the prefix `achievement-` so they sit beside your own collections. Ove
 | `achievements` | `achievement-definitions` | Earnable items with eligibility and completion rules. |
 | `grants` | `achievement-grants` | One earned achievement per user (+ scope). |
 | `achievementRequests` | `achievement-requests` | Request → pending / approved / rejected. |
-| `tierRequests` | `achievement-tier-requests` | Rank unlock waiting on review (`requiresReview` on the tier). |
+| `tierRequests` | `achievement-tier-requests` | Tier unlock waiting on review (`requiresReview` on the tier). |
 | `logs` | `achievement-logs` | Activity history. |
 | `reactions` | `achievement-reactions` | Side effects when something is logged or granted. |
 
@@ -98,11 +98,11 @@ Flags on the type decide which log fields Admin asks for:
 | Requires an actor | `actor` — who caused it (a peer, an admin, …) |
 | Adjusts a metric | `metric` + `change` |
 | Requires a subject | `subject` — the host document (a post, a comment, a user, …) |
-| Snapshot actor tiers | stamps the actor’s derived rank at write time |
+| Snapshot actor tiers | stamps the actor’s derived tier at write time |
 
-**Actor tier** on an `event-count` rule then counts only logs whose snapshot already met that rank in this scope. Leave Actor tier blank to count every matching event. A filter only matches logs that were stamped.
+**Actor tier** on an `event-count` rule then counts only logs whose snapshot already met that tier in this scope. Leave Actor tier blank to count every matching event. A filter only matches logs that were stamped.
 
-Unscoped logs stamp every ladder. Scoped logs stamp that tenant plus any unscoped ranks.
+Unscoped logs stamp every ladder. Scoped logs stamp that tenant plus any unscoped tiers.
 
 ## Subjects
 
@@ -161,7 +161,7 @@ Unlock (tiers), eligibility, and completion (achievements) share one tree:
 
 **Eligibility** gates who may request an achievement. **Completion** describes what a composed achievement is made of. When `requiresReview` is off and completion passes, the parent grants itself. Nested achievement graphs skip cycles.
 
-**Current tier** walks ranks in order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
+**Current tier** walks the ladder in `rank` order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
 
 **Next-tier fill** (`resolveTierProgress` / `evaluateRuleProgress`):
 
@@ -380,7 +380,7 @@ achievementPlugin({
 | Option | Default | Notes |
 | --- | --- | --- |
 | `me` | `'/achievements/me'` | Signed-in user’s grants, derived tiers, lean requests. `?reviews=1` adds a review snapshot. Always the caller’s own snapshot. `false` skips it. |
-| `leaderboard` | `'/achievements/leaderboard'` | Stored-metric ranks. `false` skips it. |
+| `leaderboard` | `'/achievements/leaderboard'` | Stored-metric leaderboard. `false` skips it. |
 | `reconcile` | `'/achievements/reconcile'` | Reviewer repair endpoint. `false` skips it. |
 
 `me` query: `scope`, `limit`, `page`, `requestsLimit`, `reviews`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
