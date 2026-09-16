@@ -3,19 +3,48 @@ export const DEFAULT_USERS_COLLECTION = 'users';
 export const DEFAULT_ME_ENDPOINT_PATH = '/achievements/me';
 export const DEFAULT_LEADERBOARD_ENDPOINT_PATH = '/achievements/leaderboard';
 export const DEFAULT_RECONCILE_ENDPOINT_PATH = '/achievements/reconcile';
-/** Unique, non-empty collection slugs from plugin `subjects.collections`. */
-export function resolveSubjectCollections(options) {
-    const raw = options?.subjects?.collections ?? [];
+function uniqueSlugs(values) {
     const seen = new Set();
     const out = [];
-    for (const slug of raw) {
-        const trimmed = typeof slug === 'string' ? slug.trim() : '';
+    for (const value of values) {
+        const trimmed = value.trim();
         if (!trimmed || seen.has(trimmed))
             continue;
         seen.add(trimmed);
         out.push(trimmed);
     }
     return out;
+}
+function isExcludedSubjectSlug(slug, pluginSlugs) {
+    return pluginSlugs.has(slug) || slug.startsWith('payload-');
+}
+/**
+ * Unique, non-empty collection slugs from plugin `subjects.collections`.
+ * `'all'` is a plugin-wrap sentinel — returns `[]` until {@link resolveSubjectCollectionsFromConfig}.
+ */
+export function resolveSubjectCollections(options) {
+    const raw = options?.subjects?.collections;
+    if (raw == null || raw === 'all')
+        return [];
+    return uniqueSlugs(raw);
+}
+/**
+ * Resolve log subject allowlist against the host Payload config.
+ * `'all'` = host collections except this plugin’s slugs and anything prefixed `payload-`.
+ */
+export function resolveSubjectCollectionsFromConfig(options, config) {
+    const raw = options?.subjects?.collections;
+    if (raw !== 'all')
+        return resolveSubjectCollections(options);
+    const pluginSlugs = new Set(Object.values(resolveCollectionSlugs(options)));
+    const fromHost = [];
+    for (const collection of config.collections ?? []) {
+        const slug = typeof collection.slug === 'string' ? collection.slug.trim() : '';
+        if (!slug || isExcludedSubjectSlug(slug, pluginSlugs))
+            continue;
+        fromHost.push(slug);
+    }
+    return uniqueSlugs(fromHost);
 }
 function normalizeEndpointPath(path, fallback) {
     const trimmed = path.trim();

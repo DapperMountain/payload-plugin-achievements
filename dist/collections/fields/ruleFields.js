@@ -1,5 +1,7 @@
+import { getHostRuleTypeAdminEntries } from '../../extensions/registry.js';
 import { catalogFilterOptions } from './catalogFilter.js';
 import { collectionOf } from '../helpers.js';
+import { whenSiblingEquals } from './whenSibling.js';
 function combinatorField(visibleWhenGroup) {
     return {
         name: 'combinator',
@@ -15,6 +17,21 @@ function combinatorField(visibleWhenGroup) {
             : {}),
     };
 }
+function hostRuleTypeOptions() {
+    return getHostRuleTypeAdminEntries().map((rule) => ({
+        label: rule.label ?? rule.type,
+        value: rule.type,
+    }));
+}
+function hostRuleParamFields() {
+    const fields = [];
+    for (const rule of getHostRuleTypeAdminEntries()) {
+        for (const field of rule.fields ?? []) {
+            fields.push(whenSiblingEquals(field, 'type', rule.type));
+        }
+    }
+    return fields;
+}
 function ruleTypeSelect(includeGroup) {
     return {
         name: 'type',
@@ -25,6 +42,7 @@ function ruleTypeSelect(includeGroup) {
             { label: 'Achievement complete', value: 'achievement-complete' },
             { label: 'Metric minimum', value: 'metric-minimum' },
             { label: 'Event count', value: 'event-count' },
+            ...hostRuleTypeOptions(),
             ...(includeGroup ? [{ label: 'Group', value: 'group' }] : []),
         ],
     };
@@ -97,6 +115,7 @@ function ruleParamFields() {
                 description: 'Only count events whose actor held at least this tier in this scope when the event was written. Requires the event type to snapshot actor tiers. Leave empty to count every matching event.',
             },
         },
+        ...hostRuleParamFields(),
     ];
 }
 function buildRuleLeafFields() {

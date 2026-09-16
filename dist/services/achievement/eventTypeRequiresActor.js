@@ -7,6 +7,7 @@ const emptyFlags = {
     requiresSubject: false,
     snapshotActorTiers: false,
     subjectRelationTo: [],
+    slug: null,
 };
 function readSubjectRelationTo(value) {
     if (!Array.isArray(value))
@@ -37,6 +38,7 @@ export function readEventTypeFlags(doc) {
         requiresSubject: Boolean(row.requiresSubject),
         snapshotActorTiers: Boolean(row.snapshotActorTiers),
         subjectRelationTo: readSubjectRelationTo(row.subjectRelationTo),
+        slug: typeof row.slug === 'string' && row.slug ? row.slug : null,
     };
 }
 function flagsFromDoc(doc) {

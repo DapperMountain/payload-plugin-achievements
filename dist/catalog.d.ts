@@ -22,4 +22,7 @@ export type EngineMetricSlug = (typeof ENGINE_METRICS)[number]['slug'];
 export declare const DEFAULT_ACHIEVEMENT_METRIC_SLUG: EngineMetricSlug;
 /** @deprecated Use {@link DEFAULT_ACHIEVEMENT_METRIC_SLUG}. */
 export declare const DEFAULT_ACHIEVEMENT_METRIC: "points";
+/** Grant/revoke audit logs — progression already runs from Grants hooks. */
+export declare const GRANT_AUDIT_EVENT_SLUGS: ReadonlySet<string>;
+export declare function isGrantAuditEventSlug(slug: string | null | undefined): boolean;
 //# sourceMappingURL=catalog.d.ts.map

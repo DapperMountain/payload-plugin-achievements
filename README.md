@@ -1,171 +1,307 @@
 # `@dappermountain/payload-plugin-achievements`
 
-A Payload CMS plugin for a **rule-based achievements and ranking system** — tiers, badges, points, grants, review workflows, and an append-only activity log — configured in Admin.
+Achievements, ranks, points, and an activity log for Payload CMS — all configured in Admin.
 
-Most gamification features end up as one-off collections and scattered hooks. This plugin gives you a reusable engine: define *what* can be earned and *how* it unlocks in Payload Admin, then record events from your application code. Current tier and progress are **derived** from rules and history, so you don’t maintain a separate progress table that drifts out of sync.
+You describe what people can earn and what has to happen first. Your app records those happenings. The plugin derives the current rank and progress from that history, so the ladder stays in step with real activity.
 
-## Why this plugin
+## What you get
 
-- **Admin-owned catalog** — Admins create achievements, tiers, metrics, and event types in Payload without a deploy.
-- **Composable rules** — Nested AND/OR trees with built-in leaf types (`tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`) plus host-defined rule types.
-- **Derived progress** — Ladder position and next-tier fill come from evaluating the same rules that unlock ranks. No fragile “progress” documents to keep in sync.
-- **Request → review → grant** — Users can request achievements; reviewers approve or reject; composed achievements can auto-grant when completion rules pass.
-- **Append-only history** — Logs capture grants, metric deltas, tier changes, and custom event kinds for audits and analytics.
-- **Multi-tenant ready** — Optional `scope` (tenant / workspace / org) on catalog rows and user progress.
-- **Host-friendly** — Prefixable collection slugs, Form Builder–style overrides, injectable review policy, and server helpers for recording events from hooks and jobs.
+- **A catalog in Admin.** Achievements, tiers, metrics, event types, and reactions. Editors change rules there.
+- **Composable rules.** Nested all-of / any-of trees, plus your own leaf types.
+- **Derived ranks.** Current tier and next-tier fill come from the same unlock rules.
+- **Request and review.** Members can ask for an achievement; reviewers approve or reject. Composed achievements can grant themselves when their completion rules pass.
+- **An activity log.** Grants, score changes, rank moves, and your own event kinds.
+- **Optional multi-tenant scope.** Point `scope` at your tenants / workspaces / orgs collection.
+- **Host hooks.** Prefixable slugs, collection overrides, a review policy you inject, and server helpers for trusted code.
 
 ## Requirements
 
 - Payload `^3.89`
 - `@payloadcms/ui` `^3.89`
 - `@payloadcms/richtext-lexical` `^3.89`
+- `lucide-react` `^0.543`
 - React `^19`
 
 ## Install
-
-Preferred package manager: **Bun**.
 
 ```bash
 bun add @dappermountain/payload-plugin-achievements
 ```
 
-Other clients also work (`npm install @dappermountain/payload-plugin-achievements`, etc.).
+`npm` and other clients work too. Next.js hosts should list the package in `transpilePackages` so the `'use client'` Admin fields compile.
 
-Next.js hosts should list the package in `transpilePackages` so `'use client'` admin components compile. Host imports stay on the package name; relative `.js` specifiers are internal to this package.
-
-## Quick start
+## Wire it up
 
 ```ts
 import { buildConfig } from 'payload'
 import { achievementPlugin } from '@dappermountain/payload-plugin-achievements'
 
 export default buildConfig({
-  // ...
   plugins: [
     achievementPlugin({
       usersCollectionSlug: 'users',
-      canReview: (user, scopeId) => {
-        // Return true when this user may edit catalogs and approve requests
-        // for the given scope (or null for unscoped / global).
-        return Boolean(user?.roles?.includes('admin'))
-      },
-      // Optional: scope catalog + progress to a tenant collection
+      canReview: (user, scopeId) => Boolean(user?.roles?.includes('admin')),
       // scope: { collection: 'tenants', relationField: 'scope' },
     }),
   ],
 })
 ```
 
-After installing, regenerate the Admin import map so conditional log fields resolve:
+`canReview` is how staff get to edit catalogs and approve requests. It receives the user and a scope id (`null` when the row is global).
 
-```bash
-payload generate:importmap
-```
+Then:
 
-Your app still owns schema and migrations — run `payload migrate` (or your usual migrate flow) as you would for any new collections.
+1. `payload generate:importmap` — Admin fields for logs, subjects, and Lucide icons.
+2. Migrate (or push) schema. The plugin adds collections; your app still owns the migrate runner.
+3. Restart so Payload can seed the system catalog on `onInit` (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`). Set `seedSystemCatalog: false` if you want to call `seedAchievementCatalog` yourself.
 
-Seed the built-in engine catalog (points metric + system event types) once:
+Your product catalog — extra event types, metrics, tiers, achievements — is `seedAchievements`.
 
-```ts
-import { seedAchievementCatalog } from '@dappermountain/payload-plugin-achievements'
+## How the pieces fit
 
-await seedAchievementCatalog(payload)
-```
+Think of four layers:
 
-## What you get
+1. **Catalog** — named things in Admin (event types, metrics, tiers, achievements, reactions).
+2. **Log** — what happened. Your hooks call `recordLog` / `recordMetricChange`. Grant and revoke write their own rows.
+3. **Grants** — what someone has earned. One row per user (+ scope). Creating or deleting a grant updates the log and re-checks composed achievements and ranks.
+4. **Reactions** — set-based side effects when a host event is logged or an achievement is granted/revoked.
 
-### Collections
+Writing a host or metric log also re-checks composed achievements and derived tiers. Grant and revoke logs skip that path because the Grants hooks already ran it.
 
-Slugs are prefixed with `achievement-` by default so they don’t collide with your own collections.
+## Collections
+
+Slugs use the prefix `achievement-` so they sit beside your own collections. Override with `collections.prefix` or per-key `collections.slugs`.
 
 | Config key | Default slug | Purpose |
 | --- | --- | --- |
-| `metrics` | `achievement-metrics` | Named numbers: **stored** (score totals) or **computed** (e.g. elapsed days). |
-| `metricBalances` | `achievement-metric-balances` | Projection of stored metric totals per user (+ scope) for fast reads / leaderboards. |
+| `metrics` | `achievement-metrics` | Named numbers: **stored** totals or **computed** values (elapsed time). |
+| `metricBalances` | `achievement-metric-balances` | Running totals for stored metrics, per user (+ scope). Leaderboards read this. |
 | `eventTypes` | `achievement-event-types` | Kinds of log entries you can count or require. |
-| `tiers` | `achievement-tiers` | Ordered ladder steps with unlock rules. |
-| `achievements` | `achievement-definitions` | Things a user can earn (with eligibility / completion rules). |
-| `grants` | `achievement-grants` | One row per earned achievement per user (+ scope). |
+| `tiers` | `achievement-tiers` | Ladder steps with unlock rules. |
+| `achievements` | `achievement-definitions` | Earnable items with eligibility and completion rules. |
+| `grants` | `achievement-grants` | One earned achievement per user (+ scope). |
 | `achievementRequests` | `achievement-requests` | Request → pending / approved / rejected. |
-| `tierRequests` | `achievement-tier-requests` | Tier unlock awaiting review (when the tier has `requiresReview`). |
-| `logs` | `achievement-logs` | Member activity history (grants, revokes, tier moves, metrics, custom events). |
+| `tierRequests` | `achievement-tier-requests` | Rank unlock waiting on review (`requiresReview` on the tier). |
+| `logs` | `achievement-logs` | Activity history. |
+| `reactions` | `achievement-reactions` | Side effects when something is logged or granted. |
 
-**System catalog rows** (seeded by `seedAchievementCatalog`) are protected from deletion and slug changes:
+System rows (`points` and the four engine event types) are protected. The plugin locks their slugs and blocks deletes.
 
-| Slug | Role |
+## Event types
+
+Each log row points at an event type. Dotted slugs read well: `post.published`, `comment.created`, `course.completed`, `post.edited`.
+
+Flags on the type decide which log fields Admin asks for:
+
+| Flag | Log field |
 | --- | --- |
-| `points` | Default metric |
-| `metric.delta` | Metric change log type (requires metric + change amount) |
-| `achievement.granted` | Written when a grant is created |
-| `achievement.revoked` | Written when a grant is deleted |
-| `tier.changed` | Written when derived tier moves (including demotions when a tier request leaves `approved`) |
+| Requires an actor | `actor` — who caused it (a peer, an admin, …) |
+| Adjusts a metric | `metric` + `change` |
+| Requires a subject | `subject` — the host document (a post, a comment, a user, …) |
+| Snapshot actor tiers | stamps the actor’s derived rank at write time |
 
-Event types can require an **actor** and/or a **metric + change**. Admin only prompts for those fields when the type needs them. Optional **Snapshot actor tiers** stores the actor’s derived ladder rank on the log at write time (`resolveCurrentTier` only — no grants or tier requests). Unscoped logs stamp every ladder scope; scoped logs stamp that tenant plus any unscoped ranks. Use that with Event count → **Actor tier** to count only events whose actor held at least that step in the rule’s scope when the event was written. Leave Actor tier empty to count every matching event. Logs without a snapshot (legacy rows, or types that do not stamp) do not match an Actor tier filter.
+**Actor tier** on an `event-count` rule then counts only logs whose snapshot already met that rank in this scope. Leave Actor tier blank to count every matching event. A filter only matches logs that were stamped.
 
-### Rules engine
+Unscoped logs stamp every ladder. Scoped logs stamp that tenant plus any unscoped ranks.
 
-Unlock (tiers), eligibility, and completion (achievements) share the same rule tree shape:
+## Subjects
 
-- Top-level empty list → everyone passes
-- Nested groups → AND (“all of these”) or OR (“any of these”)
-- Built-in leaves → `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`
-- Custom leaves → register via `extensions.ruleTypes`
+Logs can link to a host document the same way they link to an actor.
 
-**Current tier** is computed by walking tiers in `rank` order and evaluating each tier’s unlock rules (`resolveCurrentTier`). Tiers with **`requiresReview`** only become current after an **approved tier request**. Turning **`requiresReview` off** approves pending tier requests and writes missing `tier.changed` logs for members who already meet unlock rules (including those who never had a pending request). **Next-tier fill** uses fractional progress on the same trees (`resolveTierProgress` / `evaluateRuleProgress`):
+```ts
+achievementPlugin({
+  canReview,
+  subjects: {
+    collections: ['posts', 'comments', 'users'],
+  },
+})
+```
 
-| Combinator / leaf | Progress behavior |
+That turns on:
+
+- **Requires a subject** and **Subject collections** on event types
+- a polymorphic **Subject** field on logs
+- `recordLog({ subject: logSubject('posts', postId) })`
+
+`collections: 'all'` includes every collection on your Payload config except this plugin’s slugs and anything prefixed `payload-`. It is optional. The picker and generated types grow with your schema, and collections you add later show up after a restart.
+
+Example — “this member enrolled”, scoped to a tenant, subject = the user:
+
+```ts
+await recordLog({
+  payload,
+  req,
+  userId: memberId,
+  scopeId: tenantId,
+  type: 'user.enrolled',
+  subject: logSubject('users', memberId),
+})
+```
+
+Same shape as `post.published` with `subject: logSubject('posts', postId)`.
+
+Put host document links on `subject`. Engine grant/revoke/tier rows use a small `{ from, to }` envelope in `data`:
+
+| type | `from` | `to` |
+| --- | --- | --- |
+| `tier.changed` | previous tier (`null` on first climb) | current tier |
+| `achievement.granted` | `null` | achievement |
+| `achievement.revoked` | achievement | `null` |
+
+## Rules
+
+Unlock (tiers), eligibility, and completion (achievements) share one tree:
+
+- Empty top-level list — everyone passes
+- Groups — **All of these** (AND) or **Any of these** (OR)
+- Built-in leaves — `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count`
+- Your leaves — `extensions.ruleTypes` (`type`, `evaluate`, optional `progress`, `progressRole`, `label`, `fields`)
+
+`label` and `fields` show up in the Admin rule editor. The plugin only displays those fields when that leaf type is selected.
+
+**Eligibility** gates who may request an achievement. **Completion** describes what a composed achievement is made of. When `requiresReview` is off and completion passes, the parent grants itself. Nested achievement graphs skip cycles.
+
+**Current tier** walks ranks in order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
+
+**Next-tier fill** (`resolveTierProgress` / `evaluateRuleProgress`):
+
+| Combinator / leaf | Progress |
 | --- | --- |
 | AND | Equal average of *requirement* children |
-| OR | Best child (max) |
+| OR | Best child |
 | `tier-at-least` | Gate — skipped in AND averages |
-| `event-count` / `metric-minimum` | Fraction of the target. `event-count` may set **Actor tier** (at-least, this scope) against the log’s actor-tier snapshot |
-| `achievement-complete` | `1` if granted; otherwise rolls up that achievement’s completion (or eligibility) rules |
+| `event-count` / `metric-minimum` | Fraction of the target |
+| `achievement-complete` | `1` if granted; otherwise that achievement’s own completion (or eligibility) tree |
 
-**Computed elapsed metrics** — `kind: computed` + `compute: elapsed` + `unit` (`seconds` | `minutes` | `hours` | `days` | `years`) + `since` (built-in `user-created-at` / `first-event`, or a host `metricAnchors` key). Gate tenure with `metric-minimum` against that metric. Years use a fixed 365-day length. System seed only creates stored `points` — product computed metrics (e.g. `days`) are host-seeded after registering anchors.
+`buildUnlockRequirementLeaves` walks a tree and returns met/progress plus catalog subjects (`relations`, `target`, `unit`, `since`). Your UI supplies the copy. `achievement-complete` is omitted by default so those stay on catalog groups. `eachRuleLeaf` is the walker on its own.
 
-**Stored metrics** — totals live in `achievement-metric-balances`, updated by `recordMetricChange` (log + balance dual-write). Logs remain the audit/rebuild source; reconcile backfills balances.
+## Metrics
 
-**Leaderboards** — `getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points` ranks **stored** metric balances (authenticated, optional `scope`). Computed/elapsed metrics (e.g. tenure days) have no balance rows and are rejected — resolve a single user with `resolveMetricValue`, or materialize snapshots if you need a ranked computed board. Disable with `endpoints.leaderboard: false`. Hosts compose member directories (names, current tier, earned counts, who may appear) themselves; the plugin returns `{ user, value, rank }` only.
+**Stored** metrics (default `points`) are sums of `change` on `metric.delta` logs. `recordMetricChange` writes the log and updates `achievement-metric-balances` together. Reconcile rebuilds balances from the log if they drift.
 
-**Unlock checklist** — `buildUnlockRequirementLeaves` walks a rule tree (including Payload leaves that carry empty `rules: []`), evaluates met/progress per leaf, and returns catalog subjects (`relations`, `target`, `unit`, `since`). It does **not** build UI copy — hosts format labels. `achievement-complete` is omitted by default so those stay on catalog groups. `eachRuleLeaf` is also exported if you need the walker alone.
+**Computed** metrics (v1: elapsed time) are derived at evaluation:
 
-**Review snapshot** — `getUserProgress({ include: { reviews: true } })` or `loadUserProgressReviews` adds pending achievement keys and open/rejected tier requests so hosts do not re-query the engine for badge state.
+- `kind: 'computed'`, `compute: 'elapsed'`
+- `unit`: seconds, minutes, hours, days, years (365-day years)
+- `since`: `user-created-at`, `first-event` (plus an event type), or a key from `extensions.metricAnchors`
 
-**System catalog** — by default the plugin runs `seedAchievementCatalog` on Payload `onInit` (opt out with `seedSystemCatalog: false`). Hosts still seed product catalog + locales via `seedAchievements`.
+System seed creates stored `points`. You seed computed metrics after your anchors are registered.
 
-**Eligibility rules** gate who may request an achievement. **Completion rules** define what a composed achievement is made of. When `requiresReview` is false and completion rules pass, the parent can auto-grant. Cycles in nested achievement graphs are ignored.
+**Leaderboards** (`getMetricLeaderboard` / `GET /api/achievements/leaderboard?metric=points`) rank stored balances for authenticated users. Each row is `{ user, value, rank }`. Your UI adds names, current tier, and who may appear. For a single user’s computed value, call `resolveMetricValue`.
 
-### Access model
+## Reactions
 
-- **`canReview`** — Required for privileged writes (catalogs, grants, logs, approving requests). If omitted, those writes are denied.
-- User requests still go through normal collection access and eligibility hooks.
-- Server helpers (`recordLog`, `recordMetricChange`, `grantAchievement`, `resolveCurrentTier`, …) run with `overrideAccess: true`. Call them only from trusted server code (hooks, jobs, locked-down endpoints).
+A reaction is: **when this happens, run this command**.
 
-### Localization
+Triggers:
 
-When your Payload config enables **`localization`**, catalog display fields are already `localized: true`:
+- **Event logged** — a host event type (for example `course.completed`)
+- **Achievement granted** / **revoked** — a specific achievement
 
-| Collection | Localized | Not localized |
+Built-in action: **Grant achievement** (no-op if they already have it).
+
+Your actions go in `extensions.actions`. Each one needs a `type` (a command slug like `accessGroup.addMember`), optional `label` / `fields` for Admin, and a `run` function. `run` should be set-based: adding someone who is already a member is a no-op. Reactions run in the same request as the log or grant. Start a job from `run` if the work belongs on a queue.
+
+Grant/revoke reactions fire from the grant row. Point event reactions at your host event types (`post.published`, `course.completed`, …).
+
+## Custom rules, anchors, and actions
+
+```ts
+achievementPlugin({
+  canReview,
+  extensions: {
+    metricAnchors: {
+      'membership-started': {
+        label: ({ t }) => t('custom:achievements:anchors:membershipStarted'),
+        resolve: async ({ payload, userId, scopeId }) => {
+          if (!scopeId) return null
+          const found = await payload.find({
+            collection: 'memberships',
+            limit: 1,
+            overrideAccess: true,
+            where: {
+              and: [
+                { user: { equals: userId } },
+                { workspace: { equals: scopeId } },
+              ],
+            },
+          })
+          const startedAt = (found.docs[0] as { startedAt?: string } | undefined)?.startedAt
+          return startedAt ? new Date(startedAt) : null
+        },
+      },
+    },
+    ruleTypes: [
+      {
+        type: 'host.course-complete',
+        label: 'Course complete',
+        fields: [
+          { name: 'course', type: 'relationship', relationTo: 'courses', required: true },
+        ],
+        evaluate: async ({ rule, userId, payload, req }) => {
+          // return true when this user has completed rule.course
+          return true
+        },
+      },
+    ],
+    actions: [
+      {
+        type: 'accessGroup.addMember',
+        label: 'Add to access group',
+        fields: [
+          {
+            name: 'accessGroup',
+            type: 'relationship',
+            relationTo: 'access-groups',
+            required: true,
+          },
+        ],
+        run: async ({ userId, reaction, req }) => {
+          // merge the user into the group; already-a-member is a no-op
+        },
+      },
+    ],
+  },
+})
+```
+
+Anchor `label` is a Payload Admin string (`OptionLabel`): plain text, `{ en, es }`, or `({ t }) => t('custom:…')`. Your app owns those `custom:` keys.
+
+Then seed a computed metric (`since: 'membership-started'`) and use `metric-minimum` in rules.
+
+## Access
+
+- Catalog, grants, logs, reactions, and request approval use `canReview(user, scopeId)`.
+- Metric balances: reviewers can read and delete; trusted helpers write them.
+- Member-facing requests use normal collection access plus eligibility hooks.
+- Server helpers (`recordLog`, `recordMetricChange`, `grantAchievement`, …) run with `overrideAccess: true`. Call them from hooks, jobs, and locked-down endpoints. Pass `req` so nested Local API stays in the same transaction.
+
+## Localization
+
+With Payload `localization` enabled, these catalog fields are already `localized: true`:
+
+| Collection | Localized | Other |
 | --- | --- | --- |
-| Achievements / tiers | `name` (text), `description` (**Lexical** rich text) | `slug`, rules, flags |
-| Metrics / event types | `name` | `slug`, system flags |
+| Achievements / tiers | `name` (text), `description` (Lexical) | `slug`, rules, flags |
+| Metrics / event types | `name` | `slug`, flags |
 
-Tier `icon` is a searchable Lucide picker in Admin (stores the kebab-case name, e.g. `sparkles`). Hosts must peer-depend on `@payloadcms/richtext-lexical` and `lucide-react` (same major as Payload). After upgrading, run `payload generate:importmap` and push/migrate schema so `description` columns accept JSON.
+Tier `icon` is a Lucide picker (stores `sparkles`, `shield`, …). Peer-depend on `@payloadcms/richtext-lexical` and `lucide-react`. After upgrading, regenerate the import map and migrate so `description` columns accept JSON.
 
-Progress / `GET /api/achievements/me` pass through catalog `description` as **Lexical** (same as the collection document). Convert to HTML/plaintext in the UI with `@payloadcms/richtext-lexical` helpers (`convertLexicalToHTML`, `convertLexicalToPlaintext`) — the plugin also exports `descriptionToPlaintext` / `plainTextToLexical` for hosts.
+`GET /api/achievements/me` and progress helpers return Lexical `description` as stored. Convert in your UI (`convertLexicalToHTML`, `convertLexicalToPlaintext`, or the plugin’s `descriptionToPlaintext` / `plainTextToLexical`).
 
-UI chrome and validation messages ship in English. Application UI copy stays in your app’s i18n layer — the plugin does not inject host translation dictionaries. Seed extra locales yourself after the English system catalog is in place.
+Admin chrome ships in English. Member-facing copy lives in your i18n bundle. Seed extra locales after the English system catalog exists.
 
-## Configuration reference
+## Configuration
 
 ```ts
 achievementPlugin({
   enabled?: boolean
+  seedSystemCatalog?: boolean
   usersCollectionSlug?: string
   canReview?: (user, scopeId) => boolean | Promise<boolean>
   scope?: { collection: string; relationField?: string }
   mediaCollection?: string
-  slugPrefix?: string // deprecated — prefer collections.prefix
+  slugPrefix?: string // deprecated; use collections.prefix
   collections?: {
     prefix?: string
     adminGroup?: string | false
@@ -174,35 +310,37 @@ achievementPlugin({
   }
   users?: { includeJoins?: boolean }
   endpoints?: { me?: string | false; leaderboard?: string | false; reconcile?: string | false }
+  subjects?: { collections?: 'all' | string[] }
   extensions?: {
     ruleTypes?: AchievementRuleType[]
-    metricAnchors?: Record<string, AchievementMetricAnchor>
+    metricAnchors?: Record<string, AchievementMetricAnchorEntry>
+    actions?: AchievementAction[]
   }
 })
 ```
 
-### Core options
+### Core
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `enabled` | `true` | Set `false` to leave the plugin installed but inactive (no collections / endpoints merged). |
-| `seedSystemCatalog` | `true` | On `onInit`, upsert system metrics + event types (`points`, `metric.delta`, …). |
-| `usersCollectionSlug` | `'users'` | Users collection the plugin relates to (grants, requests, joins). |
-| `canReview` | _(denied)_ | **Important.** Without this, users cannot manage catalogs or approve requests. Receives `(user, scopeId)` where `scopeId` may be `null`. |
-| `scope` | _(none)_ | Multi-tenant hook-up. `collection` is the relation target (e.g. `'tenants'`). `relationField` defaults to `'scope'`. Adds an optional scope field across plugin collections. |
-| `mediaCollection` | _(none)_ | When set (e.g. `'media'`), tiers get an optional upload field for ladder badge images. Icon string keys still work without this. |
-| `extensions.metricAnchors` | _(none)_ | Named date resolvers for computed elapsed metrics. Prefer `{ label, resolve }` where `label` is a Payload Admin {@link OptionLabel} (string, `{ en, es }`, or `({ t }) => t('custom:…')`). Not CMS localization. |
+| `enabled` | `true` | `false` leaves the package installed with no collections or endpoints. |
+| `seedSystemCatalog` | `true` | Upserts system metrics and event types on `onInit`. |
+| `usersCollectionSlug` | `'users'` | Users collection for grants, requests, and joins. |
+| `canReview` | denied | Staff catalog and approval access. `scopeId` may be `null`. |
+| `scope` | unset | `collection` is the tenant target. `relationField` defaults to `'scope'`. |
+| `mediaCollection` | unset | e.g. `'media'` — optional upload on tiers for badge images. Icon keys still work. |
+| `extensions.metricAnchors` | unset | Named dates for elapsed metrics. |
+| `extensions.ruleTypes` | unset | Custom rule leaves; `label` / `fields` appear in Admin. |
+| `extensions.actions` | unset | Extra reaction commands. Built-in `achievement.grant` is always there. |
 
 ### `collections`
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `prefix` | `'achievement'` | Prefix for default slugs → REST paths and DB table names (`achievement-tiers`, …). |
-| `adminGroup` | `'Achievements'` | Admin sidebar group. Pass `false` to leave collections ungrouped. |
-| `slugs` | _(derived)_ | Absolute slug overrides per collection key (ignores `prefix` for that key). |
-| `overrides` | _(none)_ | Per-collection patches: `access`, `admin`, `hooks`, `labels`. Access keys replace; hook arrays **append after** plugin hooks; `admin` / `labels` merge shallowly. |
-
-Example override (notify after a grant is created via request approval):
+| `prefix` | `'achievement'` | Default slugs, REST paths, and table names. |
+| `adminGroup` | `'Achievements'` | Sidebar group. `false` leaves collections ungrouped. |
+| `slugs` | derived | Absolute slug per key (ignores `prefix` for that key). |
+| `overrides` | unset | `access`, `admin`, `hooks`, `labels`. Access keys replace; hook arrays append after plugin hooks; `admin` / `labels` merge shallowly. |
 
 ```ts
 achievementPlugin({
@@ -229,98 +367,27 @@ achievementPlugin({
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `includeJoins` | `true` | Injects an `achievements` group on the users collection with joins to grants and requests. Set `false` if you own that UI yourself. |
+| `includeJoins` | `true` | Adds an `achievements` group on users (`grants` / `requests` joins). `false` if you already own that UI. |
 
 ### `subjects`
 
-Host documents that logs may point at via a polymorphic `subject` field (same idea as `requiresActor` / `requiresMetric`).
-
 | Option | Default | Notes |
 | --- | --- | --- |
-| `collections` | `[]` | Allowlist of collection slugs (e.g. `posts`, `comments`). Empty / omit → subject feature is off (no log field, no event-type subject flags). |
-
-When configured:
-
-- Event types gain **Requires a subject** + optional **Subject collections** (`subjectRelationTo`).
-- Logs gain a polymorphic **Subject** relationship (Admin links to the host doc).
-- `recordLog({ subject: { relationTo, value } })` (or `logSubject(relationTo, value)`) writes the ref.
-- Prefer `subject` over stuffing ids into `data` JSON.
-
-```ts
-achievementPlugin({
-  canReview,
-  subjects: {
-    collections: ['posts', 'comments', 'endorsements'],
-  },
-})
-
-await seedAchievements(payload, {
-  eventTypes: [
-    {
-      name: 'Comment created',
-      slug: 'comment.created',
-      requiresSubject: true,
-      subjectRelationTo: ['comments'],
-    },
-  ],
-})
-
-await recordLog({
-  payload,
-  userId,
-  scopeId,
-  type: 'comment.created',
-  actorId: userId,
-  subject: logSubject('comments', commentId),
-})
-```
+| `collections` | `[]` | Host slugs for log `subject`, or `'all'`. Empty skips the feature. |
 
 ### `endpoints`
 
 | Option | Default | Notes |
 | --- | --- | --- |
-| `me` | `'/achievements/me'` | Registers `GET /api/achievements/me` for the signed-in user’s grants snapshot (+ derived tiers and lean requests). Pass `false` to skip. Having review access does **not** widen this endpoint to other users. Optional `?reviews=1` adds `reviews`. |
-| `leaderboard` | `'/achievements/leaderboard'` | Registers `GET /api/achievements/leaderboard?metric=<slug>` for authenticated users (**stored** metrics only). Pass `false` to skip. |
-| `reconcile` | `'/achievements/reconcile'` | Registers `POST /api/achievements/reconcile` for reviewers. Pass `false` to skip. |
+| `me` | `'/achievements/me'` | Signed-in user’s grants, derived tiers, lean requests. `?reviews=1` adds a review snapshot. Always the caller’s own snapshot. `false` skips it. |
+| `leaderboard` | `'/achievements/leaderboard'` | Stored-metric ranks. `false` skips it. |
+| `reconcile` | `'/achievements/reconcile'` | Reviewer repair endpoint. `false` skips it. |
 
-Query params (`me`): `scope`, `limit`, `page`, `requestsLimit`, `reviews`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
-
-### `extensions.ruleTypes` / `metricAnchors`
-
-Register custom rule evaluators and/or date anchors:
-
-```ts
-achievementPlugin({
-  canReview,
-  extensions: {
-    metricAnchors: {
-      'enrollment-started': {
-        // Admin UI i18n (Payload label / OptionLabel)
-        label: ({ t }) => t('custom:achievements:anchors:enrollmentStarted'),
-        resolve: async ({ payload, userId, scopeId }) => {
-          // return a Date from host data, or null
-          return null
-        },
-      },
-    },
-    ruleTypes: [
-      {
-        type: 'host.custom-check',
-        evaluate: async ({ rule, userId, payload, req }) => {
-          // return true when the rule passes
-          return true
-        },
-        // optional: progress: async () => 0.5,
-        // optional: progressRole: 'requirement' | 'gate',
-      },
-    ],
-  },
-})
-```
+`me` query: `scope`, `limit`, `page`, `requestsLimit`, `reviews`. Leaderboard: `metric` (required), `scope`, `limit`, `page`.
 
 ## Server helpers
 
-Use these from hooks, jobs, and trusted endpoints:
+Call these from hooks, jobs, and trusted endpoints:
 
 ```ts
 import {
@@ -341,71 +408,50 @@ import {
   logSubject,
 } from '@dappermountain/payload-plugin-achievements'
 
-await recordLog({ payload, userId, scopeId, type: 'host.custom-kind', actorId })
-await recordLog({
-  payload,
-  userId,
-  scopeId,
-  type: 'comment.created',
-  actorId: userId,
-  subject: logSubject('comments', commentId),
-})
-await recordMetricChange({ payload, userId, scopeId, metric: 'points', change: 10 })
-const points = await resolveMetricValue({ payload, userId, scopeId, metric: 'points' })
-const board = await getMetricLeaderboard({ payload, metric: 'points', scopeId, limit: 20 })
-const tier = await resolveCurrentTier({ payload, userId, scopeId })
-const progress = await getUserProgress({ payload, userId, scopeId, include: { reviews: true } })
+await recordLog({ payload, req, userId, scopeId, type: 'post.published', subject: logSubject('posts', postId) })
+await recordMetricChange({ payload, req, userId, scopeId, metric: 'points', change: 10 })
+const points = await resolveMetricValue({ payload, req, userId, scopeId, metric: 'points' })
+const board = await getMetricLeaderboard({ payload, req, metric: 'points', scopeId, limit: 20 })
+const tier = await resolveCurrentTier({ payload, req, userId, scopeId })
+const progress = await getUserProgress({ payload, req, userId, scopeId, include: { reviews: true } })
 const unlockLeaves = await buildUnlockRequirementLeaves({
   payload,
+  req,
   userId,
   scopeId,
   rules: nextTier.unlockRules,
   ladderRank: tier?.rank ?? null,
 })
 
-// Repair users whose grants predate side-effect hooks (idempotent)
-await reconcileProgression({ payload })
-
-// Optional filters (ids or slugs)
+await reconcileProgression({ payload, req })
 await reconcileProgression({
   payload,
+  req,
   userId: '…',
   scopeId: '…',
-  achievementSlug: 'path-complete',
+  achievementSlug: 'first-steps',
   tierSlug: 'veteran',
 })
 
-// Host CLI (only boot config in the app — flags live in the plugin):
-//   bun --env-file=.env ./scripts/reconcile-achievements.ts -- --user=<id> --achievement=path-complete
 import { runReconcileCli } from '@dappermountain/payload-plugin-achievements/cli'
 await runReconcileCli({ config })
 ```
 
-Pass catalog **slugs** (or ids) for `type` and `metric`. Metric totals are the sum of `change` on matching logs. Creating or deleting **grants** (Admin or API) writes `achievement.granted` / `achievement.revoked`, syncs composed achievements, and may open tier requests / write `tier.changed`.
+Pass catalog **slugs** or ids for `type` and `metric`. Creating or deleting a grant writes `achievement.granted` / `achievement.revoked`, syncs composed achievements, and may open tier requests or write `tier.changed`.
 
-Engine log `data` for those system events uses a shared transition envelope:
+Turning **Requires review** off on a definition or tier approves that row’s pending requests (each waiting user goes through the existing request hooks).
 
-```ts
-{ from: { id, slug? } | null, to: { id, slug? } | null }
-```
+The Grants list in Admin includes **Repair progression**, which `POST`s the reconcile endpoint (`canReview`).
 
-| type | `from` | `to` |
-| --- | --- | --- |
-| `tier.changed` | previous tier (null on first climb) | current tier |
-| `achievement.granted` | `null` | achievement |
-| `achievement.revoked` | achievement | `null` |
+Also exported: `collectionOf` / `slugOf` (resolved collection slugs), `syncProgressionFromLog`, `runReactions`.
 
-Host document links belong on polymorphic **`subject`** (when `subjects.collections` is set), not inside `data`.
+## REST
 
-Turning **Requires review** off on a definition or tier **approves pending requests** for that row only (each waiting user goes through the existing request hooks).
-
-**Admin:** Grants list includes **Repair progression**, which `POST`s the reconcile endpoint (requires `canReview`).
-
-## REST surface
+Paths follow your `collections.prefix` / `slugs`.
 
 | Goal | Request |
 | --- | --- |
-| Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` (`&reviews=1` for pending/rejected review keys) |
+| Current user snapshot | `GET /api/achievements/me?scope=<scopeId>&limit=10&page=1` (`&reviews=1` for review keys) |
 | Stored metric leaderboard | `GET /api/achievements/leaderboard?metric=points&scope=<scopeId>&limit=20&page=1` |
 | Repair progression | `POST /api/achievements/reconcile` (reviewer; optional `{ userId, scopeId, achievementId\|achievementSlug, tierId\|tierSlug, limit }`) |
 | List grants | `GET /api/achievement-grants?where[user][equals]=<userId>` |
@@ -413,9 +459,7 @@ Turning **Requires review** off on a definition or tier **approves pending reque
 | Request an achievement | `POST /api/achievement-requests` with `{ achievement }` |
 | Approve / reject achievement | `PATCH /api/achievement-requests/:id` with `{ status: "approved" \| "rejected" }` |
 | Approve / reject tier | `PATCH /api/achievement-tier-requests/:id` with `{ status: "approved" \| "rejected" }` |
-| Browse catalogs | `GET /api/achievement-event-types`, `GET /api/achievement-metrics`, … |
-
-Exact collection paths follow your `collections.prefix` / `slugs` settings.
+| Browse catalogs | `GET /api/achievement-event-types`, `GET /api/achievement-metrics`, `GET /api/achievement-reactions`, … |
 
 ## Seeding
 
@@ -425,26 +469,27 @@ import {
   seedAchievements,
 } from '@dappermountain/payload-plugin-achievements'
 
-await seedAchievementCatalog(payload) // system metrics + event types (English)
+await seedAchievementCatalog(payload)
 
 await seedAchievements(payload, {
   eventTypes: [
-    { name: 'Custom kind', slug: 'host.custom-kind', requiresActor: true },
+    { name: 'Post published', slug: 'post.published', requiresSubject: true, subjectRelationTo: ['posts'] },
+    { name: 'Comment created', slug: 'comment.created', requiresActor: true, requiresSubject: true, subjectRelationTo: ['comments'] },
+    { name: 'User enrolled', slug: 'user.enrolled', requiresSubject: true, subjectRelationTo: ['users'] },
+  ],
+  metrics: [
+    { name: 'Streak days', slug: 'streak-days' },
     {
-      name: 'Comment created',
-      slug: 'comment.created',
-      requiresSubject: true,
-      subjectRelationTo: ['comments'],
+      name: 'Days as member',
+      slug: 'days-as-member',
+      kind: 'computed',
+      compute: 'elapsed',
+      unit: 'days',
+      since: 'membership-started',
     },
   ],
-  metrics: [{ name: 'Streak days', slug: 'streak-days' }],
   tiers: [
-    {
-      name: 'Novice',
-      slug: 'novice',
-      rank: 0,
-      unlockRules: [], // open
-    },
+    { name: 'Novice', slug: 'novice', rank: 0, unlockRules: [] },
   ],
   achievements: [
     {
@@ -454,10 +499,11 @@ await seedAchievements(payload, {
       completionRules: [{ type: 'metric-minimum', metricSlug: 'points', minimum: 10 }],
     },
   ],
+  removeAchievementSlugs: ['old-slug'],
 })
 ```
 
-`name` / `description` accept a string (default locale) or a locale map (`{ en: '…', es: '…' }`) when Payload localization is enabled. Prefer seeding extra locales in the host after the English system catalog exists.
+`name` / `description` accept a string (default locale) or `{ en: '…', es: '…' }` when localization is on. Seed extra locales after English system rows exist. Rule arrays in seed can use `metricSlug` / `eventTypeSlug` / `achievementSlug`; the seeder resolves them to relationships.
 
 ## License
 
@@ -465,12 +511,10 @@ MIT © Dapper Mountain
 
 ## Agent context (Cursor)
 
-This repo vendors AI agent rules and skills under [`.agents/`](.agents/). See [`AGENTS.md`](AGENTS.md).
+Rules and skills live under [`.agents/`](.agents/). See [`AGENTS.md`](AGENTS.md).
 
 ```bash
 bun install
 bun run agents:sync
 bun run skills:install
 ```
-
-Dev dependencies: [`@dappermountain/agent-practices`](https://www.npmjs.com/package/@dappermountain/agent-practices), [`@dappermountain/agent-payload`](https://www.npmjs.com/package/@dappermountain/agent-payload). Run `agents:sync` after install or upgrade so rules land under `.agents/`.

@@ -3,6 +3,8 @@ export {
   DEFAULT_ACHIEVEMENT_METRIC_SLUG,
   ENGINE_EVENT_TYPES,
   ENGINE_METRICS,
+  GRANT_AUDIT_EVENT_SLUGS,
+  isGrantAuditEventSlug,
 } from './catalog.js'
 export type { EngineEventTypeSlug, EngineMetricSlug } from './catalog.js'
 export { achievementPlugin } from './plugin.js'
@@ -43,6 +45,8 @@ export {
   syncTierChangedLog,
   syncTierProgression,
   syncCompositeProgression,
+  syncProgressionFromLog,
+  runReactions,
   catalogRef,
   transitionLogData,
   transitionToId,
@@ -84,6 +88,9 @@ export type {
   AchievementMetricAnchorEntry,
   AchievementPluginOptions,
   AchievementRuleType,
+  AchievementAction,
+  AchievementActionRunArgs,
+  AchievementReactionTrigger,
   AchievementScopeConfig,
   AchievementSubjectsOptions,
   AchievementUsersOptions,
@@ -94,6 +101,7 @@ export {
   DEFAULT_LEADERBOARD_ENDPOINT_PATH,
   DEFAULT_RECONCILE_ENDPOINT_PATH,
   resolveSubjectCollections,
+  resolveSubjectCollectionsFromConfig,
 } from './defaults.js'
 export { collectionOf, slugOf } from './collections/helpers.js'
 export { eachRuleLeaf } from './collections/hooks/eachRuleLeaf.js'

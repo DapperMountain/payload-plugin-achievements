@@ -51,4 +51,15 @@ export declare function runAfterGrantDeleted(args: {
     achievementSlug?: string;
     cascading?: boolean;
 }): Promise<void>;
+/**
+ * Re-evaluate composed achievements and derived tiers after a log write/delete.
+ * Skips grant/revoke audit types — Grants hooks already run this chain.
+ */
+export declare function syncProgressionFromLog(args: {
+    req: PayloadRequest;
+    userId: string;
+    scopeId: string | null;
+    eventTypeSlug: string | null;
+    operation: 'create' | 'delete';
+}): Promise<void>;
 //# sourceMappingURL=grantSideEffects.d.ts.map

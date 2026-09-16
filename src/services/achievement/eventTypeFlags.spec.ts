@@ -17,6 +17,7 @@ describe('readEventTypeFlags', () => {
       requiresSubject: true,
       snapshotActorTiers: false,
       subjectRelationTo: ['comments'],
+      slug: null,
     })
   })
 
@@ -27,6 +28,7 @@ describe('readEventTypeFlags', () => {
       requiresSubject: false,
       snapshotActorTiers: false,
       subjectRelationTo: [],
+      slug: 'metric.delta',
     })
   })
 
@@ -37,6 +39,7 @@ describe('readEventTypeFlags', () => {
       requiresSubject: false,
       snapshotActorTiers: false,
       subjectRelationTo: [],
+      slug: 'metric.change',
     })
   })
 
@@ -47,6 +50,7 @@ describe('readEventTypeFlags', () => {
       requiresSubject: false,
       snapshotActorTiers: true,
       subjectRelationTo: [],
+      slug: null,
     })
   })
 

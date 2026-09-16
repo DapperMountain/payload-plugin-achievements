@@ -12,6 +12,7 @@ export type EventTypeFlags = {
   snapshotActorTiers: boolean
   /** Allowed host collections for `subject.relationTo` (empty = any plugin allowlist entry). */
   subjectRelationTo: string[]
+  slug: string | null
 }
 
 const emptyFlags: EventTypeFlags = {
@@ -20,6 +21,7 @@ const emptyFlags: EventTypeFlags = {
   requiresSubject: false,
   snapshotActorTiers: false,
   subjectRelationTo: [],
+  slug: null,
 }
 
 function readSubjectRelationTo(value: unknown): string[] {
@@ -56,6 +58,7 @@ export function readEventTypeFlags(doc: unknown): EventTypeFlags | null {
     requiresSubject: Boolean(row.requiresSubject),
     snapshotActorTiers: Boolean(row.snapshotActorTiers),
     subjectRelationTo: readSubjectRelationTo(row.subjectRelationTo),
+    slug: typeof row.slug === 'string' && row.slug ? row.slug : null,
   }
 }
 

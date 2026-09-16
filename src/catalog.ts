@@ -14,3 +14,13 @@ export const DEFAULT_ACHIEVEMENT_METRIC_SLUG: EngineMetricSlug = 'points'
 
 /** @deprecated Use {@link DEFAULT_ACHIEVEMENT_METRIC_SLUG}. */
 export const DEFAULT_ACHIEVEMENT_METRIC = DEFAULT_ACHIEVEMENT_METRIC_SLUG
+
+/** Grant/revoke audit logs — progression already runs from Grants hooks. */
+export const GRANT_AUDIT_EVENT_SLUGS: ReadonlySet<string> = new Set([
+  'achievement.granted',
+  'achievement.revoked',
+])
+
+export function isGrantAuditEventSlug(slug: string | null | undefined): boolean {
+  return typeof slug === 'string' && GRANT_AUDIT_EVENT_SLUGS.has(slug)
+}

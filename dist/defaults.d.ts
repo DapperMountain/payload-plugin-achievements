@@ -1,3 +1,4 @@
+import type { Config } from 'payload';
 import type { AchievementPluginOptions } from './types.js';
 import { resolveCollectionSlugs } from './collections/slugs.js';
 export declare const DEFAULT_USERS_COLLECTION = "users";
@@ -23,8 +24,16 @@ export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' 
         reconcile: string | false;
     };
 };
-/** Unique, non-empty collection slugs from plugin `subjects.collections`. */
+/**
+ * Unique, non-empty collection slugs from plugin `subjects.collections`.
+ * `'all'` is a plugin-wrap sentinel — returns `[]` until {@link resolveSubjectCollectionsFromConfig}.
+ */
 export declare function resolveSubjectCollections(options?: AchievementPluginOptions): string[];
+/**
+ * Resolve log subject allowlist against the host Payload config.
+ * `'all'` = host collections except this plugin’s slugs and anything prefixed `payload-`.
+ */
+export declare function resolveSubjectCollectionsFromConfig(options: AchievementPluginOptions | undefined, config: Pick<Config, 'collections'>): string[];
 export declare function resolveMeEndpointPath(me?: string | false): string | false;
 export declare function resolveLeaderboardEndpointPath(path?: string | false): string | false;
 export declare function resolveReconcileEndpointPath(path?: string | false): string | false;

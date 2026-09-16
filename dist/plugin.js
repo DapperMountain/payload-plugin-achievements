@@ -1,15 +1,21 @@
 import { buildAchievementCollections } from './collections/index.js';
 import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup.js';
 import { buildAchievementEndpoints } from './endpoints/index.js';
+import { resolveSubjectCollectionsFromConfig } from './defaults.js';
 import { getAchievementOptions, setAchievementOptions } from './options-store.js';
 /**
  * Payload achievements plugin — merges collections (hooks own request/grant flow)
  * and an optional current-user grants endpoint.
  */
 export const achievementPlugin = (options = {}) => (config) => {
-    // Store the host options (not a pre-resolved object) so `subjects.collections`
-    // survives `setAchievementOptions` → `resolveOptions`.
-    setAchievementOptions(options);
+    // Resolve `'all'` against the host Config before storing — polymorphic
+    // `relationTo` is schema-time. Explicit slug lists pass through unchanged.
+    setAchievementOptions({
+        ...options,
+        subjects: options.subjects
+            ? { collections: resolveSubjectCollectionsFromConfig(options, config) }
+            : options.subjects,
+    });
     const resolved = getAchievementOptions();
     if (!resolved.enabled)
         return config;

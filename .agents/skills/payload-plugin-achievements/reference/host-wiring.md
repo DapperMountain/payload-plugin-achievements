@@ -1,39 +1,44 @@
 # Host integration checklist
 
-1. Add plugin to `buildConfig({ plugins })` with `usersCollectionSlug` and `canReview`.
+1. Add the plugin to `buildConfig({ plugins })` with `usersCollectionSlug` and `canReview`.
 2. Optional: `scope` for multi-tenant, `mediaCollection` for tier badge uploads, `collections.overrides` for host hooks.
-3. Optional: `subjects.collections` for polymorphic log subjects (host posts/comments/…). Event types then expose `requiresSubject` / `subjectRelationTo`; use `recordLog({ subject: logSubject(...) })`.
-4. Optional: `extensions.metricAnchors` for host-specific dates used by computed elapsed metrics (e.g. product `grantedAt`). System seed does not depend on these keys. Prefer `{ label, resolve }` where `label` is a Payload Admin UI string (`OptionLabel`: locale map or `({ t }) => t('custom:…')`).
-5. `payload generate:importmap` after install / Admin component changes (Lexical description + Lucide icon field + SubjectField).
-6. Host migrations for new collections / field type changes (plugin does not own migrate runner) — includes `achievement-metric-balances`, metric `kind` fields, and log `subject` when subjects are enabled.
-7. System catalog: seeded automatically on plugin `onInit` (opt out with `seedSystemCatalog: false`). Hosts still call `seedAchievements` for product rows / extra locales (including computed metrics after anchors are registered).
-8. Record gameplay via server helpers (`recordMetricChange`, `recordLog`, …) from trusted code only — do not create raw `metric.delta` logs if you need balances/leaderboards to stay correct (reconcile can rebuild). Event types may **Snapshot actor tiers** at write; `event-count` can then require the actor held at least a catalog tier in the rule’s scope at that time (uses the log stamp, not live rank).
-9. Optional REST: `GET /api/achievements/me` (`?reviews=1` for review snapshot), `GET /api/achievements/leaderboard?metric=points` (authenticated, **stored** metrics only; disable with `endpoints.me` / `endpoints.leaderboard: false`); repair via `POST /api/achievements/reconcile` or `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
-10. Turning **Requires review** off auto-approves pending requests for that definition/tier (plugin hooks).
-11. Member UI: read points with `resolveMetricValue` (balances stay correct when gameplay goes through server helpers). Next-tier checklists: `buildUnlockRequirementLeaves` then format copy in the host. Review badges: `getUserProgress({ include: { reviews: true } })` or `loadUserProgressReviews`. Leaderboards: plugin ranks stored balances in a scope; who appears and how rows are decorated stays in the host. Computed metrics (tenure) are not leaderboardable without a host/job snapshot.
+3. Optional: `subjects.collections` (host slugs, or `'all'`). Event types then expose `requiresSubject` / `subjectRelationTo`; write `recordLog({ subject: logSubject(...) })`.
+4. Optional: `extensions.metricAnchors` for elapsed metrics. `label` is a Payload Admin `OptionLabel` (string, locale map, or `({ t }) => t('custom:…')`).
+5. Optional: `extensions.ruleTypes` (`label` / `fields` for Admin) and `extensions.actions` (reaction commands). Actions are set-based and run in the same request.
+6. `payload generate:importmap` after install / Admin component changes (Lexical description, Lucide icon, SubjectField).
+7. Host migrations for new collections and field types — including `achievement-metric-balances`, `achievement-reactions`, metric `kind`, and log `subject` when subjects are on. The plugin leaves migrate to the host.
+8. System catalog seeds on plugin `onInit` (`seedSystemCatalog: false` to opt out). Call `seedAchievements` for product rows, extra locales, and computed metrics after anchors are registered.
+9. Record activity with `recordMetricChange` and `recordLog` from trusted code. Event types may **Snapshot actor tiers** at write; `event-count` can then require that rank in the rule’s scope (the stamp on the log). Host `recordLog` of your own types re-checks composed achievements.
+10. REST: `GET /api/achievements/me` (`?reviews=1`), `GET /api/achievements/leaderboard?metric=points` (stored metrics; `endpoints.me` / `endpoints.leaderboard: false` to skip); repair with `POST /api/achievements/reconcile` or `runReconcileCli({ config })`.
+11. Turning **Requires review** off auto-approves pending requests for that definition or tier.
+12. Member UI: `resolveMetricValue` for points; `buildUnlockRequirementLeaves` then format copy in the host; `getUserProgress({ include: { reviews: true } })` or `loadUserProgressReviews` for review badges. Leaderboards return `{ user, value, rank }` for stored balances; you decide who appears and how rows look.
 
-### Example: membership tenure anchor
+### Example: membership start date
 
 ```ts
 achievementPlugin({
   usersCollectionSlug: 'users',
-  scope: { collection: 'products' },
+  scope: { collection: 'workspaces' },
   canReview: (user) => Boolean(user?.roles?.includes('admin')),
   extensions: {
     metricAnchors: {
-      'enrollment-started': {
-        label: ({ t }) => t('custom:achievements:anchors:enrollmentStarted'),
+      'membership-started': {
+        label: ({ t }) => t('custom:achievements:anchors:membershipStarted'),
         resolve: async ({ payload, userId, scopeId }) => {
           if (!scopeId) return null
-          const user = await payload.findByID({
-            collection: 'users',
-            id: userId,
-            depth: 0,
+          const found = await payload.find({
+            collection: 'memberships',
+            limit: 1,
             overrideAccess: true,
+            where: {
+              and: [
+                { user: { equals: userId } },
+                { workspace: { equals: scopeId } },
+              ],
+            },
           })
-          const row = (user as { products?: Array<{ product?: unknown; grantedAt?: string }> })
-            .products?.find((p) => String(typeof p.product === 'object' && p.product && 'id' in p.product ? (p.product as { id: unknown }).id : p.product) === String(scopeId))
-          return row?.grantedAt ? new Date(row.grantedAt) : null
+          const startedAt = (found.docs[0] as { startedAt?: string } | undefined)?.startedAt
+          return startedAt ? new Date(startedAt) : null
         },
       },
     },
@@ -41,6 +46,6 @@ achievementPlugin({
 })
 ```
 
-Host `custom:achievements:anchors:enrollmentStarted` lives in the app i18n bundle (en + es). Then seed a computed metric (`kind: 'computed'`, `compute: 'elapsed'`, `unit: 'days'`, `since: 'enrollment-started'`) and use `metric-minimum` in rules.
+Put `custom:achievements:anchors:membershipStarted` in the host i18n bundle. Seed a computed metric (`kind: 'computed'`, `compute: 'elapsed'`, `unit: 'days'`, `since: 'membership-started'`) and use `metric-minimum` in rules.
 
-GitHub install note: consume built `dist/` (Bun GitHub deps skip consumer `prepare`). The package is Node ESM (`NodeNext`); host imports stay on the package name (`@dappermountain/payload-plugin-achievements`, `./cli`, `./client`, `./types`). Next hosts still list this package in `transpilePackages` so `'use client'` admin components compile.
+GitHub install: consume built `dist/` (Bun GitHub deps skip consumer `prepare`). The package is Node ESM; import the package name (`@dappermountain/payload-plugin-achievements`, `./cli`, `./client`, `./types`). Next hosts list it in `transpilePackages` so `'use client'` Admin components compile.

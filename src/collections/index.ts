@@ -10,6 +10,7 @@ import { buildGrantsCollection } from './Grants/index.js'
 import { buildLogsCollection } from './Logs/index.js'
 import { buildMetricBalancesCollection } from './MetricBalances/index.js'
 import { buildMetricsCollection } from './Metrics/index.js'
+import { buildReactionsCollection } from './Reactions/index.js'
 import { buildTierRequestsCollection } from './TierRequests/index.js'
 import { buildTiersCollection } from './Tiers/index.js'
 
@@ -23,6 +24,7 @@ const builders: Record<AchievementCollectionKey, () => CollectionConfig> = {
   achievementRequests: buildAchievementRequestsCollection,
   tierRequests: buildTierRequestsCollection,
   logs: buildLogsCollection,
+  reactions: buildReactionsCollection,
 }
 
 /** Build achievement collections after plugin options are stored. */

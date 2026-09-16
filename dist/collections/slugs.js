@@ -19,6 +19,7 @@ export const DEFAULT_COLLECTION_BASE_SLUGS = {
     eventTypes: 'event-types',
     metrics: 'metrics',
     metricBalances: 'metric-balances',
+    reactions: 'reactions',
 };
 export const DEFAULT_ADMIN_GROUP = 'Achievements';
 /**

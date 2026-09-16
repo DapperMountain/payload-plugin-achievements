@@ -1,5 +1,6 @@
 import type { PayloadRequest, Where } from 'payload'
 
+import { isGrantAuditEventSlug } from '../../catalog.js'
 import { collectionOf } from '../../collections/helpers.js'
 import { CTX_CASCADING_REVOKE, CTX_SYSTEM_REQUEST } from './contextFlags.js'
 import { evaluateRules, ruleGroupHasProgressRequirements } from './evaluateRules.js'
@@ -307,6 +308,47 @@ export async function runAfterGrantDeleted(args: {
     userId: args.userId,
     scopeId: args.scopeId,
   })
+
+  await syncCompositeProgression({
+    req: args.req,
+    userId: args.userId,
+    scopeId: args.scopeId,
+  })
+
+  await syncTierProgression({
+    req: args.req,
+    userId: args.userId,
+    scopeId: args.scopeId,
+  })
+
+  await syncTierChangedLog({
+    payload: args.req.payload,
+    req: args.req,
+    userId: args.userId,
+    scopeId: args.scopeId,
+  })
+}
+
+/**
+ * Re-evaluate composed achievements and derived tiers after a log write/delete.
+ * Skips grant/revoke audit types — Grants hooks already run this chain.
+ */
+export async function syncProgressionFromLog(args: {
+  req: PayloadRequest
+  userId: string
+  scopeId: string | null
+  eventTypeSlug: string | null
+  operation: 'create' | 'delete'
+}): Promise<void> {
+  if (!args.userId || isGrantAuditEventSlug(args.eventTypeSlug)) return
+
+  if (args.operation === 'delete') {
+    await revokeIncompleteComposites({
+      req: args.req,
+      userId: args.userId,
+      scopeId: args.scopeId,
+    })
+  }
 
   await syncCompositeProgression({
     req: args.req,

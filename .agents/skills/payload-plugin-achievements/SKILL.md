@@ -2,7 +2,7 @@
 name: payload-plugin-achievements
 description: >-
   @dappermountain/payload-plugin-achievements — rule-based achievements,
-  tiers, metrics, grants, requests, and append-only logs for Payload CMS.
+  tiers, metrics, grants, requests, logs, and reactions for Payload CMS.
   Use when editing this plugin package or wiring it into a host config.
 ---
 
@@ -10,12 +10,14 @@ description: >-
 
 Read this skill **before** [`payload-overrides`](../payload-overrides/SKILL.md) and the vendored [`payload`](../payload/SKILL.md) skill when changing this package or integrating it.
 
-## Package facts
+The full implementer guide is the root [README.md](../../../README.md). This skill is the short map.
+
+## Package
 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
-- Entry: `achievementPlugin` from package root; types from `./types`; client bits from `./client`; CLI from `./cli` (`runReconcileCli`)
-- Peer: `payload` ^3.89, `@payloadcms/ui` ^3.89, `@payloadcms/richtext-lexical` ^3.89, `lucide-react` ^0.543, `react` ^19
-- Ships **`dist/`** for GitHub installs (Bun may skip `prepare` for untrusted GitHub deps). TypeScript `NodeNext`: relative imports in source use `.js` specifiers so emitted ESM is Node-resolvable.
+- Entry: `achievementPlugin`; types from `./types`; Admin bits from `./client`; CLI from `./cli` (`runReconcileCli`)
+- Peers: `payload` ^3.89, `@payloadcms/ui` ^3.89, `@payloadcms/richtext-lexical` ^3.89, `lucide-react` ^0.543, `react` ^19
+- Ships `dist/` for GitHub installs (Bun may skip `prepare`). Source uses `.js` specifiers (`NodeNext`).
 
 ## Host wiring
 
@@ -27,57 +29,60 @@ plugins: [
     usersCollectionSlug: 'users',
     canReview: (user, scopeId) => Boolean(user?.roles?.includes('admin')),
     // scope?: { collection: 'tenants', relationField: 'scope' },
-    // subjects?: { collections: ['posts', 'comments'] }, // polymorphic log → host docs
+    // subjects?: { collections: ['posts', 'comments'] }, // or 'all'
+    // extensions?: { ruleTypes, metricAnchors, actions },
   }),
 ]
 ```
 
-Required: implement **`canReview`** or privileged catalog/request writes are denied.
+Set **`canReview`** so staff can edit catalogs and approve requests.
 
-Optional **`subjects.collections`**: allowlist of host collection slugs for polymorphic log `subject`. When set, event types gain `requiresSubject` / `subjectRelationTo`, logs gain `subject`, and `recordLog({ subject })` / `logSubject()` write first-class Admin links. Prefer `subject` over ids in `data` JSON.
+**`subjects.collections`** turns on polymorphic log `subject` (slug list, or `'all'` minus plugin slugs and `payload-*`). Event types then get `requiresSubject` / `subjectRelationTo`. Write refs with `recordLog({ subject: logSubject('comments', id) })`.
 
-System catalog (`points`, `metric.delta`, …) seeds automatically on Payload **`onInit`** (`seedSystemCatalog`, default `true`). Hosts still call `seedAchievements` for product rows and extra locales; `seedAchievementCatalog` remains available for explicit runs.
+System catalog (`points`, `metric.delta`, …) seeds on Payload **`onInit`** (`seedSystemCatalog`, default `true`). Product rows and extra locales go through `seedAchievements`.
 
-After install: regenerate Admin import map (`payload generate:importmap`), run host migrations, then seed product catalog as needed. See [reference/host-wiring.md](reference/host-wiring.md).
+After install: `payload generate:importmap`, host migrations, then product seed. Checklist: [reference/host-wiring.md](reference/host-wiring.md).
 
-## Collections (default prefix `achievement-`)
+## Collections (prefix `achievement-`)
 
 | Key | Default slug | Role |
 | --- | --- | --- |
 | metrics | `achievement-metrics` | Named scores; `kind: stored` \| `computed` |
-| metricBalances | `achievement-metric-balances` | Stored totals per user (+ scope); leaderboards |
-| eventTypes | `achievement-event-types` | Log kinds for counts / requirements |
-| tiers | `achievement-tiers` | Ladder steps + unlock rules |
-| achievements | `achievement-definitions` | Earnable items + eligibility/completion rules |
+| metricBalances | `achievement-metric-balances` | Stored totals per user (+ scope) |
+| eventTypes | `achievement-event-types` | Log kinds |
+| tiers | `achievement-tiers` | Ladder + unlock rules |
+| achievements | `achievement-definitions` | Earnable items + rules |
 | grants | `achievement-grants` | One grant per user (+ scope) |
 | achievementRequests | `achievement-requests` | Request → review |
-| logs | `achievement-logs` | Append-only history |
+| tierRequests | `achievement-tier-requests` | Rank awaiting review |
+| logs | `achievement-logs` | Activity history |
+| reactions | `achievement-reactions` | Side effects on log / grant / revoke |
 
-System seed rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected. System seed does **not** create computed metrics or host anchors.
+System rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected. System seed covers those stored/engine rows; you seed computed metrics after registering anchors.
 
-## Rules engine
+## Rules and reactions
 
-Shared tree for unlock / eligibility / completion: empty → pass; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot filter); custom via `extensions.ruleTypes`. Host date anchors via `extensions.metricAnchors` (computed elapsed metrics).
+Shared tree for unlock / eligibility / completion: empty list passes; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot); custom `extensions.ruleTypes` (`label` / `fields` in Admin). Elapsed metrics use `extensions.metricAnchors`. Reactions use built-in `achievement.grant` plus `extensions.actions`. Host logs re-check composed achievements; grant/revoke audit logs already did that in Grants hooks.
 
-Current tier and next-tier fill are **derived** (`resolveCurrentTier`, `resolveTierProgress`) — no separate progress table.
+Current tier and next-tier fill are derived (`resolveCurrentTier`, `resolveTierProgress`).
 
-## Server helpers (trusted only)
+## Server helpers (trusted)
 
-`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `logSubject`, `readLogSubject` — Local API with `overrideAccess: true`. Call only from hooks, jobs, locked-down server code. Follow `security-critical.mdc` when nesting ops (pass `req`).
+`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `logSubject`, `readLogSubject`, `syncProgressionFromLog`, `runReactions` — Local API with `overrideAccess: true`. Pass `req` on nested ops (`security-critical.mdc`).
 
-`recordLog({ subject })` attaches a polymorphic host document when the host configured `subjects.collections` and the event type has `requiresSubject`. Use `logSubject('comments', id)` instead of stuffing ids into `data`. Event types may **Snapshot actor tiers** so `event-count` can require the actor was at least a catalog tier in this scope at write time.
+`recordLog({ subject })` needs `subjects.collections` and an event type with `requiresSubject`. Event types may **Snapshot actor tiers** so `event-count` can require a rank at write time.
 
-`getMetricLeaderboard` is **stored metrics only** (balance table). Computed/elapsed values use `resolveMetricValue` per user; the leaderboard API ranks stored balances.
+`getMetricLeaderboard` ranks stored balances. Computed values use `resolveMetricValue` per user.
 
-`buildUnlockRequirementLeaves` returns structured unlock leaves (met/progress/catalog relations). Hosts format labels. `getUserProgress({ include: { reviews: true } })` adds pending achievement keys + open/rejected tier requests.
+`buildUnlockRequirementLeaves` returns structured unlock leaves. Hosts format copy. `getUserProgress({ include: { reviews: true } })` adds pending achievement keys and open/rejected tier requests.
 
-`recordMetricChange` dual-writes `metric.delta` + balance; rejects computed metrics. Reconcile rebuilds balances from logs.
+`recordMetricChange` writes `metric.delta` and the balance together. Reconcile rebuilds balances from logs.
 
-Turning **Requires review** off on a definition/tier approves that row’s pending requests (plugin `afterChange`). Host CLI: `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli` (optional `--user` / `--achievement` / `--tier` / `--scope`).
+Turning **Requires review** off approves that row’s pending requests. CLI: `runReconcileCli({ config })` from `@dappermountain/payload-plugin-achievements/cli`.
 
 ## Localization
 
-Catalog `name` is localized text; achievement/tier `description` is **Lexical** rich text (`localized: true` when the host enables localization). Metric/event `name` stay text. `/me` and progress helpers pass `description` through as Lexical (collection-shaped); convert in the UI. Plugin does not ship host UI i18n dictionaries. Hosts need `@payloadcms/richtext-lexical` + `lucide-react` peers; regenerate import map after install (Lucide icon field).
+Catalog `name` is localized text; achievement/tier `description` is Lexical (`localized: true` when the host enables localization). `/me` and progress helpers return Lexical as stored. Convert in the UI. Hosts supply `@payloadcms/richtext-lexical` + `lucide-react`; regenerate the import map after install.
 
 ## More detail
 

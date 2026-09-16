@@ -1,3 +1,5 @@
+import type { Config } from 'payload'
+
 import type { AchievementPluginOptions } from './types.js'
 import {
   resolveAdminGroup,
@@ -23,18 +25,51 @@ export type ResolvedAchievementOptions = Omit<AchievementPluginOptions, 'users' 
   endpoints: { me: string | false; leaderboard: string | false; reconcile: string | false }
 }
 
-/** Unique, non-empty collection slugs from plugin `subjects.collections`. */
-export function resolveSubjectCollections(options?: AchievementPluginOptions): string[] {
-  const raw = options?.subjects?.collections ?? []
+function uniqueSlugs(values: Iterable<string>): string[] {
   const seen = new Set<string>()
   const out: string[] = []
-  for (const slug of raw) {
-    const trimmed = typeof slug === 'string' ? slug.trim() : ''
+  for (const value of values) {
+    const trimmed = value.trim()
     if (!trimmed || seen.has(trimmed)) continue
     seen.add(trimmed)
     out.push(trimmed)
   }
   return out
+}
+
+function isExcludedSubjectSlug(slug: string, pluginSlugs: Set<string>): boolean {
+  return pluginSlugs.has(slug) || slug.startsWith('payload-')
+}
+
+/**
+ * Unique, non-empty collection slugs from plugin `subjects.collections`.
+ * `'all'` is a plugin-wrap sentinel — returns `[]` until {@link resolveSubjectCollectionsFromConfig}.
+ */
+export function resolveSubjectCollections(options?: AchievementPluginOptions): string[] {
+  const raw = options?.subjects?.collections
+  if (raw == null || raw === 'all') return []
+  return uniqueSlugs(raw)
+}
+
+/**
+ * Resolve log subject allowlist against the host Payload config.
+ * `'all'` = host collections except this plugin’s slugs and anything prefixed `payload-`.
+ */
+export function resolveSubjectCollectionsFromConfig(
+  options: AchievementPluginOptions | undefined,
+  config: Pick<Config, 'collections'>,
+): string[] {
+  const raw = options?.subjects?.collections
+  if (raw !== 'all') return resolveSubjectCollections(options)
+
+  const pluginSlugs = new Set(Object.values(resolveCollectionSlugs(options)))
+  const fromHost: string[] = []
+  for (const collection of config.collections ?? []) {
+    const slug = typeof collection.slug === 'string' ? collection.slug.trim() : ''
+    if (!slug || isExcludedSubjectSlug(slug, pluginSlugs)) continue
+    fromHost.push(slug)
+  }
+  return uniqueSlugs(fromHost)
 }
 
 function normalizeEndpointPath(path: string, fallback: string): string {

@@ -7,6 +7,7 @@ export type EventTypeFlags = {
     snapshotActorTiers: boolean;
     /** Allowed host collections for `subject.relationTo` (empty = any plugin allowlist entry). */
     subjectRelationTo: string[];
+    slug: string | null;
 };
 /** Read flags from a loaded event-type document (or populated relationship). */
 export declare function readEventTypeFlags(doc: unknown): EventTypeFlags | null;

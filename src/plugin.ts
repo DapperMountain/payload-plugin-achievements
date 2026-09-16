@@ -3,6 +3,7 @@ import type { Config, Plugin } from 'payload'
 import { buildAchievementCollections } from './collections/index.js'
 import { usersAchievementsGroup } from './collections/fields/usersAchievementsGroup.js'
 import { buildAchievementEndpoints } from './endpoints/index.js'
+import { resolveSubjectCollectionsFromConfig } from './defaults.js'
 import { getAchievementOptions, setAchievementOptions } from './options-store.js'
 import type { AchievementPluginOptions } from './types.js'
 
@@ -13,9 +14,14 @@ import type { AchievementPluginOptions } from './types.js'
 export const achievementPlugin =
   (options: AchievementPluginOptions = {}): Plugin =>
   (config: Config): Config => {
-    // Store the host options (not a pre-resolved object) so `subjects.collections`
-    // survives `setAchievementOptions` → `resolveOptions`.
-    setAchievementOptions(options)
+    // Resolve `'all'` against the host Config before storing — polymorphic
+    // `relationTo` is schema-time. Explicit slug lists pass through unchanged.
+    setAchievementOptions({
+      ...options,
+      subjects: options.subjects
+        ? { collections: resolveSubjectCollectionsFromConfig(options, config) }
+        : options.subjects,
+    })
     const resolved = getAchievementOptions()
 
     if (!resolved.enabled) return config

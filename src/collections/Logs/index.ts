@@ -61,7 +61,7 @@ export function buildLogsCollection(): CollectionConfig {
         'createdAt',
       ],
       description:
-        'Member activity history — grants, revokes, score changes, tier moves, and host custom events. Not a second grant store.',
+        'Member activity history — grants, revokes, score changes, tier moves, and host custom events. Creating or deleting a host (or metric) log re-evaluates composed achievements and derived tiers.',
     }),
     fields: [
       ...optionalFields(scopeField()),

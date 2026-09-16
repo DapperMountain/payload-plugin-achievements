@@ -2,6 +2,7 @@ import type { CollectionAfterChangeHook, CollectionAfterDeleteHook } from 'paylo
 
 import { CTX_CASCADING_REVOKE, CTX_SKIP_GRANT_SIDE_EFFECTS, runAfterGrantCreated, runAfterGrantDeleted } from '../../../services/achievement/grantSideEffects.js'
 import { relationId } from '../../../services/achievement/relationId.js'
+import { runReactions } from '../../../services/achievement/runReactions.js'
 import { collectionOf } from '../../../collections/helpers.js'
 
 async function achievementSlug(
@@ -41,6 +42,14 @@ export const afterGrantChange: CollectionAfterChangeHook = async ({ doc, operati
     achievementSlug: await achievementSlug(req, achievementId),
   })
 
+  await runReactions({
+    req,
+    trigger: 'achievement.granted',
+    userId,
+    scopeId,
+    achievementId,
+  })
+
   return doc
 }
 
@@ -60,6 +69,14 @@ export const afterGrantDelete: CollectionAfterDeleteHook = async ({ doc, req }) 
     scopeId,
     achievementSlug: await achievementSlug(req, achievementId),
     cascading: Boolean(req.context?.[CTX_CASCADING_REVOKE]),
+  })
+
+  await runReactions({
+    req,
+    trigger: 'achievement.revoked',
+    userId,
+    scopeId,
+    achievementId,
   })
 
   return doc

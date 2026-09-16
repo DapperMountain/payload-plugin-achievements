@@ -1,4 +1,4 @@
-import type { CollectionConfig, OptionLabel, Payload, PayloadRequest, TypedUser } from 'payload';
+import type { CollectionConfig, Field, OptionLabel, Payload, PayloadRequest, TypedUser } from 'payload';
 /** Host-registered date anchors for computed elapsed metrics. */
 export type AchievementMetricAnchor = (args: {
     payload: Payload;
@@ -48,9 +48,43 @@ export type AchievementRuleType = {
      * They are omitted from AND averages. Default: `requirement`.
      */
     progressRole?: 'requirement' | 'gate';
+    /**
+     * Admin select label. Payload {@link OptionLabel}: string, `{ en, es }`, or `({ t }) => t(…)`.
+     * Defaults to `type` when omitted.
+     */
+    label?: OptionLabel;
+    /**
+     * Admin fields shown when this leaf `type` is selected.
+     * Merged into the rule row; plugin ANDs visibility with `type === this.type`.
+     */
+    fields?: Field[];
+};
+export type AchievementReactionTrigger = 'event' | 'achievement.granted' | 'achievement.revoked';
+export type AchievementActionRunArgs = {
+    payload: PayloadRequest['payload'];
+    req: PayloadRequest;
+    userId: string;
+    scopeId: string | null;
+    trigger: AchievementReactionTrigger;
+    /** Reaction catalog row (flat plugin fields plus host param fields). */
+    reaction: Record<string, unknown>;
+    /** Present when `trigger` is `event`. */
+    log?: Record<string, unknown> | null;
+    /** Present when `trigger` is grant/revoke. */
+    achievementId?: string | null;
+};
+/**
+ * Host (or built-in) side effect when a reaction matches.
+ * `run` must be **set-based / idempotent** — the plugin does not store reaction run history.
+ */
+export type AchievementAction = {
+    type: string;
+    label?: OptionLabel;
+    fields?: Field[];
+    run: (args: AchievementActionRunArgs) => Promise<void> | void;
 };
 /** Logical collection ids — map to configurable slugs via `collections`. */
-export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'tierRequests' | 'logs' | 'eventTypes' | 'metrics' | 'metricBalances';
+export type AchievementCollectionKey = 'tiers' | 'achievements' | 'grants' | 'achievementRequests' | 'tierRequests' | 'logs' | 'eventTypes' | 'metrics' | 'metricBalances' | 'reactions';
 /**
  * Host overrides layered onto a plugin collection (Form Builder–style).
  * Access/admin merge shallowly; hook arrays are appended after plugin hooks.
@@ -117,9 +151,10 @@ export type AchievementEndpointsOptions = {
 export type AchievementSubjectsOptions = {
     /**
      * Collection slugs allowed on log `subject.relationTo` (e.g. `posts`, `comments`).
+     * `'all'` = every collection on the host Config except plugin collections and `payload-*`.
      * Event types pick a subset via `subjectRelationTo`; validation rejects anything outside this list.
      */
-    collections?: string[];
+    collections?: 'all' | string[];
 };
 export type AchievementPluginOptions = {
     /**
@@ -138,13 +173,18 @@ export type AchievementPluginOptions = {
      */
     subjects?: AchievementSubjectsOptions;
     extensions?: {
-        /** Custom rule evaluators merged with built-ins. */
+        /** Custom rule evaluators merged with built-ins. `label` / `fields` surface in Admin. */
         ruleTypes?: AchievementRuleType[];
         /**
-             * Named date anchors for computed `elapsed` metrics.
-             * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
+         * Named date anchors for computed `elapsed` metrics.
+         * Keys appear in Admin `since` selects; missing keys resolve to null at eval time.
          */
         metricAnchors?: Record<string, AchievementMetricAnchorEntry>;
+        /**
+         * Side-effect commands for the reactions catalog (e.g. `accessGroup.addMember`).
+         * Built-in `achievement.grant` is always available. `run` must be idempotent.
+         */
+        actions?: AchievementAction[];
     };
     /**
      * When true (default), ensure system metrics + event types exist on Payload `onInit`
