@@ -40,4 +40,15 @@ jobs:
           generate_release_notes: true
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "@dappermountain/payload-plugin-achievements@${VERSION}" version >/dev/null 2>&1; then
+            echo "npm already has ${VERSION}; skipping publish"
+            exit 0
+          fi
+          # Prerelease versions (e.g. 1.0.0-beta.1) go on the beta dist-tag.
+          if [[ "$VERSION" == *-* ]]; then
+            npm publish --access public --tag beta
+          else
+            npm publish --access public
+          fi
