@@ -22,8 +22,20 @@ const builders = {
     logs: buildLogsCollection,
     reactions: buildReactionsCollection,
 };
+/**
+ * Payload 4 enables versions + authorship by default. Achievement collections are
+ * high-churn catalogs and append-only logs — opt out so hosts do not grow `_versions`
+ * / authorship columns for every grant, request, and metric balance.
+ */
+function withPayload4Defaults(collection) {
+    return {
+        ...collection,
+        versions: collection.versions ?? false,
+        authorship: collection.authorship ?? false,
+    };
+}
 /** Build achievement collections after plugin options are stored. */
 export function buildAchievementCollections() {
     const overrides = getAchievementOptions().collections?.overrides;
-    return Object.keys(builders).map((key) => applyCollectionOverrides(builders[key](), overrides?.[key]));
+    return Object.keys(builders).map((key) => applyCollectionOverrides(withPayload4Defaults(builders[key]()), overrides?.[key]));
 }

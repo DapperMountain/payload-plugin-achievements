@@ -16,7 +16,7 @@ The full implementer guide is the root [README.md](../../../README.md). This ski
 
 - npm / GitHub: `@dappermountain/payload-plugin-achievements`
 - Entry: `achievementPlugin`; types from `./types`; Admin bits from `./client`; CLI from `./cli` (`runReconcileCli`)
-- Peers: `payload` ^3.89, `@payloadcms/ui` ^3.89, `@payloadcms/richtext-lexical` ^3.89, `lucide-react` ^0.543, `react` ^19
+- Peers (**1.x**): `payload` ^4 / ^4.0.0-beta.1, `@payloadcms/ui` + richtext same train, `lucide-react` ^0.543, `react` ^19. Payload 3 hosts stay on plugin **0.6.x**.
 - Ships `dist/` for GitHub installs (Bun may skip `prepare`). Source uses `.js` specifiers (`NodeNext`).
 
 ## Host wiring

@@ -1,6 +1,6 @@
 'use client'
 
-import type { TextFieldClientComponent } from 'payload'
+import type { TextFieldClientProps } from 'payload'
 import { FieldDescription, FieldError, FieldLabel, useField } from '@payloadcms/ui'
 import { icons } from 'lucide-react'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -39,7 +39,7 @@ const CELL = 36
 /**
  * Emoji-picker style Lucide field: searchable icon grid, stores kebab-case names.
  */
-export const LucideIconField: TextFieldClientComponent = (props) => {
+export function LucideIconField(props: TextFieldClientProps) {
   const { field, path: pathFromProps, readOnly } = props
   const path = pathFromProps ?? field?.name ?? 'icon'
 

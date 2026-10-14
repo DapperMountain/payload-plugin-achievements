@@ -28,7 +28,7 @@ const CELL = 36;
 /**
  * Emoji-picker style Lucide field: searchable icon grid, stores kebab-case names.
  */
-export const LucideIconField = (props) => {
+export function LucideIconField(props) {
     const { field, path: pathFromProps, readOnly } = props;
     const path = pathFromProps ?? field?.name ?? 'icon';
     const { errorMessage, setValue, showError, value } = useField({
@@ -168,4 +168,4 @@ export const LucideIconField = (props) => {
                                     : totalMatches > MAX_VISIBLE
                                         ? `Showing ${MAX_VISIBLE} of ${totalMatches} — refine search`
                                         : `${totalMatches} icon${totalMatches === 1 ? '' : 's'}` })] })) : null] }), _jsx(FieldDescription, { description: field?.admin?.description, path: path }), _jsx(FieldError, { message: errorMessage, path: path, showError: showError })] }));
-};
+}

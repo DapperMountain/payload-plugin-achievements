@@ -1,6 +1,6 @@
 {
   "name": "@dappermountain/payload-plugin-achievements",
-  "version": "0.6.0",
+  "version": "1.0.0-beta.1",
   "description": "A robust, Admin-configured achievements engine for Payload: composable unlock rules, derived rank progress, request/review grants, metrics, and scoped multi-tenant support.",
   "license": "MIT",
   "type": "module",
@@ -69,26 +69,27 @@
     "skills:check": "bunx skills check -p"
   },
   "peerDependencies": {
-    "@payloadcms/richtext-lexical": "^3.89.0",
-    "@payloadcms/ui": "^3.89.0",
+    "@payloadcms/richtext-lexical": "^4.0.0-beta.1 || ^4.0.0",
+    "@payloadcms/ui": "^4.0.0-beta.1 || ^4.0.0",
     "lucide-react": "^0.543.0",
-    "payload": "^3.89.0",
+    "payload": "^4.0.0-beta.1 || ^4.0.0",
     "react": "^19.0.0"
   },
   "devDependencies": {
     "@dappermountain/agent-payload": "^0.1.5",
     "@dappermountain/agent-practices": "^0.1.2",
-    "@payloadcms/richtext-lexical": "3.89.0",
-    "@payloadcms/ui": "3.89.0",
+    "@payloadcms/richtext-lexical": "4.0.0-beta.1",
+    "@payloadcms/ui": "4.0.0-beta.1",
     "@types/bun": "1.4.0",
     "@types/react": "^19.0.0",
     "lucide-react": "0.543.0",
-    "payload": "3.89.0",
+    "payload": "4.0.0-beta.1",
     "prettier": "^3.6.2",
     "react": "19.2.4",
-    "typescript": "5.9.2"
+    "typescript": "6.0.3"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20",
+    "bun": ">=1.4.0"
   }
 }

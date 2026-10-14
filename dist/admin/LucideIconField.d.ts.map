@@ -1,1 +1,1 @@
-{"version":3,"file":"LucideIconField.d.ts","sourceRoot":"","sources":["../../src/admin/LucideIconField.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,wBAAwB,EAAE,MAAM,SAAS,CAAA;AAoCvD;;GAEG;AACH,eAAO,MAAM,eAAe,EAAE,wBAsO7B,CAAA"}
+{"version":3,"file":"LucideIconField.d.ts","sourceRoot":"","sources":["../../src/admin/LucideIconField.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,EAAE,oBAAoB,EAAE,MAAM,SAAS,CAAA;AAGnD,OAAO,KAA4D,MAAM,OAAO,CAAA;AAiChF;;GAEG;AACH,wBAAgB,eAAe,CAAC,KAAK,EAAE,oBAAoB,qBAsO1D"}

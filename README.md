@@ -14,18 +14,33 @@ You describe what people can earn and what has to happen first. Your app records
 - **Optional multi-tenant scope.** Point `scope` at your tenants / workspaces / orgs collection.
 - **Host hooks.** Prefixable slugs, collection overrides, a review policy you inject, and server helpers for trusted code.
 
-## Requirements
+## Payload version support
 
-- Payload `^3.89`
-- `@payloadcms/ui` `^3.89`
-- `@payloadcms/richtext-lexical` `^3.89`
+| Plugin line | Payload | Notes |
+| ----------- | ------- | ----- |
+| **`1.x`** (this package — e.g. `1.0.0-beta.1`) | **4** (`^4.0.0-beta.1` / `^4.0.0`) | Current line. Opt out of P4 default versions/authorship on high-churn collections. |
+| **`0.6.x`** | **3** (`^3.89`) | Last Payload 3 line. Same product features (reactions, composites, etc.). Stay on `0.6.x` until you upgrade the host to Payload 4. |
+
+One published version cannot peer both Payload majors (Admin field types and collection defaults diverge). Pick the line that matches your host.
+
+## Requirements (1.x)
+
+- Payload `^4.0.0-beta.1` / `^4.0.0`
+- `@payloadcms/ui` (same train as Payload)
+- `@payloadcms/richtext-lexical` (same train as Payload)
 - `lucide-react` `^0.543`
 - React `^19`
+
+Plugin collections opt out of Payload 4’s default versions and authorship (append-only logs and high-churn grants should not grow `_versions` tables).
 
 ## Install
 
 ```bash
-bun add @dappermountain/payload-plugin-achievements
+# Payload 4 hosts
+bun add @dappermountain/payload-plugin-achievements@^1.0.0-beta.1
+
+# Payload 3 hosts (stay on the 0.6 line)
+bun add @dappermountain/payload-plugin-achievements@0.6
 ```
 
 `npm` and other clients work too. Next.js hosts should list the package in `transpilePackages` so the `'use client'` Admin fields compile.

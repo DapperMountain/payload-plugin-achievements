@@ -1,4 +1,4 @@
-import type { CollectionConfig, Field, OptionLabel, Payload, PayloadRequest, TypedUser } from 'payload'
+import type { CollectionConfig, Field, OptionLabel, Payload, PayloadRequest, User } from 'payload'
 
 /** Host-registered date anchors for computed elapsed metrics. */
 export type AchievementMetricAnchor = (args: {
@@ -187,7 +187,7 @@ export type AchievementPluginOptions = {
    * Whether the user may review requests and manage achievement catalogs for a scope.
    * Required for catalog edits and request approval. When omitted, those writes are denied.
    */
-  canReview?: (user: TypedUser, scopeId: string | null) => boolean | Promise<boolean>
+  canReview?: (user: User, scopeId: string | null) => boolean | Promise<boolean>
   /** Collection slug / admin grouping config. */
   collections?: AchievementCollectionsOptions
   enabled?: boolean
