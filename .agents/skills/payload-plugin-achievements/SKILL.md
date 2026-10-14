@@ -62,7 +62,7 @@ System rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revok
 
 ## Rules and reactions
 
-Shared tree for unlock / eligibility / completion: empty list passes; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot); custom `extensions.ruleTypes` (`label` / `fields` in Admin). Elapsed metrics use `extensions.metricAnchors`. Reactions use built-in `achievement.grant` plus `extensions.actions`. Host logs re-check composed achievements; grant/revoke audit logs already did that in Grants hooks.
+Shared tree for unlock / eligibility / completion via `buildRuleTreeFields({ dbName })`: **each embed site needs a unique short `dbName`** (nested group rules become `${dbName}_g`) so Postgres table/index names stay under 63 characters. Empty list passes; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot); custom `extensions.ruleTypes` (`label` / `fields` in Admin). Elapsed metrics use `extensions.metricAnchors`. Reactions use built-in `achievement.grant` plus `extensions.actions`. Host logs re-check composed achievements; grant/revoke audit logs already did that in Grants hooks.
 
 Current tier and next-tier fill are derived (`resolveCurrentTier`, `resolveTierProgress`).
 

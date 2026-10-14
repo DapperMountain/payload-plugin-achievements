@@ -53,7 +53,7 @@ export function buildAchievementsCollection(): CollectionConfig {
         admin: {
           description: 'Who may request this achievement. Composed parents that auto-grant should leave this empty.',
         },
-        fields: buildRuleTreeFields(),
+        fields: buildRuleTreeFields({ dbName: 'ach_elig_r' }),
       },
       {
         name: 'completionRules',
@@ -63,7 +63,7 @@ export function buildAchievementsCollection(): CollectionConfig {
           description:
             'What this achievement is made of. When every rule passes, it is granted automatically (do not require review on composed parents). Nested achievements appear in this order in your app UI.',
         },
-        fields: buildRuleTreeFields(),
+        fields: buildRuleTreeFields({ dbName: 'ach_comp_r' }),
       },
     ],
   }

@@ -93,7 +93,7 @@ export function buildTiersCollection(): CollectionConfig {
           description:
             'Rules that must pass to unlock this tier (all-of or any-of). Empty rules mean this step is open. Current tier is derived by walking ranks; optional tier.changed logs record moves.',
         },
-        fields: buildRuleTreeFields(),
+        fields: buildRuleTreeFields({ dbName: 'ach_unlk_r' }),
       },
     ],
   }

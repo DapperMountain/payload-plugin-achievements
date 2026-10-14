@@ -132,14 +132,68 @@ function buildRuleLeafFields(): Field[] {
 }
 
 /**
- * Top-level rule group: combinator + rules, with one nested group level.
+ * Postgres truncates identifiers over 63 chars. Nested `rules` arrays under
+ * `eligibilityRules` / `completionRules` / `unlockRules` exceed that when
+ * Payload auto-names tables — set explicit short `dbName` values instead.
+ *
+ * Call sites must pass a **unique** `dbName` (plugin-wide). Nested group rules
+ * use `${dbName}_g` so one prefix yields two unique table names.
  */
-export function buildRuleTreeFields(): Field[] {
+export const POSTGRES_IDENTIFIER_MAX = 63
+
+/** Longest default plugin table (`achievement-definitions` → snake_case). */
+const LONGEST_DEFAULT_PARENT_TABLE = 'achievement_definitions'
+
+const PARENT_ID_INDEX_SUFFIX = '_parent_id_idx'
+
+/** Nested group-rules array suffix; keep short and stable. */
+const NESTED_RULES_DB_SUFFIX = '_g'
+
+export type BuildRuleTreeFieldsArgs = {
+  /**
+   * Short, unique Postgres table name for the outer `rules` array.
+   * Nested group `rules` become `${dbName}_g`. Must stay unique across the plugin.
+   */
+  dbName: string
+}
+
+/**
+ * Worst-case identifier length when Payload prefixes `dbName` with the parent
+ * collection table and appends `_parent_id_idx` / `_parent_id_fk`.
+ */
+export function ruleArrayIdentifierLength(dbName: string, parentTable = LONGEST_DEFAULT_PARENT_TABLE): number {
+  return parentTable.length + 1 + dbName.length + PARENT_ID_INDEX_SUFFIX.length
+}
+
+export function assertSafeRuleArrayDbName(dbName: string): void {
+  if (!/^[a-z][a-z0-9_]*$/.test(dbName)) {
+    throw new Error(
+      `Rule array dbName "${dbName}" must be a lowercase snake_case Postgres identifier starting with a letter.`,
+    )
+  }
+  const length = ruleArrayIdentifierLength(dbName)
+  if (length > POSTGRES_IDENTIFIER_MAX) {
+    throw new Error(
+      `Rule array dbName "${dbName}" is too long (${length} > ${POSTGRES_IDENTIFIER_MAX} with parent index suffix).`,
+    )
+  }
+}
+
+/**
+ * Top-level rule group: combinator + rules, with one nested group level.
+ * Pass a unique short {@link BuildRuleTreeFieldsArgs.dbName} per embed site.
+ */
+export function buildRuleTreeFields(args: BuildRuleTreeFieldsArgs): Field[] {
+  assertSafeRuleArrayDbName(args.dbName)
+  const nestedDbName = `${args.dbName}${NESTED_RULES_DB_SUFFIX}`
+  assertSafeRuleArrayDbName(nestedDbName)
+
   return [
     combinatorField(),
     {
       name: 'rules',
       type: 'array',
+      dbName: args.dbName,
       labels: { singular: 'Rule', plural: 'Rules' },
       fields: [
         ruleTypeSelect(true),
@@ -148,6 +202,7 @@ export function buildRuleTreeFields(): Field[] {
         {
           name: 'rules',
           type: 'array',
+          dbName: nestedDbName,
           labels: { singular: 'Rule', plural: 'Rules' },
           admin: { condition: (_, sibling) => sibling?.type === 'group' },
           fields: buildRuleLeafFields(),
@@ -158,6 +213,6 @@ export function buildRuleTreeFields(): Field[] {
 }
 
 /** @deprecated Use {@link buildRuleTreeFields}. */
-export function buildRuleRowFields(): Field[] {
-  return buildRuleTreeFields()
+export function buildRuleRowFields(args: BuildRuleTreeFieldsArgs): Field[] {
+  return buildRuleTreeFields(args)
 }
