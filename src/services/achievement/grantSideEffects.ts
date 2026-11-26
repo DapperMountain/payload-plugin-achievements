@@ -1,6 +1,6 @@
 import type { PayloadRequest, Where } from 'payload'
 
-import { isGrantAuditEventSlug } from '../../catalog.js'
+import { isGrantAuditEventSlug, isTierRequestAuditEventSlug } from '../../catalog.js'
 import { collectionOf } from '../../collections/helpers.js'
 import { CTX_CASCADING_REVOKE, CTX_SYSTEM_REQUEST } from './contextFlags.js'
 import { evaluateRules, ruleGroupHasProgressRequirements } from './evaluateRules.js'
@@ -340,7 +340,13 @@ export async function syncProgressionFromLog(args: {
   eventTypeSlug: string | null
   operation: 'create' | 'delete'
 }): Promise<void> {
-  if (!args.userId || isGrantAuditEventSlug(args.eventTypeSlug)) return
+  if (
+    !args.userId ||
+    isGrantAuditEventSlug(args.eventTypeSlug) ||
+    isTierRequestAuditEventSlug(args.eventTypeSlug)
+  ) {
+    return
+  }
 
   if (args.operation === 'delete') {
     await revokeIncompleteComposites({

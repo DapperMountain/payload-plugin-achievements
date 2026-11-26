@@ -11,6 +11,9 @@ Default slug prefix: `achievement-` (`collections.prefix` / `collections.slugs`)
 | `achievement.granted` | event-types | Written on grant |
 | `achievement.revoked` | event-types | Written on revoke |
 | `tier.changed` | event-types | Written when derived tier moves |
+| `tier.request.submitted` | event-types | Tier request created or reopened as pending |
+| `tier.request.approved` | event-types | Tier request approved |
+| `tier.request.rejected` | event-types | Tier request rejected |
 
 The plugin protects these slugs. System seed creates those rows; you seed computed metrics and host anchors yourself.
 

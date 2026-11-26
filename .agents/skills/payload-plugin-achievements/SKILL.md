@@ -58,7 +58,7 @@ After install: `payload generate:importmap`, host migrations, then product seed.
 | logs | `achievement-logs` | Activity history |
 | reactions | `achievement-reactions` | Side effects on log / grant / revoke |
 
-System rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`) are protected. System seed covers those stored/engine rows; you seed computed metrics after registering anchors.
+System rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`, `tier.request.submitted` / `approved` / `rejected`) are protected. System seed covers those stored/engine rows; you seed computed metrics after registering anchors.
 
 ## Rules and reactions
 
@@ -68,7 +68,7 @@ Current tier and next-tier fill are derived (`resolveCurrentTier`, `resolveTierP
 
 ## Server helpers (trusted)
 
-`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `logSubject`, `readLogSubject`, `syncProgressionFromLog`, `runReactions` — Local API with `overrideAccess: true`. Pass `req` on nested ops (`security-critical.mdc`).
+`recordLog`, `recordMetricChange`, `getMetricLeaderboard`, `resolveMetricValue`, `rebuildMetricBalancesForUser`, `grantAchievement`, `reconcileProgression`, `reconcileUserProgression`, `resolveCurrentTier`, `resolveTierProgress`, `getUserProgress`, `loadUserProgressReviews`, `buildUnlockRequirementLeaves`, `eachRuleLeaf`, `submitAchievementRequest`, `reviewAchievementRequest`, `submitTierRequest`, `reviewTierRequest`, `findTierRequestsForReview`, `logSubject`, `readLogSubject`, `syncProgressionFromLog`, `runReactions` — Local API with `overrideAccess: true`. Pass `req` on nested ops (`security-critical.mdc`).
 
 `recordLog({ subject })` needs `subjects.collections` and an event type with `requiresSubject`. Event types may **Snapshot actor tiers** so `event-count` can require a rank at write time.
 
