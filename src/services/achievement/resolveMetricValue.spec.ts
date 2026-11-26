@@ -7,6 +7,11 @@ import { builtInRuleTypes } from './builtInRules.js'
 
 const metricMinimum = builtInRuleTypes.find((rule) => rule.type === 'metric-minimum')!
 
+/** Fixed clock — avoid Date.now() drift between beforeEach anchor and async `now`. */
+const FIXED_NOW = new Date('2025-06-15T12:00:00.000Z')
+const FORTY_DAYS_MS = 40 * 24 * 60 * 60 * 1000
+const ANCHOR_40_DAYS_AGO = new Date(FIXED_NOW.getTime() - FORTY_DAYS_MS)
+
 describe('resolveMetricValue', () => {
   beforeEach(() => {
     setAchievementOptions(
@@ -14,7 +19,7 @@ describe('resolveMetricValue', () => {
         usersCollectionSlug: 'users',
         extensions: {
           metricAnchors: {
-            'enrollment-started': async () => new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
+            'enrollment-started': async () => ANCHOR_40_DAYS_AGO,
           },
         },
       }),
@@ -66,9 +71,9 @@ describe('resolveMetricValue', () => {
       metric: 'days',
       userId: 'u1',
       scopeId: 'prod-1',
-      now: new Date(),
+      now: FIXED_NOW,
     })
-    expect(value).toBeGreaterThanOrEqual(40)
+    expect(value).toBe(40)
   })
 
   test('missing host anchor yields 0', async () => {
@@ -106,7 +111,7 @@ describe('metric-minimum with computed metric', () => {
         usersCollectionSlug: 'users',
         extensions: {
           metricAnchors: {
-            'enrollment-started': async () => new Date(Date.now() - 40 * 24 * 60 * 60 * 1000),
+            'enrollment-started': async () => ANCHOR_40_DAYS_AGO,
           },
         },
       }),
