@@ -30,6 +30,11 @@ export type AchievementSeedAchievement = {
   description?: AchievementSeedLocalizedText
   scope?: string
   requiresReview?: boolean
+  /**
+   * Optional host/product JSON on the definition (structure only — not localized copy).
+   * Pass `null` to clear an existing value on upsert.
+   */
+  metadata?: Record<string, unknown> | null
   eligibilityRules?: Record<string, unknown>[] | { combinator?: string; rules?: Record<string, unknown>[] }
   /** What this achievement is composed of (auto-grant when these pass and requiresReview is false). */
   completionRules?: Record<string, unknown>[] | { combinator?: string; rules?: Record<string, unknown>[] }
@@ -434,6 +439,7 @@ export async function seedAchievements(payload: Payload, input: AchievementSeedI
       requiresReview: achievement.requiresReview ?? true,
       eligibilityRules,
       completionRules,
+      ...(achievement.metadata !== undefined ? { metadata: achievement.metadata } : {}),
     }
 
     const existingId = (existing.docs[0] as { id?: string } | undefined)?.id

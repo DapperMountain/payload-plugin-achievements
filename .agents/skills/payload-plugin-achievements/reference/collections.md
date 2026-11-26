@@ -17,6 +17,12 @@ Default slug prefix: `achievement-` (`collections.prefix` / `collections.slugs`)
 
 The plugin protects these slugs. System seed creates those rows; you seed computed metrics and host anchors yourself.
 
+## Achievement definitions
+
+| Field | Notes |
+| --- | --- |
+| `metadata` | Optional JSON. Opaque to the plugin — host/product structure only (not localized copy). Seed with `seedAchievements`; clear with `metadata: null`. |
+
 ## Metrics
 
 | Field | Notes |

@@ -56,4 +56,35 @@ describe('applyCollectionOverrides', () => {
     expect(result.admin?.useAsTitle).toBe('id')
     expect(result.admin?.description).toBe('Host copy')
   })
+
+  test('replaces fields from an array override', () => {
+    const hostFields = [{ name: 'extra', type: 'text' as const }]
+    const result = applyCollectionOverrides(
+      stubCollection({
+        slug: 'x',
+        fields: [{ name: 'name', type: 'text' as const }],
+      }),
+      { fields: hostFields },
+    )
+    expect(result.fields).toEqual(hostFields)
+  })
+
+  test('wraps defaultFields when fields is a function', () => {
+    const result = applyCollectionOverrides(
+      stubCollection({
+        slug: 'x',
+        fields: [{ name: 'name', type: 'text' as const }],
+      }),
+      {
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
+          { name: 'hostNote', type: 'textarea' as const },
+        ],
+      },
+    )
+    expect(result.fields?.map((f) => ('name' in f ? f.name : undefined))).toEqual([
+      'name',
+      'hostNote',
+    ])
+  })
 })

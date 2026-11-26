@@ -51,7 +51,7 @@ After install: `payload generate:importmap`, host migrations, then product seed.
 | metricBalances | `achievement-metric-balances` | Stored totals per user (+ scope) |
 | eventTypes | `achievement-event-types` | Log kinds |
 | tiers | `achievement-tiers` | Ladder + unlock rules |
-| achievements | `achievement-definitions` | Earnable items + rules |
+| achievements | `achievement-definitions` | Earnable items + rules + optional JSON `metadata` |
 | grants | `achievement-grants` | One grant per user (+ scope) |
 | achievementRequests | `achievement-requests` | Request → review |
 | tierRequests | `achievement-tier-requests` | Rank awaiting review |
@@ -63,6 +63,8 @@ System rows (`points`, `metric.delta`, `achievement.granted`, `achievement.revok
 ## Rules and reactions
 
 Shared tree for unlock / eligibility / completion via `buildRuleTreeFields({ dbName })`: **each embed site needs a unique short `dbName`** (nested group rules become `${dbName}_g`) so Postgres table/index names stay under 63 characters. Empty list passes; AND/OR groups; leaves `tier-at-least`, `achievement-complete`, `metric-minimum`, `event-count` (optional actor-tier snapshot); custom `extensions.ruleTypes` (`label` / `fields` in Admin). Elapsed metrics use `extensions.metricAnchors`. Reactions use built-in `achievement.grant` plus `extensions.actions`. Host logs re-check composed achievements; grant/revoke audit logs already did that in Grants hooks.
+
+Definition **`metadata`** (JSON) is opaque host structure — not localized copy. Seed via `seedAchievements`; validate in the host. Collection overrides support `fields: ({ defaultFields }) => …` for typed Admin additions.
 
 Current tier and next-tier fill are derived (`resolveCurrentTier`, `resolveTierProgress`).
 

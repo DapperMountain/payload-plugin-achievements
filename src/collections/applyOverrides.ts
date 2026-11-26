@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Field } from 'payload'
 
 import type { AchievementCollectionOverride } from '../types.js'
 
@@ -6,6 +6,7 @@ import type { AchievementCollectionOverride } from '../types.js'
  * Layer host overrides on a plugin collection:
  * - `access` / `admin` / `labels`: shallow merge (host wins per key)
  * - `hooks`: append host hook arrays after the plugin’s (plugin runs first)
+ * - `fields`: replace — function receives `{ defaultFields }` (Form Builder–style)
  */
 export function applyCollectionOverrides(
   collection: CollectionConfig,
@@ -26,6 +27,14 @@ export function applyCollectionOverrides(
     }
   }
 
+  const defaultFields = (collection.fields ?? []) as Field[]
+  const fields =
+    override.fields == null
+      ? undefined
+      : typeof override.fields === 'function'
+        ? override.fields({ defaultFields })
+        : override.fields
+
   return {
     ...collection,
     access: {
@@ -37,6 +46,7 @@ export function applyCollectionOverrides(
       ...override.admin,
     },
     ...(override.labels ? { labels: override.labels } : {}),
+    ...(fields ? { fields } : {}),
     hooks,
   }
 }
