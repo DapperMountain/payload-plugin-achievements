@@ -37,6 +37,14 @@ export function buildAchievementsCollection(): CollectionConfig {
       },
       localizedDescriptionField(),
       {
+        name: 'metadata',
+        type: 'json',
+        admin: {
+          description:
+            'Optional host/product payload (structure only). Shape is owned by the host — validate with Zod or similar at read/seed time. Do not store localized copy here; use name, description, and host i18n.',
+        },
+      },
+      {
         name: 'requiresReview',
         type: 'checkbox',
         defaultValue: true,

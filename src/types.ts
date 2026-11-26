@@ -109,12 +109,15 @@ export type AchievementCollectionKey =
 /**
  * Host overrides layered onto a plugin collection (Form Builder–style).
  * Access/admin merge shallowly; hook arrays are appended after plugin hooks.
+ * `fields` replaces the collection field list — pass a function to wrap
+ * `defaultFields` (append, insert, or filter) without forking the builder.
  */
 export type AchievementCollectionOverride = {
   access?: CollectionConfig['access']
   admin?: CollectionConfig['admin']
   hooks?: CollectionConfig['hooks']
   labels?: CollectionConfig['labels']
+  fields?: Field[] | ((args: { defaultFields: Field[] }) => Field[])
 }
 
 export type AchievementCollectionsOptions = {

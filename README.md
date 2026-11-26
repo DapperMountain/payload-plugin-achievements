@@ -93,7 +93,7 @@ Slugs use the prefix `achievement-` so they sit beside your own collections. Ove
 | `metricBalances` | `achievement-metric-balances` | Running totals for stored metrics, per user (+ scope). Leaderboards read this. |
 | `eventTypes` | `achievement-event-types` | Kinds of log entries you can count or require. |
 | `tiers` | `achievement-tiers` | Ladder steps with unlock rules. |
-| `achievements` | `achievement-definitions` | Earnable items with eligibility and completion rules. |
+| `achievements` | `achievement-definitions` | Earnable items with eligibility and completion rules, plus optional JSON `metadata` for host/product structure. |
 | `grants` | `achievement-grants` | One earned achievement per user (+ scope). |
 | `achievementRequests` | `achievement-requests` | Request → pending / approved / rejected. |
 | `tierRequests` | `achievement-tier-requests` | Tier unlock waiting on review (`requiresReview` on the tier). |
@@ -177,6 +177,8 @@ Unlock (tiers), eligibility, and completion (achievements) share one tree:
 `label` and `fields` show up in the Admin rule editor. The plugin only displays those fields when that leaf type is selected.
 
 **Eligibility** gates who may request an achievement. **Completion** describes what a composed achievement is made of. When `requiresReview` is off and completion passes, the parent grants itself. Nested achievement graphs skip cycles.
+
+**Definition `metadata`** is an optional JSON field on achievement definitions for host/product structure (filters, effects, completion shape, and so on). The plugin does not interpret it. Keep member-facing copy in localized `name` / `description` and host i18n keyed by slug — not inside `metadata`. Seed with `seedAchievements({ achievements: [{ metadata, … }] })`. For typed Admin fields on hot paths, use `collections.overrides.achievements.fields`.
 
 **Current tier** walks the ladder in `rank` order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Members open requests with `submitTierRequest` (unlock rules must pass); staff use `reviewTierRequest` / `findTierRequestsForReview`. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
 
@@ -357,7 +359,7 @@ achievementPlugin({
 | `prefix` | `'achievement'` | Default slugs, REST paths, and table names. |
 | `adminGroup` | `'Achievements'` | Sidebar group. `false` leaves collections ungrouped. |
 | `slugs` | derived | Absolute slug per key (ignores `prefix` for that key). |
-| `overrides` | unset | `access`, `admin`, `hooks`, `labels`. Access keys replace; hook arrays append after plugin hooks; `admin` / `labels` merge shallowly. |
+| `overrides` | unset | `access`, `admin`, `hooks`, `labels`, `fields`. Access keys replace; hook arrays append after plugin hooks; `admin` / `labels` merge shallowly; `fields` replaces the list (use `({ defaultFields }) => …` to wrap). |
 
 ```ts
 achievementPlugin({
@@ -374,6 +376,12 @@ achievementPlugin({
             },
           ],
         },
+      },
+      achievements: {
+        fields: ({ defaultFields }) => [
+          ...defaultFields,
+          // optional typed Admin fields for hot paths; prefer definition `metadata` for product JSON
+        ],
       },
     },
   },
@@ -517,6 +525,8 @@ await seedAchievements(payload, {
       slug: 'first-steps',
       requiresReview: false,
       completionRules: [{ type: 'metric-minimum', metricSlug: 'points', minimum: 10 }],
+      // Optional host JSON — structure only; validate in the host (Zod, etc.)
+      metadata: { kind: 'action', effort: 'immediate' },
     },
   ],
   removeAchievementSlugs: ['old-slug'],
