@@ -68,7 +68,7 @@ Then:
 
 1. `payload generate:importmap` — Admin fields for logs, subjects, and Lucide icons.
 2. Migrate (or push) schema. The plugin adds collections; your app still owns the migrate runner.
-3. Restart so Payload can seed the system catalog on `onInit` (`points`, `metric.delta`, `achievement.granted`, `achievement.revoked`, `tier.changed`). Set `seedSystemCatalog: false` if you want to call `seedAchievementCatalog` yourself.
+3. Restart so Payload can seed the system catalog on `onInit` (`points`, `metric.delta`, `achievement.granted` / `revoked`, `tier.changed`, `tier.request.submitted` / `approved` / `rejected`). Set `seedSystemCatalog: false` if you want to call `seedAchievementCatalog` yourself.
 
 Your product catalog — extra event types, metrics, tiers, achievements — is `seedAchievements`.
 
@@ -100,7 +100,7 @@ Slugs use the prefix `achievement-` so they sit beside your own collections. Ove
 | `logs` | `achievement-logs` | Activity history. |
 | `reactions` | `achievement-reactions` | Side effects when something is logged or granted. |
 
-System rows (`points` and the four engine event types) are protected. The plugin locks their slugs and blocks deletes.
+System rows (`points` and the engine event types) are protected. The plugin locks their slugs and blocks deletes.
 
 ## Event types
 
@@ -163,6 +163,8 @@ Put host document links on `subject`. Engine grant/revoke/tier rows use a small 
 | `achievement.granted` | `null` | achievement |
 | `achievement.revoked` | achievement | `null` |
 
+Tier-request lifecycle logs (`tier.request.submitted` / `approved` / `rejected`) store `{ requestId, status, fromStatus, tier }` so hosts and reactions can listen without forking ladder derivation.
+
 ## Rules
 
 Unlock (tiers), eligibility, and completion (achievements) share one tree:
@@ -176,7 +178,7 @@ Unlock (tiers), eligibility, and completion (achievements) share one tree:
 
 **Eligibility** gates who may request an achievement. **Completion** describes what a composed achievement is made of. When `requiresReview` is off and completion passes, the parent grants itself. Nested achievement graphs skip cycles.
 
-**Current tier** walks the ladder in `rank` order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
+**Current tier** walks the ladder in `rank` order (`resolveCurrentTier`). A tier with `requiresReview` becomes current after an **approved** tier request. Members open requests with `submitTierRequest` (unlock rules must pass); staff use `reviewTierRequest` / `findTierRequestsForReview`. Turning `requiresReview` off approves pending requests for that row and writes missing `tier.changed` logs for people who already meet the unlock rules.
 
 **Next-tier fill** (`resolveTierProgress` / `evaluateRuleProgress`):
 
@@ -420,6 +422,9 @@ import {
   buildUnlockRequirementLeaves,
   submitAchievementRequest,
   reviewAchievementRequest,
+  submitTierRequest,
+  reviewTierRequest,
+  findTierRequestsForReview,
   logSubject,
 } from '@dappermountain/payload-plugin-achievements'
 

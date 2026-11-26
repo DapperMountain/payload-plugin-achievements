@@ -6,6 +6,9 @@
  * - `tier.changed` — previous ladder step → current step
  * - `achievement.granted` — `from: null`, `to: achievement`
  * - `achievement.revoked` — `from: achievement`, `to: null`
+ *
+ * Tier-request lifecycle logs (`tier.request.*`) use
+ * `{ requestId, status, fromStatus, tier }` (not the from/to transition shape).
  */
 export type CatalogRef = {
   id: string

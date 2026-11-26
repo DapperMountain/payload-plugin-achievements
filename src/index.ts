@@ -4,7 +4,9 @@ export {
   ENGINE_EVENT_TYPES,
   ENGINE_METRICS,
   GRANT_AUDIT_EVENT_SLUGS,
+  TIER_REQUEST_AUDIT_EVENT_SLUGS,
   isGrantAuditEventSlug,
+  isTierRequestAuditEventSlug,
 } from './catalog.js'
 export type { EngineEventTypeSlug, EngineMetricSlug } from './catalog.js'
 export { achievementPlugin } from './plugin.js'
@@ -40,8 +42,11 @@ export {
   resolveElapsedAnchor,
   resolveMetricValue,
   resolveTierProgress,
+  findTierRequestsForReview,
   reviewAchievementRequest,
+  reviewTierRequest,
   submitAchievementRequest,
+  submitTierRequest,
   syncTierChangedLog,
   syncTierProgression,
   syncCompositeProgression,
@@ -72,6 +77,7 @@ export type {
   LogSubjectRef,
   MetricLeaderboardResult,
   MetricLeaderboardRow,
+  FindTierRequestsForReviewArgs,
   ReconcileProgressionArgs,
   ReconcileProgressionResult,
   ReleaseReviewGateResult,

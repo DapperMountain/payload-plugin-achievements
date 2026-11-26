@@ -44,7 +44,7 @@ export function buildTierRequestsCollection(): CollectionConfig {
       {
         name: 'note',
         type: 'textarea',
-        admin: { description: 'Optional note from the reviewer.' },
+        admin: { description: 'Optional note from the requester or reviewer.' },
       },
     ],
   }

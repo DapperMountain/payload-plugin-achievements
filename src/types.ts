@@ -245,4 +245,7 @@ export type BuiltInEventType =
   | 'achievement.revoked'
   | 'metric.delta'
   | 'tier.changed'
+  | 'tier.request.submitted'
+  | 'tier.request.approved'
+  | 'tier.request.rejected'
 

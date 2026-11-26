@@ -3,6 +3,9 @@ export const ENGINE_EVENT_TYPES = [
   { slug: 'achievement.revoked', name: 'Achievement revoked' },
   { slug: 'metric.delta', name: 'Metric delta', requiresMetric: true },
   { slug: 'tier.changed', name: 'Tier changed' },
+  { slug: 'tier.request.submitted', name: 'Tier request submitted' },
+  { slug: 'tier.request.approved', name: 'Tier request approved' },
+  { slug: 'tier.request.rejected', name: 'Tier request rejected' },
 ] as const
 
 export const ENGINE_METRICS = [{ slug: 'points', name: 'Points', kind: 'stored' as const }] as const
@@ -21,6 +24,17 @@ export const GRANT_AUDIT_EVENT_SLUGS: ReadonlySet<string> = new Set([
   'achievement.revoked',
 ])
 
+/** Tier-request lifecycle logs — TierRequests afterChange already syncs the ladder. */
+export const TIER_REQUEST_AUDIT_EVENT_SLUGS: ReadonlySet<string> = new Set([
+  'tier.request.submitted',
+  'tier.request.approved',
+  'tier.request.rejected',
+])
+
 export function isGrantAuditEventSlug(slug: string | null | undefined): boolean {
   return typeof slug === 'string' && GRANT_AUDIT_EVENT_SLUGS.has(slug)
+}
+
+export function isTierRequestAuditEventSlug(slug: string | null | undefined): boolean {
+  return typeof slug === 'string' && TIER_REQUEST_AUDIT_EVENT_SLUGS.has(slug)
 }
